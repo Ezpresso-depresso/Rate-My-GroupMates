@@ -1,0 +1,419 @@
+/* ---------- Page heading ---------- */
+.flow-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin: 8px 0 28px;
+}
+
+.flow-heading h1 span {
+  color: var(--primary);
+}
+
+.flow-heading > p {
+  margin: 0 0 18px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ---------- Teammate tabs ---------- */
+.teammate-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.teammate-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 155px;
+  padding: 11px 17px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.teammate-tab.active {
+  background: var(--primary-soft);
+  border-color: var(--primary-border);
+}
+
+.teammate-tab small {
+  display: block;
+  margin-top: 4px;
+  color: var(--subtle);
+  font-size: 11px;
+}
+
+.tab-check {
+  min-width: 12px;
+  margin-left: auto;
+  color: var(--primary);
+}
+
+.flow-completion {
+  margin-left: auto;
+  color: var(--muted);
+  font: 500 11px var(--font-mono);
+}
+
+/* ---------- Two-column layout ---------- */
+.rating-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.rating-editor {
+  padding: 33px;
+}
+
+.member-heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.member-heading h2 {
+  margin: 4px 0;
+  font-size: 33px;
+}
+
+/* ---------- Overall stars ---------- */
+.overall-panel {
+  margin-bottom: 29px;
+  padding: 23px 22px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+.overall-panel h3 {
+  margin: 0;
+  font: 700 18px var(--font-body);
+}
+
+.overall-panel h3 > span,
+.comment-section h3 > span {
+  margin-left: 8px;
+  color: var(--muted);
+  font: 400 14px var(--font-body);
+}
+
+.starline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.rating-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.rating-buttons button {
+  width: 46px;
+  height: 54px;
+  padding: 0;
+  background: none;
+  color: var(--line-strong);
+  font-size: 46px;
+  transition: transform 0.14s;
+}
+
+.rating-buttons button.on {
+  color: var(--accent);
+}
+
+.rating-buttons button:hover {
+  transform: translateY(-3px) scale(1.06);
+}
+
+.rating-hint {
+  margin-top: 15px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ---------- Category scores ---------- */
+.category-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 30px 0 -8px;
+}
+
+.category-intro > span:last-child {
+  color: var(--subtle);
+  font-size: 11px;
+}
+
+.score-field {
+  margin: 29px 0 33px;
+}
+
+.score-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.score-title output {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.score-title output small {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.score-field > p {
+  margin: 6px 0 13px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.score-choices {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.score-choices button {
+  min-height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.12s;
+}
+
+.score-choices button:hover {
+  background: var(--primary-soft);
+}
+
+.score-choices button.below {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.score-choices button.selected {
+  background: var(--primary);
+  color: #fff;
+}
+
+.scale-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--subtle);
+  font-size: 11px;
+}
+
+/* ---------- Comment ---------- */
+.comment-section {
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.comment-section h3 {
+  margin: 20px 0 15px;
+  font-size: 18px;
+}
+
+.comment-section textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.comment-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0 18px;
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.toggle-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 14px 0;
+  cursor: pointer;
+}
+
+.toggle-line input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--primary);
+}
+
+.toggle-line small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.autosave {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.live-dot,
+.live-status i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+/* ---------- Live result ---------- */
+.live-result {
+  position: sticky;
+  top: 20px;
+  padding: 28px;
+}
+
+.result-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.result-title h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.result-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.average-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 4px;
+}
+
+.average-line strong {
+  font-family: var(--font-display);
+  font-size: 40px;
+}
+
+.result-caption {
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.recognition-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.recognition-row h3 {
+  margin: 2px 0 4px;
+}
+
+.recognition-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.award-trait {
+  color: var(--subtle);
+  font: 500 10px var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.preview-note {
+  margin-top: 20px;
+  padding: 17px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 1050px) {
+  .rating-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .live-result {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .flow-heading {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .flow-heading > p {
+    text-align: left;
+  }
+
+  .teammate-tab {
+    flex: 1 1 100%;
+  }
+
+  .rating-editor {
+    padding: 22px 18px;
+  }
+
+  .score-choices {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

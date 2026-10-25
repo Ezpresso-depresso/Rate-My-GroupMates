@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+/* ---------- Design tokens ---------- */
+:root {
+  --bg: #f5f5fb;
+  --surface: #ffffff;
+  --surface-muted: #ededf7;
+  --ink: #181b3b;
+  --muted: #606987;
+  --subtle: #868da4;
+  --line: #dce0ef;
+  --line-strong: #c7cbe0;
+  --primary: #2d36d5;
+  --primary-soft: #e9ebff;
+  --primary-border: #7f87e7;
+  --accent: #ffda48;
+  --night: #191b40;
+  --success: #2fa86b;
+  --danger: #c2413a;
+
+  --font-body: 'Figtree', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --shadow: 0 6px 24px #282a4b0d;
+  --shadow-lg: 0 24px 60px #181b3b33;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.4 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ---------- Typography ---------- */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+h1 {
+  margin: 15px 0;
+  font-size: 44px;
+  line-height: 1.08;
+  letter-spacing: -1.7px;
+}
+
+h2 {
+  font-size: 25px;
+  letter-spacing: -0.8px;
+}
+
+p {
+  line-height: 1.65;
+}
+
+.eyebrow {
+  color: var(--muted);
+  font: 600 11px var(--font-body);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.error {
+  min-height: 1.2em;
+  margin: 12px 0 0;
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ---------- Layout primitives ---------- */
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 4% 0;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.notice {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: #fff6d6;
+  color: #7a5b0c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.12s, background 0.12s;
+}
+
+.btn:hover {
+  background: #232bb3;
+  transform: translateY(-1px);
+}
+
+.textbtn {
+  padding: 6px 0;
+  background: none;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.textbtn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+/* ---------- Award tones (shared by seals, pills, medals) ---------- */
+.gold { background: #fff0bc; color: #ad7512; }
+.silver { background: #edf0f7; color: #78839b; }
+.bronze { background: #f9e9dd; color: #aa7550; }
+.mint { background: #e6f2ed; color: #49816f; }
+.lilac { background: #eeeafd; color: #6a58c2; }
+.peach { background: #fdeee4; color: #b86a3c; }
+.pink { background: #fbe7f2; color: #b04f86; }
+
+.seal {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 28px;
+}
+
+@media (max-width: 760px) {
+  h1 {
+    font-size: 34px;
+    letter-spacing: -1px;
+  }
+}

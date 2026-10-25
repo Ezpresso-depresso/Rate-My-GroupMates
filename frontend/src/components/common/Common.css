@@ -1,0 +1,59 @@
+/* ---------- Avatar ---------- */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ---------- Stars ---------- */
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--line-strong);
+  font-size: 18px;
+}
+
+.stars .lit {
+  color: var(--accent);
+}
+
+/* ---------- Modal ---------- */
+.modal {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 36px 32px 28px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal::backdrop {
+  background: rgb(24 27 59 / 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.modal h2 {
+  margin: 8px 0 14px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--ink);
+}
