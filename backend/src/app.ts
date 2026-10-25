@@ -11,6 +11,9 @@ const LOCALHOST = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
 app.use(cors({ origin: IS_PROD ? CLIENT_ORIGINS : [...CLIENT_ORIGINS, LOCALHOST] }));
 app.use(express.json({ limit: '100kb' }));
 
+app.get('/', (_req, res) => {
+  res.json({ name: 'Rate My Groupmates API', health: '/api/health' });
+});
 app.use('/api', routes);
 
 app.use(notFound);

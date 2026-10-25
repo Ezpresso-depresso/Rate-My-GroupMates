@@ -7,7 +7,8 @@ function required(name: string): string {
 }
 
 export const NODE_ENV = process.env.NODE_ENV ?? 'development';
-export const IS_PROD = NODE_ENV === 'production';
+// Vercel sets VERCEL_ENV ("production" | "preview" | "development"); NODE_ENV isn't reliable there.
+export const IS_PROD = NODE_ENV === 'production' || ['production', 'preview'].includes(process.env.VERCEL_ENV ?? '');
 export const PORT = Number(process.env.PORT ?? 5000);
 
 // MongoDB
