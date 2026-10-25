@@ -25,7 +25,9 @@ export const api = {
   createTeam: (team: Omit<Team, 'id'>) =>
     request<Team>('/teams', { method: 'POST', body: JSON.stringify(team) }),
 
-  getReviews: (teamId: string) => request<Review[]>(`/teams/${teamId}/reviews`),
+  /** `viewerId` gets your own anonymous reviews back with their reviewerId intact. */
+  getReviews: (teamId: string, viewerId?: string) =>
+    request<Review[]>(`/teams/${teamId}/reviews${viewerId ? `?viewerId=${encodeURIComponent(viewerId)}` : ''}`),
   submitReviews: (teamId: string, payload: SubmitReviewsPayload) =>
     request<Review[]>(`/teams/${teamId}/reviews`, { method: 'POST', body: JSON.stringify(payload) }),
 };

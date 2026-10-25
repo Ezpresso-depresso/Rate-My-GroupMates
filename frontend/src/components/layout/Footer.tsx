@@ -11,7 +11,7 @@ export function Footer({ teamName }: { teamName: string }) {
       <span>
         {teamName} · Review &amp; awards
         <br />
-        Sample peer reviews · Changes stay in this browser
+        Drafts stay in this browser until you submit
       </span>
       <button className="textbtn" onClick={() => setShowRules(true)}>
         How awards work

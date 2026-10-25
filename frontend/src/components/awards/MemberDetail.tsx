@@ -43,7 +43,7 @@ export function MemberDetail({ member, summary: s, myReview }: MemberDetailProps
       ) : (
         <p className="small muted">You didn’t leave a written comment.</p>
       )}
-      <p className="small muted">Category scores are shown as averages. Two reviews are sample data.</p>
+      <p className="small muted">Category scores are shown as averages.</p>
     </>
   );
 }

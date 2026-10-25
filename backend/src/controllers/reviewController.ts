@@ -14,18 +14,21 @@ interface ReviewInput {
   anonymous?: boolean;
 }
 
-/** Strips what other teammates shouldn't see: anonymous reviewer ids. */
-function toPublic(review: InstanceType<typeof Review>) {
+/** Strips what other teammates shouldn't see: anonymous reviewer ids (except on the viewer's own reviews). */
+function toPublic(review: InstanceType<typeof Review>, viewerId?: string) {
   const json = review.toJSON() as Record<string, unknown>;
-  if (review.anonymous) delete json.reviewerId;
+  if (review.anonymous && String(review.reviewerId) !== viewerId) delete json.reviewerId;
   return json;
 }
 
+/** Query: ?targetId= to filter, ?viewerId= to see your own anonymous reviews unredacted. */
 export async function listReviews(req: Request<TeamParams>, res: Response) {
   const filter: Record<string, unknown> = { team: req.params.teamId };
   if (typeof req.query.targetId === 'string') filter.targetId = req.query.targetId;
+  // TODO: once auth exists, take the viewer from the session instead of the query.
+  const viewerId = typeof req.query.viewerId === 'string' ? req.query.viewerId : undefined;
   const reviews = await Review.find(filter).sort({ submittedAt: -1 });
-  res.json(reviews.map(toPublic));
+  res.json(reviews.map((r) => toPublic(r, viewerId)));
 }
 
 /** Upserts one review per teammate for the given reviewer. */

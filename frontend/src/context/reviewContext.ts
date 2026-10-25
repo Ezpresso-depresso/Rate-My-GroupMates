@@ -10,8 +10,11 @@ export interface ReviewContextValue {
   hasSubmitted: boolean;
   draftFor: (targetId: string) => ReviewDraft;
   updateDraft: (targetId: string, patch: Partial<ReviewDraft>) => void;
-  /** Submits every draft. Returns the id of the first incomplete teammate, or null on success. */
-  submitAll: () => string | null;
+  /**
+   * Submits every draft to the API. Resolves to the id of the first incomplete
+   * teammate (nothing sent), or null on success. Rejects if the request fails.
+   */
+  submitAll: () => Promise<string | null>;
 }
 
 export const ReviewContext = createContext<ReviewContextValue | null>(null);

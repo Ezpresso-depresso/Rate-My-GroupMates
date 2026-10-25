@@ -1,90 +1,138 @@
 /*
- * Holds the team, submitted reviews and the current user's drafts.
- * Persists to localStorage for now; swap the load/save calls for `services/api`
- * once the backend has data.
+ * Loads the team and its reviews from the API and holds the current user's drafts.
+ * Drafts stay in localStorage until submitted; submitted reviews live in MongoDB.
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { STORAGE_KEY } from '../config';
-import { SAMPLE_CURRENT_USER_ID, samplePeerReviews, sampleTeam } from '../data/sampleTeam';
+import { StatusScreen } from '../components/common/StatusScreen';
+import { CURRENT_USER_ID, draftsKey, TEAM_ID } from '../config';
 import { categories, emptyDraft, MAX_COMMENT_LENGTH, valid } from '../lib/ratingCore';
-import type { Review, ReviewDraft } from '../types';
+import { api } from '../services/api';
+import type { Review, ReviewDraft, Team } from '../types';
 import { ReviewContext, type ReviewContextValue } from './reviewContext';
 
-interface StoredState {
-  reviews: Review[];
-  drafts: Record<string, ReviewDraft>;
-}
+type Drafts = Record<string, ReviewDraft>;
+type Status = { kind: 'loading' } | { kind: 'error'; message: string } | { kind: 'ready' };
 
-function load(): StoredState {
+const DRAFTS_KEY = draftsKey(TEAM_ID, CURRENT_USER_ID);
+
+const MISSING_ENV: Status | null =
+  TEAM_ID && CURRENT_USER_ID
+    ? null
+    : {
+        kind: 'error',
+        message: 'Set VITE_TEAM_ID and VITE_CURRENT_USER_ID in frontend/.env (run `npm run seed` in backend/ to get them), then restart the dev server.',
+      };
+
+function loadDrafts(): Drafts {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as StoredState;
+    return JSON.parse(localStorage.getItem(DRAFTS_KEY) ?? '{}') as Drafts;
   } catch {
-    /* storage unavailable or corrupt: fall back to sample data */
+    return {};
   }
-  return { reviews: samplePeerReviews, drafts: {} };
 }
 
 export function ReviewProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<StoredState>(load);
-  const team = sampleTeam;
-  const currentUser = team.members.find((m) => m.id === SAMPLE_CURRENT_USER_ID)!;
-  const teammates = useMemo(() => team.members.filter((m) => m.id !== currentUser.id), [team, currentUser]);
+  const [status, setStatus] = useState<Status>(MISSING_ENV ?? { kind: 'loading' });
+  const [team, setTeam] = useState<Team | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [drafts, setDrafts] = useState<Drafts>(loadDrafts);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (MISSING_ENV) return;
+    let ignore = false;
+    Promise.all([api.getTeam(TEAM_ID), api.getReviews(TEAM_ID, CURRENT_USER_ID)])
+      .then(([t, r]) => {
+        if (ignore) return;
+        if (!t.members.some((m) => m.id === CURRENT_USER_ID)) {
+          setStatus({ kind: 'error', message: `VITE_CURRENT_USER_ID isn’t a member of ${t.name}.` });
+          return;
+        }
+        setTeam(t);
+        setReviews(r);
+        setStatus({ kind: 'ready' });
+      })
+      .catch((err: Error) => {
+        if (!ignore) setStatus({ kind: 'error', message: `Couldn’t load your team: ${err.message}` });
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [attempt]);
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
     } catch {
-      console.warn('Browser storage is unavailable. Changes may not survive a refresh.');
+      console.warn('Browser storage is unavailable. Drafts may not survive a refresh.');
     }
-  }, [state]);
+  }, [drafts]);
+
+  const currentUser = team?.members.find((m) => m.id === CURRENT_USER_ID);
+  const teammates = useMemo(() => team?.members.filter((m) => m.id !== CURRENT_USER_ID) ?? [], [team]);
 
   const draftFor = useCallback(
     (targetId: string): ReviewDraft => {
-      const draft = state.drafts[targetId];
+      const draft = drafts[targetId];
       if (draft) return draft;
-      const submitted = state.reviews.find((r) => r.reviewerId === currentUser.id && r.targetId === targetId);
-      return submitted ? { ...emptyDraft(), ...submitted, scores: { ...submitted.scores } } : emptyDraft();
+      const submitted = reviews.find((r) => r.reviewerId === CURRENT_USER_ID && r.targetId === targetId);
+      return submitted
+        ? { rating: submitted.rating, scores: { ...submitted.scores }, text: submitted.text, anonymous: submitted.anonymous }
+        : emptyDraft();
     },
-    [state, currentUser.id],
+    [drafts, reviews],
   );
 
   const updateDraft = useCallback(
     (targetId: string, patch: Partial<ReviewDraft>) =>
-      setState((s) => ({ ...s, drafts: { ...s.drafts, [targetId]: { ...draftFor(targetId), ...patch } } })),
+      setDrafts((d) => ({ ...d, [targetId]: { ...draftFor(targetId), ...patch } })),
     [draftFor],
   );
 
-  const submitAll = useCallback((): string | null => {
+  const submitAll = useCallback(async (): Promise<string | null> => {
     const incomplete = teammates.find((t) => !valid(draftFor(t.id)));
     if (incomplete) return incomplete.id;
-    const submittedAt = new Date().toISOString();
-    const mine: Review[] = teammates.map((t) => {
-      const d = draftFor(t.id);
-      return {
-        teamId: team.id,
-        reviewerId: currentUser.id,
-        targetId: t.id,
-        rating: d.rating,
-        scores: Object.fromEntries(categories.map((c) => [c.key, d.scores[c.key]])),
-        text: d.text.trim().slice(0, MAX_COMMENT_LENGTH),
-        anonymous: d.anonymous,
-        submittedAt,
-      };
+
+    await api.submitReviews(TEAM_ID, {
+      reviewerId: CURRENT_USER_ID,
+      reviews: teammates.map((t) => {
+        const d = draftFor(t.id);
+        return {
+          targetId: t.id,
+          rating: d.rating,
+          scores: Object.fromEntries(categories.map((c) => [c.key, d.scores[c.key]])),
+          text: d.text.trim().slice(0, MAX_COMMENT_LENGTH),
+          anonymous: d.anonymous,
+        };
+      }),
     });
-    setState((s) => ({ ...s, reviews: [...s.reviews.filter((r) => r.reviewerId !== currentUser.id), ...mine] }));
+    setReviews(await api.getReviews(TEAM_ID, CURRENT_USER_ID));
+    setDrafts({}); // submitted reviews now act as the starting point for edits
     return null;
-  }, [teammates, draftFor, team.id, currentUser.id]);
+  }, [teammates, draftFor]);
+
+  if (status.kind === 'loading') return <StatusScreen title="Loading your team…" />;
+  if (status.kind === 'error' || !team || !currentUser)
+    return (
+      <StatusScreen
+        title="Something went wrong"
+        message={status.kind === 'error' ? status.message : undefined}
+        onRetry={() => {
+          setStatus(MISSING_ENV ?? { kind: 'loading' });
+          setAttempt((a) => a + 1);
+        }}
+      />
+    );
 
   const hasSubmitted = teammates.every((t) =>
-    state.reviews.some((r) => r.reviewerId === currentUser.id && r.targetId === t.id),
+    reviews.some((r) => r.reviewerId === CURRENT_USER_ID && r.targetId === t.id),
   );
 
   const value: ReviewContextValue = {
     team,
     currentUser,
     teammates,
-    reviews: state.reviews,
+    reviews,
     hasSubmitted,
     draftFor,
     updateDraft,

@@ -30,7 +30,7 @@ export function LiveResult({ member, summary: s, hasDraft }: LiveResultProps) {
           <Stars value={s.average} />
         </div>
         <span className="result-caption">
-          {s.count} ratings · {hasDraft ? 'including your current draft' : 'sample peer reviews'}
+          {s.count} ratings · {hasDraft ? 'including your current draft' : 'from your teammates'}
         </span>
       </div>
 
@@ -58,7 +58,7 @@ export function LiveResult({ member, summary: s, hasDraft }: LiveResultProps) {
       </div>
 
       <div className="preview-note">
-        Includes two sample peer reviews.
+        Includes your teammates’ submitted reviews.
         <br />
         Change any rating and watch the result react.
       </div>

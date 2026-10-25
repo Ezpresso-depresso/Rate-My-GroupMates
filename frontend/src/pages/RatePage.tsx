@@ -18,6 +18,7 @@ export function RatePage() {
     return firstIncomplete === -1 ? 0 : firstIncomplete;
   });
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const member = teammates[activeIndex];
   const draft = draftFor(member.id);
@@ -37,14 +38,23 @@ export function RatePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const next = () => {
+  const next = async () => {
     if (!valid(draft)) {
       setError(!draft.rating ? 'Choose an overall star rating to continue.' : 'Choose a score in every category to continue.');
       return;
     }
     if (!isLast) return goTo(activeIndex + 1);
 
-    const incompleteId = submitAll();
+    setSubmitting(true);
+    let incompleteId: string | null;
+    try {
+      incompleteId = await submitAll();
+    } catch (err) {
+      setError(`Couldn’t submit your reviews: ${(err as Error).message}`);
+      return;
+    } finally {
+      setSubmitting(false);
+    }
     if (incompleteId) {
       setActiveIndex(teammates.findIndex((t) => t.id === incompleteId));
       setError('Finish this teammate’s star rating and category scores first.');
@@ -115,8 +125,8 @@ export function RatePage() {
             <button className="textbtn" disabled={activeIndex === 0} onClick={() => goTo(activeIndex - 1)}>
               ← Previous
             </button>
-            <button className="btn" onClick={next}>
-              {isLast ? 'Submit Ratings' : 'Next teammate →'}
+            <button className="btn" onClick={next} disabled={submitting}>
+              {submitting ? 'Submitting…' : isLast ? 'Submit Ratings' : 'Next teammate →'}
             </button>
           </div>
           <div className="autosave">

@@ -28,8 +28,7 @@ export function AwardRules() {
         below 2.5. Top Groupmate requires ≥3.5 stars; Celebrity requires 10 received reviews.
       </p>
       <div className="notice">
-        Awards are comic exaggerations based on score patterns. Each teammate starts with two sample peer reviews. Your
-        submission becomes their third.
+        Awards are comic exaggerations based on score patterns, recalculated from every submitted review.
       </div>
     </>
   );

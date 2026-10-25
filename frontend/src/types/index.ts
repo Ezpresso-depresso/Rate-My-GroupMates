@@ -33,11 +33,12 @@ export interface ReviewDraft {
 
 /** A submitted review, shaped like the backend `Review` document. */
 export interface Review extends ReviewDraft {
+  id: string;
   teamId: string;
-  reviewerId: string;
+  /** Omitted by the API on anonymous reviews written by someone else. */
+  reviewerId?: string;
   targetId: string;
-  submittedAt?: string;
-  sample?: boolean;
+  submittedAt: string;
 }
 
 export interface CategoryScore extends Category {

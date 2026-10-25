@@ -8,11 +8,10 @@ rate-my-groupmates/
 │   └── src/
 │       ├── pages/         RatePage (/), AwardsPage (/awards)
 │       ├── components/    layout/, rating/, awards/, common/
-│       ├── context/       ReviewProvider – team, reviews, drafts (localStorage for now)
+│       ├── context/       ReviewProvider – loads team + reviews from the API, drafts in localStorage
 │       ├── hooks/         useReviews
 │       ├── lib/           ratingCore – pure scoring + award rules
 │       ├── services/      api – fetch client for the backend
-│       ├── data/          sample team + sample peer reviews
 │       └── types/
 └── backend/           Express + Mongoose + TypeScript
     ├── api/index.ts       Vercel serverless entry
@@ -21,6 +20,7 @@ rate-my-groupmates/
         ├── controllers/   health, team, review
         ├── middleware/    errorHandler, requireDB, validate
         ├── models/        Team, Review
+        ├── scripts/       seed – demo team + peer reviews
         └── routes/        /api/health, /api/teams, /api/teams/:teamId/reviews
 ```
 
@@ -28,9 +28,11 @@ rate-my-groupmates/
 
 ```bash
 # backend – fill in MONGODB_URI in backend/.env first (see .env.example)
-cd backend && npm install && npm run dev      # http://localhost:5000/api
+cd backend && npm install
+npm run seed     # creates the demo team; prints VITE_TEAM_ID / VITE_CURRENT_USER_ID
+npm run dev      # http://localhost:5000/api
 
-# frontend
+# frontend – put the two ids from `npm run seed` in frontend/.env
 cd frontend && npm install && npm run dev     # http://localhost:5173
 ```
 
@@ -42,7 +44,7 @@ cd frontend && npm install && npm run dev     # http://localhost:5173
 | GET    | `/api/teams`                  | List teams                                              |
 | POST   | `/api/teams`                  | `{ name, course, members: [{ name, color? }] }`         |
 | GET    | `/api/teams/:teamId`          | One team                                                |
-| GET    | `/api/teams/:teamId/reviews`  | Anonymous reviewer ids are hidden                       |
+| GET    | `/api/teams/:teamId/reviews`  | Anonymous reviewer ids are hidden, except your own with `?viewerId=` |
 | POST   | `/api/teams/:teamId/reviews`  | `{ reviewerId, reviews: [{ targetId, rating, scores, text?, anonymous? }] }` – upserts |
 
 ## Deploying to Vercel
