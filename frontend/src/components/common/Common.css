@@ -38,6 +38,43 @@
   margin: 0 0 8px;
 }
 
+/* ---------- Member picker ---------- */
+.member-picker h2 {
+  margin-top: 10px;
+}
+
+.member-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.member-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.member-option:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary-border);
+}
+
+@media (max-width: 420px) {
+  .member-options {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Modal ---------- */
 .modal {
   width: min(560px, calc(100% - 32px));

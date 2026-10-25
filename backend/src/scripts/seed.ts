@@ -1,8 +1,10 @@
 /*
- * Seeds a demo team plus a few peer reviews, then prints the ids the frontend needs.
+ * Creates the team (if missing) and prints the id the frontend needs.
  * Safe to re-run: reuses the existing team and never overwrites existing reviews.
  *
- *   npm run seed
+ *   npm run seed                  team only
+ *   npm run seed -- --demo        also add fake peer reviews (for trying the UI solo)
+ *   npm run seed -- --reset       delete ALL of this team's reviews first
  */
 import mongoose from 'mongoose';
 import { CATEGORY_KEYS } from '../config/constants';
@@ -21,11 +23,12 @@ const TEAM = {
   ],
 };
 
-/** The member the frontend acts as until there's login. */
-const CURRENT_USER = 'Zahi';
+const args = process.argv.slice(2);
+const DEMO = args.includes('--demo');
+const RESET = args.includes('--reset');
 
-// target -> reviewer -> [rating, participation, communication, quality]
-const PEER_REVIEWS: Record<string, Record<string, number[]>> = {
+// --demo only. target -> reviewer -> [rating, participation, communication, quality]
+const DEMO_REVIEWS: Record<string, Record<string, number[]>> = {
   Kent: { Omar: [4, 7, 9, 8], Qitai: [3, 7, 6, 8] },
   Omar: { Kent: [4, 8, 8, 8], Qitai: [4, 8, 7, 8] },
   Qitai: { Kent: [5, 9, 8, 9], Omar: [4, 8, 9, 8] },
@@ -42,8 +45,13 @@ async function seed() {
     return member._id;
   };
 
+  if (RESET) {
+    const { deletedCount } = await Review.deleteMany({ team: team._id });
+    console.log(`Deleted ${deletedCount} review(s) for "${team.name}".`);
+  }
+
   let created = 0;
-  for (const [target, byReviewer] of Object.entries(PEER_REVIEWS)) {
+  for (const [target, byReviewer] of Object.entries(DEMO ? DEMO_REVIEWS : {})) {
     for (const [reviewer, [rating, ...scores]] of Object.entries(byReviewer)) {
       const result = await Review.updateOne(
         { team: team._id, reviewerId: idOf(reviewer), targetId: idOf(target) },
@@ -61,12 +69,12 @@ async function seed() {
     }
   }
 
-  console.log(`Team "${team.name}" (${team.course}) ready. ${created} new peer review(s) added.\n`);
-  console.log('Members:');
-  for (const m of team.members) console.log(`  ${m.name.padEnd(8)} ${m._id}`);
-  console.log('\nPut these in frontend/.env:');
+  const total = await Review.countDocuments({ team: team._id });
+  console.log(`Team "${team.name}" (${team.course}) ready: ${team.members.map((m) => m.name).join(', ')}.`);
+  if (DEMO) console.log(`${created} demo review(s) added.`);
+  console.log(`${total} review(s) in the database for this team.\n`);
+  console.log('Put this in frontend/.env:');
   console.log(`  VITE_TEAM_ID=${team._id}`);
-  console.log(`  VITE_CURRENT_USER_ID=${idOf(CURRENT_USER)}`);
 }
 
 seed()

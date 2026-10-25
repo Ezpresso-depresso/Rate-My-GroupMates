@@ -29,10 +29,12 @@ rate-my-groupmates/
 ```bash
 # backend – fill in MONGODB_URI in backend/.env first (see .env.example)
 cd backend && npm install
-npm run seed     # creates the demo team; prints VITE_TEAM_ID / VITE_CURRENT_USER_ID
+npm run seed     # creates the team; prints VITE_TEAM_ID
+                 #   --demo  adds fake peer reviews   --reset  deletes the team's reviews
 npm run dev      # http://localhost:5000/api
 
-# frontend – put the two ids from `npm run seed` in frontend/.env
+# frontend – put VITE_TEAM_ID from `npm run seed` in frontend/.env
+# Each person picks "who are you?" on first visit (remembered per browser).
 cd frontend && npm install && npm run dev     # http://localhost:5173
 ```
 

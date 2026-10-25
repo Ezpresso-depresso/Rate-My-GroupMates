@@ -15,6 +15,8 @@ export interface ReviewContextValue {
    * teammate (nothing sent), or null on success. Rejects if the request fails.
    */
   submitAll: () => Promise<string | null>;
+  /** Forget which member this browser is acting as and show the picker again. */
+  switchMember: () => void;
 }
 
 export const ReviewContext = createContext<ReviewContextValue | null>(null);
