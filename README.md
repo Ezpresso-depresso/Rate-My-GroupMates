@@ -1,5 +1,5 @@
 # Rate-My-GroupMates
-hi
+hii
 Rate your teammates after a group project, then reveal the (very unofficial) team awards.
 
 ```
