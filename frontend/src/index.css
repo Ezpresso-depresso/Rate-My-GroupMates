@@ -194,10 +194,6 @@ p {
   font-size: 28px;
 }
 
-#awardHeroMaintext
-{
-  font-size: 3rem;
-}
 
 @media (max-width: 760px) {
   h1 {

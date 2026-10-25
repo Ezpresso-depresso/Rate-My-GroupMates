@@ -15,6 +15,7 @@
   margin: 0 0 18px;
   color: var(--muted);
   text-align: right;
+  white-space: nowrap;
 }
 
 /* ---------- Teammate tabs ---------- */
