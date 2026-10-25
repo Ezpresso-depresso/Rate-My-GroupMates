@@ -61,13 +61,13 @@ export function RatePage() {
           <h1>
             Leave a rating
             <br />
-            <span>be fair(ish)</span>
+            <span>Just know that we're selling this data ASAP</span>
           </h1>
         </div>
         <p>
-          Awards calculated based on ratings
+          Awards calculated algorithmically based on ratings
           <br />
-          Rate the team, our amazing algorithm has the rest
+          This database is not secure
         </p>
       </div>
 

@@ -10,7 +10,7 @@ export function OverallRating({ value, onChange }: OverallRatingProps) {
   return (
     <section className="overall-panel">
       <h3>
-        Overall rating <span>Your call, 1–5 stars</span>
+        Overall rating <span>1–5 stars</span>
       </h3>
       <div className="starline">
         <div className="rating-buttons" role="group" aria-label="Overall rating">

@@ -25,8 +25,8 @@ export function AwardsPage() {
 
       <div className="awards-sectionhead">
         <div>
-          <div className="eyebrow">The team’s moment</div>
-          <h2>Credit where it’s due.</h2>
+          <div className="eyebrow">summary page</div>
+          <h2>Results post-review</h2>
         </div>
         <Link className="textbtn" to="/">
           Edit your ratings ↗
@@ -48,11 +48,11 @@ export function AwardsPage() {
       <div className="closing-card">
         <span className="closing-star">✦</span>
         <div>
-          <h3>The project is submitted. The lore is permanent.</h3>
-          <p>Give props to the carry. A title to the yapper. And everyone their flowers.</p>
+          <h3>Thanks for submitting</h3>
+          <p>Make sure you didn't misclick</p>
         </div>
         <Link className="btn" to="/">
-          Back to ratings →
+          Edit ratings →
         </Link>
       </div>
 
