@@ -95,7 +95,7 @@ export function RatePage() {
 
           <div className="category-intro">
             <span className="eyebrow">A closer look</span>
-            <span>1 = needs improvement · 10 = exceptional</span>
+            <span>1 = human drone · 10 = how much did they pay you</span>
           </div>
           {categories.map((c) => (
             <ScoreField
@@ -116,12 +116,12 @@ export function RatePage() {
               ← Previous
             </button>
             <button className="btn" onClick={next}>
-              {isLast ? 'Reveal team awards ✦' : 'Next teammate →'}
+              {isLast ? 'Submit Ratings' : 'Next teammate →'}
             </button>
           </div>
           <div className="autosave">
             <span className="live-dot" />
-            Saved as you go. Nothing is submitted until you reveal awards.
+            Saved as you go. Nothing is submitted until you Submit.
           </div>
         </section>
 

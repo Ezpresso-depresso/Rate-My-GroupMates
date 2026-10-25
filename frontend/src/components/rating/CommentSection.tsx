@@ -12,17 +12,17 @@ export function CommentSection({ name, draft, onChange }: CommentSectionProps) {
   return (
     <section className="comment-section">
       <h3>
-        A little context <span>Optional</span>
+        Additional Comment <span>Optional</span>
       </h3>
       <textarea
         maxLength={MAX_COMMENT_LENGTH}
         aria-label="Optional feedback"
-        placeholder={`One thing ${name} did well, or could do differently…`}
+        placeholder={`If you think ${name} deserves divine punishment, let them know here!`}
         value={draft.text}
         onChange={(e) => onChange({ text: e.target.value })}
       />
       <div className="comment-meta">
-        <span>Specific feedback goes a long way.</span>
+        <span>Specific feedback goes a long way in making it personal.</span>
         <span>
           {draft.text.length}/{MAX_COMMENT_LENGTH}
         </span>
@@ -36,7 +36,7 @@ export function CommentSection({ name, draft, onChange }: CommentSectionProps) {
         />
         <span>
           Make review anonymous
-          <small>Your name is hidden in the review display.</small>
+          <small>Only if you're a coward.</small>
         </span>
       </label>
     </section>

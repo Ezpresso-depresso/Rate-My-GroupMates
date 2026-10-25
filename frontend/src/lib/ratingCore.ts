@@ -12,9 +12,9 @@ import type {
 export const MAX_COMMENT_LENGTH = 700;
 
 export const categories: Category[] = [
-  { key: 'participation', name: 'Participation', hint: 'Contributed to meetings and shared tasks' },
-  { key: 'communication', name: 'Communication', hint: 'Kept teammates informed and responded clearly' },
-  { key: 'quality', name: 'Quality of work', hint: 'Delivered thoughtful, useful work' },
+  { key: 'participation', name: 'Participation', hint: 'Actually consistently worked without you having to police them' },
+  { key: 'communication', name: 'Communication', hint: `Responded and updated groupmates, doesn\'t use invisible on discord`},
+  { key: 'quality', name: 'Quality of work', hint: 'Contributions didn\'t need to be revised multiple times' },
 ];
 
 const isStar = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 5;
