@@ -69,6 +69,27 @@
   border-color: var(--primary-border);
 }
 
+/* PLAYTEST ONLY: "join as a new member" form in MemberPicker. */
+.member-join {
+  margin-top: 22px;
+}
+
+.member-join-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.member-join-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+}
+
 @media (max-width: 420px) {
   .member-options {
     grid-template-columns: 1fr;
