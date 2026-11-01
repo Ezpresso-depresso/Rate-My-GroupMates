@@ -1,0 +1,138 @@
+.afterparty { --ap-ink: #f3f1fa; --ap-muted: #a5a7bc; --ap-line: #36394e; --ap-gold: #f6d782; background: #101321; color: var(--ap-ink); padding: 0 20px; border-radius: 16px; margin-top: 20px; scroll-margin-top: 20px; }
+.afterparty * { box-sizing: border-box; }
+.afterparty button, .afterparty a, .afterparty select { -webkit-tap-highlight-color: transparent; }
+.afterparty :focus-visible { outline: 3px solid #f6d782; outline-offset: 4px; }
+.ap-shell { max-width: 1440px; margin: auto; }
+.ap-nav { min-height: 86px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--ap-line); gap: 16px; }
+.ap-brand { display: flex; align-items: center; gap: 12px; color: #deddea; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; }
+.ap-brand > span { font-size: 24px; font-weight: 800; background: #c7bcf6; color: #24203d; border-radius: 10px; width: 42px; height: 42px; display: grid; place-items: center; letter-spacing: -2px; }
+.ap-back { color: #dad8e9; background: transparent; text-decoration: none; font-size: 13px; padding: 10px 0; }
+.ap-back:hover { color: var(--ap-gold); }
+.ap-heading { display: flex; justify-content: space-between; align-items: center; padding: 36px 0 30px; gap: 20px; }
+.ap-eyebrow { color: #b7afcf; font: 600 10px var(--font-mono); letter-spacing: 1.7px; text-transform: uppercase; }
+.ap-heading h1 { font-size: clamp(34px, 4.7vw, 66px); letter-spacing: -2.7px; margin: 13px 0 0; }
+.ap-heading em { color: var(--ap-gold); font-style: normal; }
+.ap-edition { transform: rotate(-5deg); border: 1px solid #72674e; padding: 13px 18px; color: var(--ap-gold); display: grid; gap: 5px; font: 10px var(--font-mono); letter-spacing: 2px; }
+.ap-edition strong { font-size: 16px; }
+.ap-mobile-break { display: none; }
+.ap-lobby { display: grid; grid-template-columns: 1.1fr 1fr; background: #1b1e31; border: 1px solid var(--ap-line); border-radius: 18px; overflow: hidden; }
+.ap-lobby-copy { padding: clamp(25px, 4vw, 56px); }
+.ap-lobby h2 { font-size: clamp(32px, 4vw, 52px); margin: 22px 0; line-height: 1.06; letter-spacing: -1.8px; }
+.ap-lobby-copy > p { color: #b6b7c9; max-width: 440px; }
+.ap-lobby-copy strong { color: #f3f1fa; }
+.ap-lobby-members { display: flex; flex-wrap: wrap; gap: 8px; max-height: 155px; overflow: auto; margin: 22px 0 30px; }
+.ap-lobby-members > span { display: flex; align-items: center; gap: 7px; font-size: 12px; background: #2a2c42; border: 1px solid #3a3c52; border-radius: 20px; padding: 6px 12px; overflow-wrap: anywhere; }
+.ap-lobby-members i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ap-duration { display: grid; gap: 9px; color: var(--ap-muted); font: 10px var(--font-mono); letter-spacing: 1px; margin-bottom: 18px; max-width: 330px; }
+.ap-duration select { border: 1px solid #4a4c64; border-radius: 9px; background: #24273d; color: #efedf7; padding: 12px; font: 14px var(--font-body); color-scheme: dark; }
+.ap-primary { background: var(--ap-gold); color: #2b2535; padding: 16px 24px; font-weight: 800; border-radius: 10px; box-shadow: 0 4px 0 #a68c50; }
+.ap-primary:hover { background: #ffe6a4; transform: translateY(-1px); }
+.ap-lobby-copy .ap-lobby-footnote { font-size: 11px; margin-top: 22px; }
+.ap-playbook { background: #24273f; border-left: 1px solid var(--ap-line); padding: 34px; }
+.ap-glove-art { min-height: 180px; display: grid; place-content: center; position: relative; padding: 35px 0; }
+.ap-glove-art b { z-index: 1; font: 900 clamp(68px, 8vw, 110px) var(--font-display); font-style: italic; letter-spacing: -6px; color: #ffb2bd; transform: rotate(-9deg); text-shadow: 4px 6px 0 #685382; }
+.ap-glove-art > span { position: absolute; font-size: 200px; color: #514664; inset: -45px 0 0; text-align: center; }
+.ap-glove-art i { z-index: 1; font: 9px var(--font-mono); letter-spacing: 2px; color: #d6c5ee; }
+.ap-playbook ol { padding: 0; list-style: none; margin: 30px 0 0; }
+.ap-playbook li { display: flex; gap: 18px; padding: 19px 0; border-top: 1px solid #3e4058; }
+.ap-playbook li > span { color: #b2a4dc; font: 12px var(--font-mono); padding-top: 4px; }
+.ap-playbook strong { font-size: 15px; }
+.ap-playbook p { font-size: 13px; color: #b2b2c8; margin: 5px 0 0; }
+.ap-game { border: 1px solid #3c3e55; background: #1a1d30; border-radius: 16px; overflow: hidden; box-shadow: 0 18px 70px #0003; }
+.ap-gamebar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #3c3e55; font: 10px var(--font-mono); letter-spacing: 1px; }
+.ap-gamebar > div:first-child { display: flex; align-items: center; gap: 10px; }
+.ap-live-dot { width: 7px; height: 7px; background: #b8a0ee; border-radius: 50%; }
+.ap-live-dot.is-live { background: #93e0bc; box-shadow: 0 0 10px #93e0bc66; }
+.ap-mode { color: var(--ap-muted); margin-left: 12px; font-size: 9px; }
+.ap-game-actions { display: flex; gap: 8px; }
+.ap-game-actions button { background: #2c2f45; border: 1px solid #42455e; border-radius: 6px; padding: 6px 10px; color: #e4e1ef; font: 11px var(--font-body); }
+.ap-game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 230px; }
+.ap-stage-wrap { position: relative; min-width: 0; }
+.ap-stage { height: clamp(440px, 48vw, 650px); position: relative; overflow: hidden; touch-action: none; }
+.ap-stage > canvas { display: block; width: 100%; height: 100%; }
+.ap-stage:focus-visible { outline-offset: -3px; }
+.fighter-label { position: absolute; left: 0; top: 0; pointer-events: none; text-align: center; z-index: 1; max-width: 140px; }
+.fighter-label b { display: block; border: 1px solid #79758e; background: #151727e6; padding: 3px 6px; border-radius: 4px; font: 600 10px var(--font-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.fighter-health { display: block; height: 3px; width: 75%; margin: 3px auto 0; background: #171a2b; border-radius: 3px; overflow: hidden; }
+.fighter-health > span { height: 100%; display: block; }
+.ap-timer { position: absolute; right: 20px; top: 20px; text-align: right; pointer-events: none; }
+.ap-timer > span { display: block; font: 9px var(--font-mono); letter-spacing: 1.5px; color: #bbb6d1; }
+.ap-timer strong { font: 800 42px var(--font-display); color: var(--ap-gold); }
+.ap-timer small { font-size: 16px; margin-left: 4px; }
+.ap-urgent strong { color: #ff9da9; }
+.ap-award-banner { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); text-align: center; pointer-events: none; width: max-content; max-width: 90%; background: #191a32dc; border: 1px solid #5b516d; padding: 12px 25px; border-radius: 10px; z-index: 2; }
+.ap-award-banner > span { color: #b3a6ca; font: 9px var(--font-mono); letter-spacing: 1px; }
+.ap-award-banner h2 { color: var(--ap-gold); margin: 7px 0 3px; font-size: clamp(16px, 2vw, 24px); }
+.ap-award-banner p { margin: 0; font-size: 12px; }
+.ap-countdown { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #15152866; pointer-events: none; z-index: 3; }
+.ap-countdown > span { letter-spacing: 4px; font: 13px var(--font-mono); }
+.ap-countdown strong { font: 800 110px var(--font-display); line-height: 1.2; color: var(--ap-gold); }
+.ap-countdown p { font-size: 13px; }
+.ap-skip { position: absolute; bottom: 18px; right: 18px; z-index: 2; color: #eee6ff; background: #3d3659; border: 1px solid #6d618e; border-radius: 7px; padding: 9px 14px; font-size: 11px; }
+.ap-respawn { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); background: #2d253de8; border: 1px solid #bb8ca1; padding: 12px 18px; width: max-content; max-width: 95%; border-radius: 10px; font-size: 13px; z-index: 2; }
+.ap-roster { border-left: 1px solid #3c3e55; padding: 20px 16px; display: flex; flex-direction: column; min-width: 0; max-height: 650px; }
+.ap-roster-title { display: flex; justify-content: space-between; font: 10px var(--font-mono); color: #d1cae3; letter-spacing: 1.5px; }
+.ap-roster-title span:last-child { color: var(--ap-gold); }
+.ap-roster > p { color: #999bb2; font-size: 11px; margin: 8px 0 22px; }
+.ap-roster-list { overflow: auto; min-height: 130px; flex: 1; }
+.ap-fighter { padding: 12px 10px; background: #25283e; border: 1px solid #3b3d55; border-radius: 8px; margin-bottom: 9px; }
+.ap-fighter.ap-you { border-color: #a18a51; background: #302e3b; }
+.ap-fighter-top { display: flex; align-items: center; gap: 9px; }
+.ap-avatar { flex-shrink: 0; width: 29px; height: 32px; display: grid; place-items: center; border-radius: 9px 9px 6px 6px; color: #29283c; font-weight: 800; }
+.ap-fighter-top > div { min-width: 0; flex: 1; }
+.ap-fighter-top strong { font-size: 12px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-fighter small { display: block; font: 8px var(--font-mono); letter-spacing: 0.7px; color: #b6afc4; margin-top: 3px; }
+.ap-fighter-top > b { font: 18px var(--font-mono); text-align: right; }
+.ap-health { height: 4px; margin-top: 12px; background: #151727; border-radius: 5px; overflow: hidden; }
+.ap-health span { display: block; height: 100%; transition: width 0.1s; }
+.ap-feed { font-size: 10px; color: #bfb2d7; margin-top: 10px; }
+.ap-feed p { margin: 5px 0; }
+.ap-roster-note { padding-top: 18px; margin-top: 16px; border-top: 1px solid #3a3b52; }
+.ap-roster-note > span { font: 9px var(--font-mono); color: #c6b57c; letter-spacing: 1.2px; }
+.ap-roster-note p { color: #9c9db5; font-size: 11px; margin: 6px 0 0; }
+.ap-controls { border-top: 1px solid #3c3e55; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 18px; }
+.ap-key-guide { display: flex; flex-wrap: wrap; gap: 14px; }
+.ap-key-guide > span { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #b5b3c6; }
+.afterparty kbd { font: 9px var(--font-mono); background: #33364d; color: #e5e1f0; border: 1px solid #53556e; border-bottom-width: 2px; border-radius: 4px; padding: 4px 5px; }
+.ap-game-actions kbd { padding: 1px 3px; margin-left: 4px; }
+.ap-energy { min-width: 100px; }
+.ap-energy > span { color: #b1a9c3; font: 8px var(--font-mono); letter-spacing: 1px; }
+.ap-energy > div { height: 4px; margin-top: 7px; background: #3a3b51; border-radius: 5px; overflow: hidden; }
+.ap-energy i { display: block; height: 100%; background: #f6d782; }
+.ap-overlay { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 20px; background: #101221c9; backdrop-filter: blur(5px); }
+.ap-dialog { background: #24263e; border: 1px solid #5c5274; border-radius: 16px; text-align: center; padding: 30px; max-width: 540px; width: 100%; max-height: 100%; overflow: auto; box-shadow: 0 12px 60px #0005; }
+.ap-dialog h2 { font-size: 30px; line-height: 1.15; margin: 16px 0; color: var(--ap-gold); overflow-wrap: anywhere; }
+.ap-dialog p { color: #bdb7cd; font-size: 13px; }
+.ap-dialog .ap-primary { margin: 14px 0 5px; }
+.ap-result-table { max-height: 220px; overflow: auto; margin: 20px 0 10px; }
+.ap-result-table table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+.ap-result-table thead { color: #a59bb9; font: 9px var(--font-mono); }
+.ap-result-table th, .ap-result-table td { padding: 10px 6px; border-bottom: 1px solid #46415a; }
+.ap-result-table tbody th { max-width: 180px; overflow-wrap: anywhere; }
+.ap-result-table th > span { color: #d5be7e; margin-right: 5px; }
+.ap-dialog .ap-tiebreak { font-size: 10px; }
+.ap-touch { display: none; justify-content: space-between; align-items: center; gap: 15px; padding: 14px 20px; border-top: 1px solid #3c3e55; }
+.ap-touch button { touch-action: none; user-select: none; border: 1px solid #615a7a; color: #eee7fa; background: #3c3654; min-width: 42px; min-height: 42px; border-radius: 9px; padding: 8px; font-size: 12px; }
+.ap-touch button:active { background: #86729f; }
+.ap-dpad { display: grid; grid-template-columns: repeat(3, 42px); gap: 4px; }
+.ap-dpad > :first-child { grid-column: 2; }
+.ap-dpad > :nth-child(2) { grid-column: 1; }
+.ap-touch-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.ap-touch-actions > :last-child { background: #e6c87a; color: #30283c; border-color: #f6d782; }
+.ap-footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px 0 28px; color: #9593ab; font-size: 11px; }
+.ap-footer > :last-child { font: 9px var(--font-mono); letter-spacing: 1px; }
+@media (pointer: coarse), (max-width: 700px) { .ap-touch { display: flex; } }
+@media (max-width: 1000px) { .ap-game-layout { grid-template-columns: minmax(0, 1fr) 195px; } .ap-roster { padding: 16px 10px; } .ap-mode { display: none; } .ap-controls { align-items: flex-start; } .ap-key-guide { gap: 9px; } }
+@media (max-width: 700px) {
+  .afterparty { padding: 0 12px; } .ap-nav { min-height: 68px; } .ap-brand { font-size: 9px; letter-spacing: 0.5px; gap: 7px; } .ap-brand > span { width: 32px; height: 32px; font-size: 21px; } .ap-back { font-size: 11px; }
+  .ap-heading { padding: 24px 4px; } .ap-heading h1 { font-size: 39px; letter-spacing: -1.6px; } .ap-heading .ap-eyebrow { font-size: 8px; letter-spacing: 1px; } .ap-edition { display: none; } .ap-mobile-break { display: block; }
+  .ap-lobby { grid-template-columns: 1fr; } .ap-playbook { border-left: 0; border-top: 1px solid var(--ap-line); padding: 25px; } .ap-lobby-copy { padding: 26px; }
+  .ap-gamebar { padding: 12px; font-size: 8px; gap: 6px; } .ap-game-actions button { padding: 6px; font-size: 10px; } .ap-game-actions kbd { display: none; }
+  .ap-game { display: flex; flex-direction: column; } .ap-game-layout { display: contents; } .ap-stage-wrap { order: 1; } .ap-stage { height: clamp(300px, 40svh, 400px); } .ap-roster { order: 4; border-left: 0; border-top: 1px solid var(--ap-line); max-height: 220px; padding: 12px; }
+  .ap-roster > p, .ap-roster-note, .ap-feed { display: none; } .ap-roster-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; min-height: auto; margin-top: 10px; max-height: 158px; } .ap-fighter { margin: 0; padding: 9px; } .ap-fighter-top strong { font-size: 11px; }
+  .ap-award-banner { top: 14px; padding: 10px 14px; } .ap-award-banner h2 { font-size: 17px; } .fighter-label { max-width: 90px; } .fighter-label b { font-size: 8px; padding: 2px 4px; }
+  .ap-controls { order: 2; padding: 8px 14px; gap: 10px; } .ap-key-guide { display: none; } .ap-energy { display: flex; align-items: center; gap: 12px; width: 100%; } .ap-energy > div { flex: 1; margin: 0; } .ap-energy > span { font-size: 7px; } .ap-touch { order: 3; padding: 10px 14px; }
+  .afterparty:has(.ap-game) .ap-heading { padding: 18px 4px; } .afterparty:has(.ap-game) .ap-heading h1 { font-size: 33px; }
+  .ap-dialog { padding: 20px 13px; } .ap-dialog h2 { font-size: 24px; } .ap-overlay { padding: 12px; } .ap-result-table { max-height: 160px; } .ap-footer { font-size: 10px; padding: 20px 2px; } .ap-footer > :last-child { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .afterparty *, .afterparty *::before, .afterparty *::after { transition: none !important; } }

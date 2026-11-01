@@ -8,6 +8,7 @@ import { MemberDetail } from '../components/awards/MemberDetail';
 import { Modal } from '../components/common/Modal';
 import { useReviews } from '../hooks/useReviews';
 import { incoming, summary } from '../lib/ratingCore';
+import { AfterpartyEntry } from '../features/afterparty/AfterpartyEntry';
 
 export function AwardsPage() {
   const { team, currentUser, teammates, reviews, hasSubmitted } = useReviews();
@@ -70,6 +71,7 @@ export function AwardsPage() {
       <div className="sr-only" aria-live="polite">
         Reviews submitted. Team awards revealed.
       </div>
+      <AfterpartyEntry />
     </>
   );
 }
