@@ -59,6 +59,24 @@ cd frontend && npm install && npm run dev     # http://localhost:5173
 With `DEV_LOGIN=true` in `backend/.env` the login page also has a **test login** (any email, no Google), so you can
 play several people in different browser profiles, e.g. the seeded `zahi@example.com`. It is always off in production.
 
+## Tests
+
+End-to-end tests drive the real app in a real browser (Chromium): sign-in, creating groups, invite links + codes,
+declining/leaving/deleting, reviews unlocking only when everyone has joined, rating, awards, and permission checks
+straight against the API. Each run starts its own throwaway database, backend and frontend, so it never touches your
+`.env` or your Atlas data.
+
+```bash
+cd backend && npm install && cd ../frontend && npm install && cd ../e2e
+npm install      # also downloads Chromium for the tests
+npm test         # first run also downloads a MongoDB server (~100 MB, once); ~2 minutes total
+npm run test:headed   # same, but watch the browser
+```
+
+If something fails, the backend and frontend output is saved in `e2e/.logs/`.
+Google's own sign-in screen can't be automated, so the tests use the local test login; the Google path is covered up
+to the server check.
+
 ## API
 
 All `/teams` routes need `Authorization: Bearer <token>` (from the login routes). Errors are `{ message }`.

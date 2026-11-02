@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_URL?: string;
+  readonly VITE_LOBBY_POLL_MS?: string;
 }
 
 interface ImportMeta {

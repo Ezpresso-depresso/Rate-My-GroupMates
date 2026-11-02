@@ -7,4 +7,4 @@ export const SESSION_KEY = 'rmg-session-v1';
 export const draftsKey = (teamId: string, memberId: string) => `rmg-drafts-v1:${teamId}:${memberId}`;
 
 /** How often the waiting room re-checks whether everyone has joined. */
-export const LOBBY_POLL_MS = 10_000;
+export const LOBBY_POLL_MS = Number(import.meta.env.VITE_LOBBY_POLL_MS) || 10_000; // tests use a shorter interval
