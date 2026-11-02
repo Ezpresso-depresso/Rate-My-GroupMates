@@ -1,10 +1,10 @@
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
+export const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api').replace(/\/+$/, '');
 
-// Until there's group creation, the team to load comes from env (see `npm run seed` in backend/).
-export const TEAM_ID = import.meta.env.VITE_TEAM_ID ?? '';
+/** The signed-in session token (see services/session.ts). */
+export const SESSION_KEY = 'rmg-session-v1';
 
-/** Which member this browser is acting as (picked on first visit). */
-export const memberKey = (teamId: string) => `rmg-member-v1:${teamId}`;
+/** Unsubmitted drafts stay in the browser, one entry per group + member. */
+export const draftsKey = (teamId: string, memberId: string) => `rmg-drafts-v1:${teamId}:${memberId}`;
 
-/** Unsubmitted drafts stay in the browser, one entry per team + member. */
-export const draftsKey = (teamId: string, userId: string) => `rmg-drafts-v1:${teamId}:${userId}`;
+/** How often the waiting room re-checks whether everyone has joined. */
+export const LOBBY_POLL_MS = 10_000;

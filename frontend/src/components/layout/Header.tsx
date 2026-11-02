@@ -1,10 +1,12 @@
-import { Link, NavLink } from 'react-router-dom';
-import { useReviews } from '../../hooks/useReviews';
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { Avatar } from '../common/Avatar';
 import './Layout.css';
 
-export function Header() {
-  const { currentUser, switchMember } = useReviews();
+/** `nav` is only passed inside a group whose reviews are open. */
+export function Header({ nav }: { nav?: ReactNode }) {
+  const { user, signOut } = useAuth();
 
   return (
     <header className="site-header">
@@ -13,18 +15,18 @@ export function Header() {
         Rate My Groupmates
         <span className="pill">UCI</span>
       </Link>
-      <nav className="nav" aria-label="Main navigation">
-        <NavLink to="/" end>
-          01 · Rate teammates
-        </NavLink>
-        <NavLink to="/awards">02 · Team awards</NavLink>
-      </nav>
+      {nav && (
+        <nav className="nav" aria-label="Group navigation">
+          {nav}
+        </nav>
+      )}
       <div className="current-member">
-        <Avatar member={currentUser} size={30} />
+        <Avatar member={user} size={30} />
         <span>
-          {currentUser.name}
-          <button className="textbtn" onClick={switchMember}>
-            Not you? Switch
+          {user.name}
+          <span className="muted small header-email">{user.email}</span>
+          <button className="textbtn" onClick={signOut}>
+            Sign out
           </button>
         </span>
       </div>

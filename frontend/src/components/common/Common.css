@@ -38,62 +38,13 @@
   margin: 0 0 8px;
 }
 
-/* ---------- Member picker ---------- */
-.member-picker h2 {
-  margin-top: 10px;
-}
-
-.member-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 22px;
-}
-
-.member-option {
+.status-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--ink);
-  font-weight: 600;
-  text-align: left;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.member-option:hover {
-  background: var(--primary-soft);
-  border-color: var(--primary-border);
-}
-
-/* PLAYTEST ONLY: "join as a new member" form in MemberPicker. */
-.member-join {
-  margin-top: 22px;
-}
-
-.member-join-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.member-join-row input {
-  flex: 1;
-  min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--ink);
-}
-
-@media (max-width: 420px) {
-  .member-options {
-    grid-template-columns: 1fr;
-  }
+  justify-content: center;
+  gap: 18px;
+  margin-top: 6px;
 }
 
 /* ---------- Modal ---------- */

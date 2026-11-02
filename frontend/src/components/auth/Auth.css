@@ -1,0 +1,47 @@
+.login-card {
+  width: min(440px, 100%);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+
+.login-pitch {
+  margin: 22px 0;
+}
+
+.login-card .notice {
+  margin-bottom: 18px;
+}
+
+.login-google {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.login-google.busy .google-button {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.google-failed .error {
+  margin-top: 0;
+}
+
+.dev-login {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line-strong);
+  text-align: left;
+}

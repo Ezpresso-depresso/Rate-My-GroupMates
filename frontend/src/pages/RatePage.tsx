@@ -8,6 +8,7 @@ import { ScoreField } from '../components/rating/ScoreField';
 import { TeammateTabs } from '../components/rating/TeammateTabs';
 import { useReviews } from '../hooks/useReviews';
 import { categories, incoming, summary, valid } from '../lib/ratingCore';
+import { groupPath } from '../lib/teams';
 import type { ReviewDraft } from '../types';
 
 export function RatePage() {
@@ -60,7 +61,7 @@ export function RatePage() {
       setError('Finish this teammate’s star rating and category scores first.');
       return;
     }
-    navigate('/awards', { state: { celebrate: true } });
+    navigate(`${groupPath(team.id)}/awards`, { state: { celebrate: true } });
   };
 
   return (

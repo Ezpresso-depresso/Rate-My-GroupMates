@@ -175,6 +175,75 @@ p {
   text-decoration: underline;
 }
 
+/* ---------- Form fields ---------- */
+.input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.input:focus-visible {
+  outline-offset: 0;
+  border-color: var(--primary-border);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field > span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-quiet {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.btn-quiet:hover {
+  background: var(--line);
+}
+
+.btn-danger {
+  background: none;
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.pill-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill-status.todo {
+  background: #fff0bc;
+  color: #8a5d0e;
+}
+
+.pill-status.ok {
+  background: #e6f2ed;
+  color: #2f7a5a;
+}
+
 /* ---------- Award tones (shared by seals, pills, medals) ---------- */
 .gold { background: #fff0bc; color: #ad7512; }
 .silver { background: #edf0f7; color: #78839b; }

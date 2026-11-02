@@ -1,27 +1,30 @@
 /*
- * Creates the team (if missing) and prints the id the frontend needs.
- * Safe to re-run: reuses the existing team and never overwrites existing reviews.
+ * Creates demo accounts and "Group 16" with everyone already accepted, so
+ * reviews are open. Safe to re-run: reuses what exists, never overwrites reviews.
  *
- *   npm run seed                  team only
- *   npm run seed -- --demo        also add fake peer reviews (for trying the UI solo)
- *   npm run seed -- --reset       delete ALL of this team's reviews first
+ *   npm run seed                  accounts + group only
+ *   npm run seed -- --demo        also add fake peer reviews (Zahi is left to rate)
+ *   npm run seed -- --reset       first delete this group's reviews, plus the old
+ *                                 pre-login "Group 16" playtest team and its reviews
+ *
+ * The demo accounts use @example.com emails, so sign in to them with the local
+ * test login (DEV_LOGIN=true in backend/.env), e.g. as zahi@example.com.
  */
 import mongoose from 'mongoose';
 import { CATEGORY_KEYS } from '../config/constants';
 import { connectDB } from '../config/db';
+import { newInviteCode } from '../lib/util';
 import { Review } from '../models/Review';
 import { Team } from '../models/Team';
+import { User } from '../models/User';
 
-const TEAM = {
-  name: 'Group 16',
-  course: 'INF 151',
-  members: [
-    { name: 'Kent', color: '#ac6b10' },
-    { name: 'Omar', color: '#5762c6' },
-    { name: 'Qitai', color: '#338d84' },
-    { name: 'Zahi', color: '#a95782' },
-  ],
-};
+const PEOPLE = [
+  { name: 'Kent', color: '#ac6b10' },
+  { name: 'Omar', color: '#5762c6' },
+  { name: 'Qitai', color: '#338d84' },
+  { name: 'Zahi', color: '#a95782' },
+];
+const TEAM = { name: 'Group 16', course: 'INF 151' };
 
 const args = process.argv.slice(2);
 const DEMO = args.includes('--demo');
@@ -37,11 +40,43 @@ const DEMO_REVIEWS: Record<string, Record<string, number[]>> = {
 async function seed() {
   await connectDB();
 
+  if (RESET) {
+    // Teams from before accounts existed have no owner and can't be used anymore.
+    const legacy = await Team.find({ owner: { $exists: false } }, { _id: 1 }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+    const legacyIds = legacy.map((t) => t._id);
+    const { deletedCount: oldReviews } = await Review.deleteMany({ team: { $in: legacyIds } });
+    await Team.deleteMany({ _id: { $in: legacyIds } });
+    console.log(`Deleted ${legacyIds.length} old playtest team(s) and ${oldReviews} of their review(s).`);
+  }
+
+  const users = [];
+  for (const p of PEOPLE) {
+    const email = `${p.name.toLowerCase()}@example.com`;
+    users.push(
+      (await User.findOne({ email })) ?? (await User.create({ email, name: p.name, fullName: p.name, color: p.color })),
+    );
+  }
+  const owner = users[0];
+
   const team =
-    (await Team.findOne({ name: TEAM.name, course: TEAM.course })) ?? (await Team.create(TEAM));
+    (await Team.findOne({ ...TEAM, owner: owner._id })) ??
+    (await Team.create({
+      ...TEAM,
+      owner: owner._id,
+      inviteCode: newInviteCode(),
+      reviewsStartedAt: new Date(),
+      members: users.map((u) => ({
+        email: u.email,
+        user: u._id,
+        name: u.name,
+        color: u.color,
+        status: 'accepted',
+        joinedAt: new Date(),
+      })),
+    }));
   const idOf = (name: string) => {
     const member = team.members.find((m) => m.name === name);
-    if (!member) throw new Error(`Team "${team.name}" has no member named ${name}`);
+    if (!member) throw new Error(`Group "${team.name}" has no member named ${name}`);
     return member._id;
   };
 
@@ -70,11 +105,11 @@ async function seed() {
   }
 
   const total = await Review.countDocuments({ team: team._id });
-  console.log(`Team "${team.name}" (${team.course}) ready: ${team.members.map((m) => m.name).join(', ')}.`);
+  console.log(`Group "${team.name}" (${team.course}) ready, reviews open: ${team.members.map((m) => m.name).join(', ')}.`);
   if (DEMO) console.log(`${created} demo review(s) added.`);
-  console.log(`${total} review(s) in the database for this team.\n`);
-  console.log('Put this in frontend/.env:');
-  console.log(`  VITE_TEAM_ID=${team._id}`);
+  console.log(`${total} review(s) in the database for this group.\n`);
+  console.log('Sign in with the local test login (DEV_LOGIN=true) as one of:');
+  for (const u of users) console.log(`  ${u.email}`);
 }
 
 seed()

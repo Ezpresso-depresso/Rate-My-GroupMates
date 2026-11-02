@@ -21,6 +21,13 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   let message = err instanceof Error ? err.message : 'Something went wrong';
 
   if (err instanceof mongoose.Error.ValidationError || err instanceof mongoose.Error.CastError) status = 400;
+  // body-parser errors (malformed JSON, body too large) carry their own 4xx status.
+  const own = (err as { status?: unknown; type?: unknown }).status;
+  if (!(err instanceof HttpError) && typeof own === 'number' && own >= 400 && own < 500) {
+    status = own;
+    if ((err as { type?: unknown }).type === 'entity.parse.failed') message = 'Request body isn’t valid JSON';
+    if ((err as { type?: unknown }).type === 'entity.too.large') message = 'Request is too large';
+  }
   if ((err as { code?: number }).code === 11000) {
     status = 409;
     message = 'Duplicate record';
