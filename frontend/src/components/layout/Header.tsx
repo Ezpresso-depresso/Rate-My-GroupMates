@@ -25,9 +25,14 @@ export function Header({ nav }: { nav?: ReactNode }) {
         <span>
           {user.name}
           <span className="muted small header-email">{user.email}</span>
-          <button className="textbtn" onClick={signOut}>
-            Sign out
-          </button>
+          <span className="header-links">
+            <Link className="textbtn" to="/account">
+              Account
+            </Link>
+            <button className="textbtn" onClick={signOut}>
+              Sign out
+            </button>
+          </span>
         </span>
       </div>
     </header>

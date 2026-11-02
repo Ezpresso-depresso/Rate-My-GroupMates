@@ -26,8 +26,8 @@ export interface Session {
 }
 
 export interface AuthConfig {
+  /** null when Google sign-in is switched off on the server. */
   googleClientId: string | null;
-  devLogin: boolean;
 }
 
 export interface TeamMember extends Member {

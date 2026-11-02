@@ -7,12 +7,12 @@
  *   npm run seed -- --reset       first delete this group's reviews, plus the old
  *                                 pre-login "Group 16" playtest team and its reviews
  *
- * The demo accounts use @example.com emails, so sign in to them with the local
- * test login (DEV_LOGIN=true in backend/.env), e.g. as zahi@example.com.
+ * Sign in to the demo accounts with email + password, e.g. zahi@example.com / groupmates16.
  */
 import mongoose from 'mongoose';
 import { CATEGORY_KEYS } from '../config/constants';
 import { connectDB } from '../config/db';
+import { hashPassword } from '../lib/password';
 import { newInviteCode } from '../lib/util';
 import { Review } from '../models/Review';
 import { Team } from '../models/Team';
@@ -25,6 +25,7 @@ const PEOPLE = [
   { name: 'Zahi', color: '#a95782' },
 ];
 const TEAM = { name: 'Group 16', course: 'INF 151' };
+const DEMO_PASSWORD = 'groupmates16';
 
 const args = process.argv.slice(2);
 const DEMO = args.includes('--demo');
@@ -52,8 +53,20 @@ async function seed() {
   const users = [];
   for (const p of PEOPLE) {
     const email = `${p.name.toLowerCase()}@example.com`;
+    const existing = await User.findOne({ email }).select('+passwordHash');
+    if (existing && !existing.passwordHash) {
+      existing.passwordHash = await hashPassword(DEMO_PASSWORD); // accounts seeded before passwords existed
+      await existing.save();
+    }
     users.push(
-      (await User.findOne({ email })) ?? (await User.create({ email, name: p.name, fullName: p.name, color: p.color })),
+      existing ??
+        (await User.create({
+          email,
+          name: p.name,
+          fullName: p.name,
+          color: p.color,
+          passwordHash: await hashPassword(DEMO_PASSWORD),
+        })),
     );
   }
   const owner = users[0];
@@ -108,7 +121,7 @@ async function seed() {
   console.log(`Group "${team.name}" (${team.course}) ready, reviews open: ${team.members.map((m) => m.name).join(', ')}.`);
   if (DEMO) console.log(`${created} demo review(s) added.`);
   console.log(`${total} review(s) in the database for this group.\n`);
-  console.log('Sign in with the local test login (DEV_LOGIN=true) as one of:');
+  console.log(`Sign in as any of these with the password "${DEMO_PASSWORD}":`);
   for (const u of users) console.log(`  ${u.email}`);
 }
 

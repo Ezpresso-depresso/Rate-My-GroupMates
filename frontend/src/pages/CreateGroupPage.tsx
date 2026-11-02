@@ -82,7 +82,7 @@ export function CreateGroupPage() {
             aria-describedby="email-help"
           />
           <small id="email-help" className="muted">
-            One per line or separated by commas. Use the Google account each person will sign in with. You’re added
+            One per line or separated by commas. Use the email each person signs up with. You’re added
             automatically.
           </small>
         </label>

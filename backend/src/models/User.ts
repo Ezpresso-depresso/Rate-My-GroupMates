@@ -8,6 +8,14 @@ const userSchema = new Schema(
     fullName: { type: String, default: '', trim: true },
     googleId: { type: String, unique: true, sparse: true },
     color: { type: String, default: '#5762c6' },
+    /** bcrypt hash; never sent to clients. Empty for Google-only accounts. */
+    passwordHash: { type: String, select: false },
+    /** Bumped on password change; session tokens carry it, so older sessions stop working. */
+    sessionVersion: { type: Number, default: 0 },
+    // Wrong-password lockout (see LOCKOUT_* in constants)
+    failedLogins: { type: Number, default: 0 },
+    failedLoginsSince: { type: Date, default: null },
+    lockedUntil: { type: Date, default: null },
   },
   { timestamps: true },
 );
@@ -17,7 +25,8 @@ userSchema.set('toJSON', {
   transform: (_doc, ret: Record<string, any>) => {
     ret.id = String(ret._id);
     delete ret._id;
-    delete ret.googleId;
+    for (const key of ['googleId', 'passwordHash', 'sessionVersion', 'failedLogins', 'failedLoginsSince', 'lockedUntil'])
+      delete ret[key];
     return ret;
   },
 });

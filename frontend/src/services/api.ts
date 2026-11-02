@@ -69,7 +69,11 @@ export const api = {
   // Auth
   authConfig: () => request<AuthConfig>('/auth/config'),
   googleLogin: (credential: string) => post<Session>('/auth/google', { credential }),
-  devLogin: (email: string, name: string) => post<Session>('/auth/dev', { email, name }),
+  register: (name: string, email: string, password: string) => post<Session>('/auth/register', { name, email, password }),
+  login: (email: string, password: string) => post<Session>('/auth/login', { email, password }),
+  /** Signs out your other sessions; returns a fresh one for this browser. */
+  changePassword: (currentPassword: string, newPassword: string) =>
+    post<Session>('/auth/password', { currentPassword, newPassword }),
   me: () => request<User>('/auth/me'),
 
   // Groups

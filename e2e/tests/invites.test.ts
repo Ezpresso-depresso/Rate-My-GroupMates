@@ -1,6 +1,6 @@
 import type { Browser } from 'playwright';
 import { afterAll, beforeAll, describe, test } from 'vitest';
-import { api, appUrl, createGroup, expect, joinGroup, launchBrowser, newUser, newVisitor, signIn } from '../setup/helpers';
+import { api, appUrl, createGroup, expect, joinGroup, launchBrowser, newUser, newVisitor, signUp } from '../setup/helpers';
 
 let browser: Browser;
 beforeAll(async () => {
@@ -68,17 +68,17 @@ describe('accepting an invite', () => {
 
     await stranger.page.goto(group.joinUrl);
     await expect(stranger.page.getByText(`This group didn’t invite ${stranger.email}`)).toBeVisible();
-    await expect(stranger.page.getByRole('button', { name: 'Use a different Google account' })).toBeVisible();
+    await expect(stranger.page.getByRole('button', { name: 'Use a different account' })).toBeVisible();
     await expect(stranger.page.getByLabel('Invite code')).toHaveCount(0);
   });
 
-  test('opening an invite link while signed out continues to the invite after signing in', async () => {
+  test('opening an invite link before having an account continues to the invite after signing up', async () => {
     const kent = await newUser(browser, 'Kent');
     const omar = await newVisitor(browser, 'Omar');
     const group = await createGroup(kent, 'Group 16', [omar]);
 
     await omar.page.goto(group.joinUrl);
-    await signIn(omar);
+    await signUp(omar);
     await expect(omar.page.getByRole('heading', { name: 'Kent invited you to Group 16' })).toBeVisible();
   });
 

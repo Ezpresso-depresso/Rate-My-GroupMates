@@ -274,3 +274,13 @@
 .group-card .pill-status {
   justify-self: start;
 }
+
+.form-card h2 {
+  margin: 0;
+}
+
+.ok-notice {
+  margin: 0;
+  background: #e6f2ed;
+  color: #2f7a5a;
+}

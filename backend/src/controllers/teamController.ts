@@ -50,7 +50,7 @@ async function loadTeam(teamId: string): Promise<TeamDoc> {
 async function loadForViewer(teamId: string, user: UserDoc) {
   const team = await loadTeam(teamId);
   const viewer = findViewer(team, user);
-  if (!viewer) throw new HttpError(403, `This group didn’t invite ${user.email}. Signed in with the wrong Google account?`);
+  if (!viewer) throw new HttpError(403, `This group didn’t invite ${user.email}. Signed in with the wrong account?`);
   return { team, viewer };
 }
 

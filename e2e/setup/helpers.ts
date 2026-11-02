@@ -4,6 +4,7 @@ import { chromium, expect as pwExpect, type Browser, type BrowserContext, type P
 import { inject } from 'vitest';
 
 export const appUrl = () => inject('appUrl');
+export const mongoUri = () => inject('mongoUri');
 export const apiUrl = () => inject('apiUrl');
 export { pwExpect as expect };
 
@@ -14,6 +15,7 @@ export async function launchBrowser(): Promise<Browser> {
 export interface TestUser {
   name: string;
   email: string;
+  password: string;
   context: BrowserContext;
   page: Page;
   /** The session token the app stored after sign-in. */
@@ -32,24 +34,37 @@ export async function newVisitor(browser: Browser, name: string): Promise<TestUs
   return {
     name,
     email,
+    password: `pw-${randomUUID().slice(0, 12)}`,
     context,
     page,
     token: async () => JSON.parse((await page.evaluate(() => localStorage.getItem('rmg-session-v1'))) ?? 'null'),
   };
 }
 
-/** Signs in through the local test login on whatever page is open. */
-export async function signIn(user: TestUser) {
-  await user.page.getByLabel('Email').fill(user.email);
-  await user.page.getByLabel('Name').fill(`${user.name} Testerson`);
-  await user.page.getByRole('button', { name: 'Sign in' }).click();
+/** Creates an account through the "Create account" tab of the login page that's open. */
+export async function signUp(user: TestUser) {
+  const { page } = user;
+  await page.getByRole('tab', { name: 'Create account' }).click();
+  await page.getByLabel('Name').fill(`${user.name} Testerson`);
+  await page.getByLabel('Email').fill(user.email);
+  await page.getByLabel('Password').fill(user.password);
+  await page.getByRole('button', { name: 'Create account' }).click();
 }
 
-/** A new, signed-in person on the home page. */
+/** Signs in to an existing account through the "Sign in" tab of the login page that's open. */
+export async function signIn(user: TestUser, password = user.password) {
+  const { page } = user;
+  await page.getByRole('tab', { name: 'Sign in' }).click();
+  await page.getByLabel('Email').fill(user.email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+}
+
+/** A new person with a fresh account, signed in, on the home page. */
 export async function newUser(browser: Browser, name: string): Promise<TestUser> {
   const user = await newVisitor(browser, name);
   await user.page.goto(appUrl());
-  await signIn(user);
+  await signUp(user);
   await pwExpect(user.page.getByRole('heading', { name: 'Your groups' })).toBeVisible();
   return user;
 }

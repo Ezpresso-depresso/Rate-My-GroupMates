@@ -44,7 +44,7 @@ export function JoinPage() {
         <div className="form-actions">
           {state.status === 403 ? (
             <button className="btn" onClick={signOut}>
-              Use a different Google account
+              Use a different account
             </button>
           ) : state.status === 400 || state.status === 404 ? null : (
             <button

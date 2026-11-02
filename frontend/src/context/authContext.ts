@@ -4,6 +4,8 @@ import type { Session, User } from '../types';
 export interface AuthContextValue {
   user: User;
   signOut: () => void;
+  /** Swap in a new session (after a password change). */
+  replaceSession: (session: Session) => void;
 }
 
 export interface AuthGateValue {

@@ -16,7 +16,10 @@ declare global {
 }
 
 export function signSession(user: UserDoc): string {
-  return jwt.sign({}, JWT_SECRET(), { subject: String(user._id), expiresIn: `${SESSION_DAYS}d` });
+  return jwt.sign({ v: user.sessionVersion ?? 0 }, JWT_SECRET(), {
+    subject: String(user._id),
+    expiresIn: `${SESSION_DAYS}d`,
+  });
 }
 
 /** Reads `Authorization: Bearer <token>` and loads the user. 401 when missing, invalid, expired or the account is gone. */
@@ -26,8 +29,11 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
   if (!token) return next(new HttpError(401, 'Please sign in'));
 
   let userId: string | undefined;
+  let version = 0;
   try {
-    userId = jwt.verify(token, JWT_SECRET()).sub as string | undefined;
+    const payload = jwt.verify(token, JWT_SECRET()) as jwt.JwtPayload;
+    userId = payload.sub;
+    version = typeof payload.v === 'number' ? payload.v : 0;
   } catch (err) {
     const expired = err instanceof jwt.TokenExpiredError;
     return next(new HttpError(401, expired ? 'Your session expired. Please sign in again' : 'Please sign in again'));
@@ -36,6 +42,8 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
 
   const user = await User.findById(userId);
   if (!user) return next(new HttpError(401, 'Your account no longer exists. Please sign in again'));
+  if ((user.sessionVersion ?? 0) !== version)
+    return next(new HttpError(401, 'Your password was changed. Please sign in again'));
   req.user = user;
   next();
 };

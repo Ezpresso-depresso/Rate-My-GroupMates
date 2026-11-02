@@ -102,6 +102,11 @@
   }
 }
 
+.current-member .header-links {
+  display: flex;
+  gap: 12px;
+}
+
 .current-member .header-email {
   display: block;
   font-weight: 500;

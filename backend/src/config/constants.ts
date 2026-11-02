@@ -16,14 +16,20 @@ export const MONGODB_URI = () => required('MONGODB_URI');
 export const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME ?? 'rate-my-groupmates';
 
 // Auth
-// OAuth client id from Google Cloud Console (APIs & Services > Credentials). The frontend
-// fetches it from /api/auth/config, so it only has to be set here.
+// Optional. OAuth client id from Google Cloud Console; when unset, Google sign-in is switched off
+// and only email + password is offered. The frontend fetches it from /api/auth/config.
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID?.trim() ?? '';
 // Signs session tokens. Must be set in production; local dev falls back to a fixed secret.
 export const JWT_SECRET = () => (IS_PROD ? required('JWT_SECRET') : (process.env.JWT_SECRET ?? 'dev-only-secret'));
 export const SESSION_DAYS = 30;
-// Lets anyone sign in with any name + email, no Google. Local testing only: never on in production.
-export const DEV_LOGIN = !IS_PROD && process.env.DEV_LOGIN === 'true';
+
+// Passwords (stored as bcrypt hashes)
+export const PASSWORD_MIN = 8;
+export const PASSWORD_MAX_BYTES = 72; // bcrypt ignores anything past 72 bytes, so refuse longer ones
+export const BCRYPT_ROUNDS = 10;
+// After LOCKOUT_ATTEMPTS wrong passwords within LOCKOUT_MINUTES, the email is locked for LOCKOUT_MINUTES.
+export const LOCKOUT_ATTEMPTS = 10;
+export const LOCKOUT_MINUTES = 15;
 
 // Comma-separated list of allowed frontend origins. `*` matches any subdomain part, e.g.
 // "https://rmg.vercel.app,https://*-myteam-projects.vercel.app" (covers Vercel's branch/preview URLs).

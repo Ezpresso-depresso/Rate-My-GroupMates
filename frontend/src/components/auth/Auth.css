@@ -24,24 +24,57 @@
 .login-google {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  min-height: 44px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
-.login-google.busy .google-button {
-  opacity: 0.5;
-  pointer-events: none;
+.login-or {
+  color: var(--subtle);
+  font-size: 12px;
 }
 
 .google-failed .error {
   margin-top: 0;
 }
 
-.dev-login {
+.login-tabs {
   display: grid;
-  gap: 10px;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px dashed var(--line-strong);
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+.login-tabs button {
+  padding: 10px;
+  border-radius: 10px;
+  background: none;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.login-tabs button[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
   text-align: left;
+}
+
+.login-form .error {
+  margin: 0;
+}
+
+.login-submit {
+  justify-content: center;
+}
+
+.login-card .legal-links {
+  margin-bottom: 0;
 }
