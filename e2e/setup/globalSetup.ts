@@ -107,12 +107,13 @@ export default async function setup(project: TestProject) {
 
   const backend = start('backend', join(ROOT, 'backend', 'node_modules', 'tsx', 'dist', 'cli.mjs'), ['src/server.ts'], join(ROOT, 'backend'), {
     PORT: String(apiPort),
-    NODE_ENV: 'test',
+    // Run it the way Vercel does: production mode, and no JWT_SECRET (the backend derives one).
+    NODE_ENV: 'production',
+    JWT_SECRET: '',
     MONGODB_URI: mongo.getUri(),
     MONGODB_DB_NAME: 'rmg-e2e',
     CLIENT_ORIGIN: appUrl,
     GOOGLE_CLIENT_ID: '',
-    JWT_SECRET: 'e2e-secret',
   });
   const frontend = start(
     'frontend',

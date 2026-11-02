@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { createHmac } from 'node:crypto';
 
 function required(name: string): string {
   const value = process.env[name];
@@ -19,8 +20,12 @@ export const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME ?? 'rate-my-groupmate
 // Optional. OAuth client id from Google Cloud Console; when unset, Google sign-in is switched off
 // and only email + password is offered. The frontend fetches it from /api/auth/config.
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID?.trim() ?? '';
-// Signs session tokens. Must be set in production; local dev falls back to a fixed secret.
-export const JWT_SECRET = () => (IS_PROD ? required('JWT_SECRET') : (process.env.JWT_SECRET ?? 'dev-only-secret'));
+// Signs login sessions. Uses JWT_SECRET when set; otherwise derives a private secret from the
+// database connection string (already secret, already set on Vercel). Never a value written in
+// the code: the repo is public, so that would let anyone forge sessions.
+export const JWT_SECRET = () =>
+  process.env.JWT_SECRET?.trim() ||
+  createHmac('sha256', MONGODB_URI()).update('rate-my-groupmates/session-signing/v1').digest('hex');
 export const SESSION_DAYS = 30;
 
 // Passwords (stored as bcrypt hashes)

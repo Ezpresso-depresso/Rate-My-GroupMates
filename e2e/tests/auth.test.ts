@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -261,6 +262,21 @@ describe('the API protects accounts', () => {
   test('forged token → 401', async () => {
     const res = await api('forged.token.value', 'GET', '/teams');
     expect(res.status).toBe(401);
+  });
+
+  test('without JWT_SECRET, sessions still can’t be forged with a guessable secret', async () => {
+    const real = await register(uniqueEmail('target'), 'long-enough-pw');
+    expect(real.status).toBe(201);
+    const userId = JSON.parse(Buffer.from(real.body.token.split('.')[1], 'base64url').toString()).sub;
+
+    const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
+    const forge = (secret: string) => {
+      const unsigned = `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ v: 0, sub: userId, exp: Math.floor(Date.now() / 1000) + 3600 })}`;
+      return `${unsigned}.${createHmac('sha256', secret).update(unsigned).digest('base64url')}`;
+    };
+    for (const guess of ['', 'secret', 'dev-only-secret', 'e2e-secret', 'undefined', mongoUri()])
+      expect((await api(forge(guess), 'GET', '/auth/me')).status).toBe(401);
+    expect((await api(real.body.token, 'GET', '/auth/me')).status).toBe(200);
   });
 
   test('the old no-password test login is gone', async () => {

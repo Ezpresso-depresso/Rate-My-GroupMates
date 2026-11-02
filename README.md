@@ -107,7 +107,7 @@ Create **two** Vercel projects from this repo:
 
 - **frontend** – Root Directory `frontend`. Env var `VITE_API_URL=https://<backend>.vercel.app/api`.
 - **backend** – Root Directory `backend`. Env vars `MONGODB_URI`, `MONGODB_DB_NAME`,
-  `CLIENT_ORIGIN=https://<frontend>.vercel.app`, and `JWT_SECRET` (**required**: a long random string, e.g.
-  `openssl rand -hex 32`; changing it signs everyone out). `GOOGLE_CLIENT_ID` is optional.
+  `CLIENT_ORIGIN=https://<frontend>.vercel.app`, optionally `JWT_SECRET` (a long random string; without it the
+  backend derives one from `MONGODB_URI`, so changing the database password signs everyone out). `GOOGLE_CLIENT_ID` is optional.
 
 In MongoDB Atlas, allow access from Vercel (Network Access → `0.0.0.0/0`, since Vercel IPs are dynamic).

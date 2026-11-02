@@ -35,7 +35,8 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   if (status >= 500 && !(err instanceof HttpError)) console.error(err);
   res.status(status).json({
-    message: status >= 500 && IS_PROD ? 'Internal server error' : message,
+    // Hide unexpected crashes in production; HttpError messages are written for users, so keep them.
+    message: status >= 500 && IS_PROD && !(err instanceof HttpError) ? 'Internal server error' : message,
     ...(IS_PROD ? {} : { stack: err instanceof Error ? err.stack : undefined }),
   });
 };
