@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useReviews } from '../../hooks/useReviews';
+import { groupPath } from '../../lib/teams';
 import './Awards.css';
 
 export function AwardsEmpty() {
+  const { team } = useReviews();
   return (
     <section className="card awards-empty">
       <div className="empty-award">✦</div>
@@ -12,7 +15,7 @@ export function AwardsEmpty() {
         <br />
         Then come back for the reveal.
       </p>
-      <Link className="btn" to="/">
+      <Link className="btn" to={groupPath(team.id)}>
         Continue rating →
       </Link>
     </section>

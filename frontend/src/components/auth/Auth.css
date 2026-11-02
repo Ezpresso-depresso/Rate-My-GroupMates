@@ -1,0 +1,80 @@
+.login-card {
+  width: min(440px, 100%);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+
+.login-pitch {
+  margin: 22px 0;
+}
+
+.login-card .notice {
+  margin-bottom: 18px;
+}
+
+.login-google {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.login-or {
+  color: var(--subtle);
+  font-size: 12px;
+}
+
+.google-failed .error {
+  margin-top: 0;
+}
+
+.login-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+.login-tabs button {
+  padding: 10px;
+  border-radius: 10px;
+  background: none;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.login-tabs button[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  text-align: left;
+}
+
+.login-form .error {
+  margin: 0;
+}
+
+.login-submit {
+  justify-content: center;
+}
+
+.login-card .legal-links {
+  margin-bottom: 0;
+}

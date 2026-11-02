@@ -8,6 +8,7 @@ import { MemberDetail } from '../components/awards/MemberDetail';
 import { Modal } from '../components/common/Modal';
 import { useReviews } from '../hooks/useReviews';
 import { incoming, summary } from '../lib/ratingCore';
+import { groupPath } from '../lib/teams';
 
 export function AwardsPage() {
   const { team, currentUser, teammates, reviews, hasSubmitted } = useReviews();
@@ -28,7 +29,7 @@ export function AwardsPage() {
           <div className="eyebrow">summary page</div>
           <h2>Results post-review</h2>
         </div>
-        <Link className="textbtn" to="/">
+        <Link className="textbtn" to={groupPath(team.id)}>
           Edit your ratings ↗
         </Link>
       </div>
@@ -51,7 +52,7 @@ export function AwardsPage() {
           <h3>Thanks for submitting</h3>
           <p>Make sure you didn't misclick</p>
         </div>
-        <Link className="btn" to="/">
+        <Link className="btn" to={groupPath(team.id)}>
           Edit ratings →
         </Link>
       </div>
