@@ -42,7 +42,8 @@ rate-my-groupmates/
   `npm run reset-password -- their@email.com a-new-password` in `backend/` and tells them the new password.
 - **Google sign-in (optional, off):** set `GOOGLE_CLIENT_ID` on the backend to show a "Sign in with Google" button.
   Create a Web OAuth client at https://console.cloud.google.com/auth/clients with your frontend URLs as
-  Authorized JavaScript origins. Accounts with the same email are linked.
+  Authorized JavaScript origins. Accounts with the same email are linked. For production, see
+  [Turning on Google sign-in in production](#turning-on-google-sign-in-in-production).
 
 ## Running locally
 
@@ -111,3 +112,29 @@ Create **two** Vercel projects from this repo:
   backend derives one from `MONGODB_URI`, so changing the database password signs everyone out). `GOOGLE_CLIENT_ID` is optional.
 
 In MongoDB Atlas, allow access from Vercel (Network Access → `0.0.0.0/0`, since Vercel IPs are dynamic).
+
+### Turning on Google sign-in in production
+
+Spec: [`specs/auth/google-sign-in-prod/SPEC.md`](specs/auth/google-sign-in-prod/SPEC.md). No code changes needed, only settings:
+
+1. **Google Cloud** (https://console.cloud.google.com):
+   - **Branding / OAuth consent screen:** External, app name "Rate My Groupmates", support email, and links to
+     your live home page, `/privacy` and `/terms`. Scopes: only `openid`, `email`, `profile`.
+   - **Audience:** click **Publish app** so it's "In production". In "Testing", only listed test users can sign in.
+   - **Clients → Create client → Web application.** Authorized JavaScript origins: your exact frontend URL(s),
+     e.g. `https://<frontend>.vercel.app` (no trailing slash), plus `http://localhost:5173` for local dev.
+     Leave redirect URIs empty. Copy the client ID.
+2. **MongoDB Atlas:** Network Access has `0.0.0.0/0`; the Database Access user has `readWrite` on your database.
+   Nothing else to set up: the `users` indexes are built automatically, and `npm run check:prod` confirms it.
+3. **Vercel, backend project:** set `GOOGLE_CLIENT_ID`, `CLIENT_ORIGIN=https://<frontend>.vercel.app` and a
+   `JWT_SECRET`, then **redeploy**. The frontend needs nothing new.
+4. **Check it:** put the same production values in `backend/.env` and run, in `backend/`:
+
+   ```bash
+   npm run check:prod -- --fix --api https://<backend>.vercel.app/api
+   ```
+
+   It checks the settings, connects to Atlas, creates any missing index (`--fix`; it never touches user
+   data), and confirms the live backend has Google on and accepts your frontend. "Ready for Google sign-in" means done.
+
+Google sign-in won't work on Vercel preview URLs unless you add each one as an origin in Google Cloud.

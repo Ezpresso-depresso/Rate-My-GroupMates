@@ -1,5 +1,5 @@
 /* Shared helpers: fresh browser users, the app's URLs, and direct API calls for permission checks. */
-import { randomUUID } from 'node:crypto';
+import { createSign, randomUUID } from 'node:crypto';
 import { chromium, expect as pwExpect, type Browser, type BrowserContext, type Page } from 'playwright/test';
 import { inject } from 'vitest';
 
@@ -121,4 +121,50 @@ export async function useAccountMenu(page: Page, item: 'Settings' | 'Sign out') 
   await page.getByRole('link', { name: 'Your profile' }).hover();
   if (item === 'Sign out') await page.getByRole('button', { name: 'Sign out' }).click();
   else await page.getByRole('link', { name: item }).click();
+}
+
+// ---------- Google sign-in (against the second backend, which has GOOGLE_CLIENT_ID set) ----------
+
+export const googleApiUrl = () => inject('googleApiUrl');
+export const googleClientId = () => inject('googleClientId');
+
+export interface GoogleClaims {
+  sub?: string;
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  given_name?: string;
+  aud?: string;
+  iss?: string;
+  exp?: number;
+}
+
+/** An ID token shaped like the one Google's button hands the app, signed with the test key. */
+export function googleToken(claims: GoogleClaims = {}, privateKey = inject('googlePrivateKey')) {
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: 'https://accounts.google.com',
+    aud: googleClientId(),
+    sub: `g-${randomUUID()}`,
+    email: uniqueEmail('google'),
+    email_verified: true,
+    name: 'Gigi Googler',
+    given_name: 'Gigi',
+    iat: now,
+    exp: now + 3600,
+    ...claims,
+  };
+  const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const unsigned = `${b64({ alg: 'RS256', typ: 'JWT', kid: inject('googleKeyId') })}.${b64(payload)}`;
+  return `${unsigned}.${createSign('RSA-SHA256').update(unsigned).sign(privateKey, 'base64url')}`;
+}
+
+/** POST /auth/google on the Google-enabled backend. */
+export async function googleSignIn(credential: string) {
+  const res = await fetch(`${googleApiUrl()}/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential }),
+  });
+  return { status: res.status, body: await res.json() };
 }

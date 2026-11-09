@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/scripts/seed.ts",
-    "reset-password": "tsx src/scripts/resetPassword.ts"
+    "reset-password": "tsx src/scripts/resetPassword.ts",
+    "check:prod": "tsx src/scripts/checkProduction.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

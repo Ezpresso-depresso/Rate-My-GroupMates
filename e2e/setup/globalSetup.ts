@@ -6,6 +6,8 @@
  * and shuts it all down afterwards. Your own backend/.env and database are never touched.
  */
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { generateKeyPairSync } from 'node:crypto';
+import { createServer as createHttpServer } from 'node:http';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { dirname, join, resolve } from 'node:path';
@@ -33,6 +35,12 @@ declare module 'vitest' {
     appUrl: string;
     apiUrl: string;
     mongoUri: string;
+    /** A second backend on the same database, with Google sign-in switched on. */
+    googleApiUrl: string;
+    googleClientId: string;
+    /** Signs test Google ID tokens; the Google backend fetches the matching public key. */
+    googlePrivateKey: string;
+    googleKeyId: string;
   }
 }
 
@@ -101,9 +109,23 @@ export default async function setup(project: TestProject) {
   mkdirSync(LOG_DIR, { recursive: true });
 
   const mongo = await MongoMemoryServer.create();
-  const [apiPort, appPort] = [await freePort(), await freePort()];
+  const [apiPort, appPort, googleApiPort] = [await freePort(), await freePort(), await freePort()];
   const appUrl = `http://localhost:${appPort}`;
   const apiUrl = `http://localhost:${apiPort}/api`;
+  const googleApiUrl = `http://localhost:${googleApiPort}/api`;
+
+  // Stand-in for Google's public signing keys, in the format Google serves them ({ keyId: PEM }).
+  const googleKeyId = 'e2e-key';
+  const googleClientId = 'e2e-client.apps.googleusercontent.com';
+  const keys = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const googlePrivateKey = keys.privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
+  const publicPem = keys.publicKey.export({ type: 'spki', format: 'pem' }).toString();
+  const certServer = createHttpServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' });
+    res.end(JSON.stringify({ [googleKeyId]: publicPem }));
+  });
+  const certPort = await freePort();
+  await new Promise<void>((ok) => certServer.listen(certPort, '127.0.0.1', ok));
 
   const backend = start('backend', join(ROOT, 'backend', 'node_modules', 'tsx', 'dist', 'cli.mjs'), ['src/server.ts'], join(ROOT, 'backend'), {
     PORT: String(apiPort),
@@ -115,6 +137,23 @@ export default async function setup(project: TestProject) {
     CLIENT_ORIGIN: appUrl,
     GOOGLE_CLIENT_ID: '',
   });
+  // Same database and same derived session key, so a Google sign-in here works on the main backend too.
+  const googleBackend = start(
+    'backend-google',
+    join(ROOT, 'backend', 'node_modules', 'tsx', 'dist', 'cli.mjs'),
+    ['src/server.ts'],
+    join(ROOT, 'backend'),
+    {
+      PORT: String(googleApiPort),
+      NODE_ENV: 'production',
+      JWT_SECRET: '',
+      MONGODB_URI: mongo.getUri(),
+      MONGODB_DB_NAME: 'rmg-e2e',
+      CLIENT_ORIGIN: appUrl,
+      GOOGLE_CLIENT_ID: googleClientId,
+      GOOGLE_CERTS_URL: `http://127.0.0.1:${certPort}/certs`,
+    },
+  );
   const frontend = start(
     'frontend',
     join(ROOT, 'frontend', 'node_modules', 'vite', 'bin', 'vite.js'),
@@ -125,9 +164,12 @@ export default async function setup(project: TestProject) {
 
   const teardown = async () => {
     backend.save();
+    googleBackend.save();
     frontend.save();
     stop(backend.child);
+    stop(googleBackend.child);
     stop(frontend.child);
+    certServer.close();
     await mongo.stop();
   };
 
@@ -136,6 +178,11 @@ export default async function setup(project: TestProject) {
       'The backend',
       async () => (await (await fetch(`${apiUrl}/health`)).json()).db === 'connected',
       backend.log,
+    );
+    await waitFor(
+      'The Google sign-in backend',
+      async () => (await (await fetch(`${googleApiUrl}/health`)).json()).db === 'connected',
+      googleBackend.log,
     );
     await waitFor('The frontend', async () => (await fetch(appUrl)).ok, frontend.log);
   } catch (err) {
@@ -146,5 +193,9 @@ export default async function setup(project: TestProject) {
   project.provide('appUrl', appUrl);
   project.provide('apiUrl', apiUrl);
   project.provide('mongoUri', mongo.getUri());
+  project.provide('googleApiUrl', googleApiUrl);
+  project.provide('googleClientId', googleClientId);
+  project.provide('googlePrivateKey', googlePrivateKey);
+  project.provide('googleKeyId', googleKeyId);
   return teardown;
 }

@@ -20,6 +20,10 @@ export const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME ?? 'rate-my-groupmate
 // Optional. OAuth client id from Google Cloud Console; when unset, Google sign-in is switched off
 // and only email + password is offered. The frontend fetches it from /api/auth/config.
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID?.trim() ?? '';
+// Tests only: where to fetch the keys that sign Google ID tokens, so tests can sign their own. Only a
+// localhost URL is accepted, so this can never make a deployed server trust someone else's keys.
+const certsUrl = process.env.GOOGLE_CERTS_URL?.trim() ?? '';
+export const GOOGLE_CERTS_URL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(certsUrl) ? certsUrl : '';
 // Signs login sessions. Uses JWT_SECRET when set; otherwise derives a private secret from the
 // database connection string (already secret, already set on Vercel). Never a value written in
 // the code: the repo is public, so that would let anyone forge sessions.
