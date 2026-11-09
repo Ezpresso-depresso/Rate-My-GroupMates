@@ -115,3 +115,10 @@ export async function rateCurrentTeammate(page: Page, stars: number, score: numb
     await page.getByRole('button', { name: new RegExp(`^${category}.*: ${score} out of 10$`) }).click();
   }
 }
+
+/** Hovers the name/avatar pill in the header to show the account menu, then picks an item. */
+export async function useAccountMenu(page: Page, item: 'My Profile' | 'Settings' | 'Sign out') {
+  await page.getByRole('link', { name: 'Your profile' }).hover();
+  if (item === 'Sign out') await page.getByRole('button', { name: 'Sign out' }).click();
+  else await page.getByRole('link', { name: item }).click();
+}

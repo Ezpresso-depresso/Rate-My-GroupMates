@@ -8,6 +8,7 @@ interface AvatarProps {
   className?: string;
 }
 
+/** Profile picture when there is one, otherwise initials on the member's color. */
 export function Avatar({ member, size = 34, className = '' }: AvatarProps) {
   return (
     <span
@@ -15,7 +16,7 @@ export function Avatar({ member, size = 34, className = '' }: AvatarProps) {
       style={{ background: member.color, width: size, height: size, fontSize: size * 0.36 }}
       aria-hidden="true"
     >
-      {initials(member.name)}
+      {member.avatar ? <img className="avatar-img" src={member.avatar} alt="" /> : initials(member.name)}
     </span>
   );
 }

@@ -13,6 +13,8 @@ export interface Member {
   id: string;
   name: string;
   color: string;
+  /** Profile picture data URL; initials are shown when empty or missing. */
+  avatar?: string;
 }
 
 export interface User extends Member {
@@ -72,6 +74,28 @@ export interface Review extends ReviewDraft {
   reviewerId?: string;
   targetId: string;
   submittedAt: string;
+}
+
+/** A review someone wrote about you, as GET /profile returns it. */
+export interface ReceivedReview {
+  id: string;
+  teamId: string;
+  rating: number;
+  scores: Scores;
+  text: string;
+  anonymous: boolean;
+  /** null when the review is anonymous. */
+  reviewerName: string | null;
+  submittedAt: string;
+}
+
+export interface ProfileData {
+  /** Groups that count toward your profile (ones where you've submitted your own reviews). */
+  groups: { id: string; name: string; course: string }[];
+  /** Newest first. */
+  reviews: ReceivedReview[];
+  pinnedComments: string[];
+  pinnedAwards: string[];
 }
 
 export interface CategoryScore extends Category {

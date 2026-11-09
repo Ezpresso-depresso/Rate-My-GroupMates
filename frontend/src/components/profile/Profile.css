@@ -1,0 +1,393 @@
+/* The whole profile sits on one raised panel, separated from the page like the navbar. */
+.profile-page {
+  margin-top: 8px;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 2px 12px #282a4b47;
+}
+
+/* Sections inside the panel are outlined, not raised again. */
+.profile-page .profile-section {
+  box-shadow: none;
+}
+
+/* Only the avatar sets the editor's height (Remove photo / errors hang below it),
+   so the name beside it lines up with the picture's center. */
+.avatar-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-editor > .avatar-remove,
+.avatar-editor > .avatar-error {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* "Remove photo" only shows while hovering the picture (or tabbing to it). It starts right at
+   the avatar's edge, with the 6px gap as padding, so the pointer can reach it without losing hover. */
+.avatar-editor > .avatar-remove {
+  top: 100%;
+  padding-top: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0s linear 0.15s;
+}
+
+.avatar-editor:hover > .avatar-remove,
+.avatar-editor:focus-within > .avatar-remove {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (hover: none) {
+  /* No hover on touch screens, so keep it visible there. */
+  .avatar-editor > .avatar-remove {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.avatar-editor > .avatar-error {
+  white-space: normal;
+  width: 220px;
+}
+
+.avatar-drop {
+  position: relative;
+  padding: 0;
+  border-radius: 50%;
+  background: none;
+  transition: transform 0.15s;
+}
+
+.avatar-drop:disabled {
+  opacity: 1; /* keep the picture visible while uploading */
+  cursor: progress;
+}
+
+/* Pen (or spinner) over a darkened avatar, on hover, keyboard focus, drag-over and while uploading. */
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(24 27 59 / 0.55);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.avatar-drop:hover .avatar-overlay,
+.avatar-drop:focus-visible .avatar-overlay,
+.avatar-drop.dragging .avatar-overlay,
+.avatar-drop:disabled .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-drop.dragging {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 3px var(--primary);
+}
+
+.avatar-spinner {
+  width: 28%;
+  height: 28%;
+  border: 3px solid rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: avatar-spin 0.8s linear infinite;
+}
+
+@keyframes avatar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.avatar-remove {
+  font-size: 12px;
+}
+
+.avatar-error {
+  max-width: 220px;
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ---------- Profile sections ---------- */
+.profile-sections {
+  display: grid;
+  gap: 20px;
+}
+
+.profile-sections > .error:empty {
+  display: none;
+}
+
+.profile-section {
+  padding: 26px 28px;
+}
+
+.profile-section h2 {
+  margin: 0 0 16px;
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.pin-hint {
+  margin: 14px 0 0;
+}
+
+/* My Rating */
+.rating-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+.rating-overall {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.rating-overall strong {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1;
+}
+
+.rating-categories {
+  display: grid;
+  gap: 14px;
+}
+
+.rating-category {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.profile-bar {
+  width: 100%;
+  height: 8px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.profile-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+/* Comments + awards */
+.comment-list,
+.award-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comment-list + .expand-toggle,
+.pinned-list + .award-list {
+  margin-top: 10px;
+}
+
+.comment,
+.award-item {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.comment.pinned,
+.award-item.pinned {
+  border-color: var(--primary-border);
+  background: var(--primary-soft);
+}
+
+.comment-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.comment-head > span:first-child {
+  flex: 1;
+}
+
+.comment-head .stars {
+  font-size: 14px;
+}
+
+.comment p {
+  margin: 8px 0 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.expand-toggle {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.expand-toggle[aria-expanded='true'] {
+  margin-bottom: 10px;
+}
+
+.show-more {
+  margin-top: 10px;
+}
+
+.award-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.award-item .seal {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+}
+
+.award-item > div {
+  flex: 1;
+}
+
+.award-item p {
+  margin: 2px 0;
+}
+
+.pin-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: none;
+  color: var(--subtle);
+  transition: background 0.15s, color 0.15s;
+}
+
+.pin-button:hover:not(:disabled) {
+  background: var(--surface-muted);
+  color: var(--primary);
+}
+
+.pin-button.pinned {
+  color: var(--primary);
+}
+
+@media (max-width: 640px) {
+  .rating-summary {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .profile-section {
+    padding: 20px 18px;
+  }
+}
+
+/* The name button is inline, so the email needs its own line to stay underneath it. */
+.profile-email {
+  display: block;
+}
+
+/* ---------- Name editor ---------- */
+/* Looks like a plain heading; hover (or keyboard focus) shows the pen. */
+.name-edit {
+  display: inline-block;
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+.name-edit h1 {
+  margin: 2px 0;
+}
+
+/* Roughly cap height, resting on the baseline, so it lines up with the letters. */
+.name-pen {
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.25em;
+  vertical-align: baseline;
+  color: var(--primary);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.name-edit:hover .name-pen,
+.name-edit:focus-visible .name-pen {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .name-pen {
+    opacity: 0.6;
+  }
+}
+
+.name-form {
+  margin: 2px 0;
+}
+
+/* Same size as the heading it replaces, so nothing jumps. */
+.name-input {
+  width: min(100%, 520px);
+  padding: 0 8px;
+  margin-left: -9px;
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 44px/1.08 var(--font-display);
+  letter-spacing: -1.7px;
+}
+
+.name-error {
+  margin: 6px 0 0;
+}
+
+@media (max-width: 760px) {
+  .name-input {
+    font-size: 34px;
+    letter-spacing: -1px;
+  }
+}

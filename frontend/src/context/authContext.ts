@@ -6,6 +6,8 @@ export interface AuthContextValue {
   signOut: () => void;
   /** Swap in a new session (after a password change). */
   replaceSession: (session: Session) => void;
+  /** Swap in updated account details (e.g. a new profile picture); the session stays the same. */
+  updateUser: (user: User) => void;
 }
 
 export interface AuthGateValue {

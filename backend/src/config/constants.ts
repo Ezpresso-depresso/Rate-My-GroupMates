@@ -59,3 +59,13 @@ export const MAX_COMMENT_LENGTH = 700;
 export const MIN_GROUP_SIZE = 2; // creator included; no upper limit
 export const MAX_NAME_LENGTH = 80;
 export const INVITE_CODE_LENGTH = 6;
+
+// Profile
+/**
+ * Profile pictures are stored on the user as a small data URL (the browser resizes them to
+ * 256×256 first). Kept under the 100kb JSON body limit in app.ts. Keep in sync with
+ * frontend/src/lib/image.ts.
+ */
+export const MAX_AVATAR_CHARS = 90_000;
+/** How many comments / awards someone can pin to the top of their profile. */
+export const MAX_PINS = 3;

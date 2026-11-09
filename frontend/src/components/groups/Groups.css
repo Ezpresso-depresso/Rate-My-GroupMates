@@ -12,6 +12,20 @@
   margin: 6px 0 0;
 }
 
+/* Profile: avatar sits beside the name instead of at the far end. */
+.profile-heading {
+  justify-content: flex-start;
+  align-items: center;
+  /* Divider between you (picture + name) and the rest of the profile. The padding also leaves
+     room for "Remove photo", which hangs below the avatar. */
+  margin-bottom: 24px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-heading h1 {
+  margin: 2px 0;
+}
 .section-title {
   margin: 34px 0 14px;
   font-size: 20px;

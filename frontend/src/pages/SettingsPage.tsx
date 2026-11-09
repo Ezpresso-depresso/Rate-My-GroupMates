@@ -5,7 +5,7 @@ import { PASSWORD_MIN, passwordProblem } from '../lib/passwords';
 import { api, type ApiError } from '../services/api';
 import '../components/groups/Groups.css';
 
-export function AccountPage() {
+export function SettingsPage() {
   const { user, replaceSession } = useAuth();
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
@@ -42,7 +42,7 @@ export function AccountPage() {
     <>
       <div className="page-heading">
         <div>
-          <div className="eyebrow">Account</div>
+          <div className="eyebrow">Settings</div>
           <h1>{user.fullName || user.name}</h1>
           <span className="muted">{user.email}</span>
         </div>
