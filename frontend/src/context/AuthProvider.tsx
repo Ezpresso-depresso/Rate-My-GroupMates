@@ -74,7 +74,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
   return (
-    <AuthContext.Provider value={{ user: state.user, signOut: () => signOut(), replaceSession: signIn }}>
+    <AuthContext.Provider
+      value={{
+        user: state.user,
+        signOut: () => signOut(),
+        replaceSession: signIn,
+        updateUser: (user) => setState({ kind: 'signedIn', user }),
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,10 +1,18 @@
 import type { Request, Response } from 'express';
 import { OAuth2Client, type TokenPayload } from 'google-auth-library';
-import { GOOGLE_CERTS_URL, GOOGLE_CLIENT_ID, LOCKOUT_ATTEMPTS, LOCKOUT_MINUTES, MAX_NAME_LENGTH } from '../config/constants';
+import {
+  GOOGLE_CERTS_URL,
+  GOOGLE_CLIENT_ID,
+  LOCKOUT_ATTEMPTS,
+  LOCKOUT_MINUTES,
+  MAX_AVATAR_CHARS,
+  MAX_NAME_LENGTH,
+} from '../config/constants';
 import { checkPassword, hashPassword, passwordProblem } from '../lib/password';
 import { colorFor, emailName, firstName, isEmail, normalizeEmail } from '../lib/util';
 import { authedUser, signSession } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
+import { Team } from '../models/Team';
 import { User, type UserDoc } from '../models/User';
 
 const google = new OAuth2Client(
@@ -125,6 +133,47 @@ export async function changePassword(req: Request, res: Response) {
 
 export function me(req: Request, res: Response) {
   res.json(authedUser(req));
+}
+
+/**
+ * Body: { name } — your full name. Groups and rating screens show the first name, so that's
+ * updated on every group you belong to as well (invited-but-not-joined entries are left alone).
+ */
+export async function setName(req: Request, res: Response) {
+  const me = authedUser(req);
+  const fullName = bodyString(req, 'name').trim().replace(/\s+/g, ' ');
+  if (!fullName) throw new HttpError(400, 'Enter your name');
+  if (fullName.length > MAX_NAME_LENGTH) throw new HttpError(400, `Name must be at most ${MAX_NAME_LENGTH} characters`);
+  const name = firstName(fullName);
+
+  const user = await User.findByIdAndUpdate(me._id, { $set: { fullName, name } }, { new: true });
+  if (!user) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
+  await Team.updateMany(
+    { 'members.user': user._id },
+    { $set: { 'members.$[me].name': name } },
+    { arrayFilters: [{ 'me.user': user._id }] },
+  );
+  res.json(user);
+}
+
+const AVATAR_DATA_URL = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+/** Body: { image } — a data URL. The browser crops/resizes it first; this only checks shape and size. */
+export async function setAvatar(req: Request, res: Response) {
+  const image = bodyString(req, 'image');
+  if (!AVATAR_DATA_URL.test(image)) throw new HttpError(400, 'That doesn’t look like a JPEG, PNG or WebP image');
+  if (image.length > MAX_AVATAR_CHARS) throw new HttpError(413, 'That picture is too large. Try a smaller one');
+
+  const user = await User.findByIdAndUpdate(authedUser(req)._id, { $set: { avatar: image } }, { new: true });
+  if (!user) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
+  res.json(user);
+}
+
+/** Back to the initials. */
+export async function removeAvatar(req: Request, res: Response) {
+  const user = await User.findByIdAndUpdate(authedUser(req)._id, { $set: { avatar: '' } }, { new: true });
+  if (!user) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
+  res.json(user);
 }
 
 // ---------- Google (off unless GOOGLE_CLIENT_ID is set) ----------

@@ -46,15 +46,22 @@ export function GroupsPage() {
     }
   };
 
-  if (state.kind === 'loading') return <p className="muted">Loading your groups…</p>;
+  if (state.kind === 'loading')
+    return (
+      <div className="page-panel">
+        <p className="muted">Loading your groups…</p>
+      </div>
+    );
   if (state.kind === 'error')
     return (
-      <div className="card empty-groups" role="alert">
-        <h2>Couldn’t load your groups</h2>
-        <p className="muted">{state.message}</p>
-        <button className="btn" onClick={reload}>
-          Try again
-        </button>
+      <div className="page-panel">
+        <div className="card empty-groups" role="alert">
+          <h2>Couldn’t load your groups</h2>
+          <p className="muted">{state.message}</p>
+          <button className="btn" onClick={reload}>
+            Try again
+          </button>
+        </div>
       </div>
     );
 
@@ -62,7 +69,7 @@ export function GroupsPage() {
   const groups = state.teams.filter((t) => t.todo !== 'accept');
 
   return (
-    <>
+    <div className="page-panel">
       <div className="page-heading">
         <div>
           <div className="eyebrow">Hi {user.name}</div>
@@ -117,7 +124,8 @@ export function GroupsPage() {
         <ul className="group-grid">
           {groups.map((team) => (
             <li key={team.id}>
-              <Link className="card group-card" to={groupPath(team.id)}>
+              {/* Finished groups ("Done ✓ · see awards") open straight to their awards. */}
+              <Link className="card group-card" to={isDone(team) ? `${groupPath(team.id)}/awards` : groupPath(team.id)}>
                 <div>
                   <h3>{team.name}</h3>
                   <span className="muted small">{team.course}</span>
@@ -133,9 +141,12 @@ export function GroupsPage() {
           ))}
         </ul>
       )}
-    </>
+    </div>
   );
 }
+
+/** Reviews are open and you've already submitted yours. */
+const isDone = (team: Team) => team.status === 'reviewing' && team.todo !== 'review';
 
 function GroupStatus({ team }: { team: Team }) {
   if (team.status === 'pending')
@@ -144,6 +155,6 @@ function GroupStatus({ team }: { team: Team }) {
         Waiting · {acceptedCount(team)}/{team.members.length} joined
       </span>
     );
-  if (team.todo === 'review') return <span className="pill-status todo">To do: rate your teammates</span>;
+  if (!isDone(team)) return <span className="pill-status todo">To do: rate your teammates</span>;
   return <span className="pill-status ok">Done ✓ · see awards</span>;
 }

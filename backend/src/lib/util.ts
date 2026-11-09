@@ -28,3 +28,9 @@ export function newInviteCode(): string {
 }
 /** Users may type the code in lowercase or with spaces/dashes. */
 export const normalizeCode = (value: string) => value.replace(/[\s-]/g, '').toUpperCase();
+
+/** Link to someone's profile picture (see userController.avatarImage). `v` changes with every account update, so it can be cached forever. */
+export const avatarPath = (userId: unknown, updatedAt?: Date | null) => `/users/${String(userId)}/avatar?v=${updatedAt?.getTime() ?? 0}`;
+
+/** Escapes text for use inside a RegExp. */
+export const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

@@ -1,0 +1,593 @@
+/* The whole profile sits on one raised panel (.page-panel in index.css), like the other pages. */
+
+/* Sections inside the panel are outlined, not raised again. */
+.profile-page .profile-section {
+  box-shadow: none;
+}
+
+/* ---------- Preset background ---------- */
+/* Drawn on a layer behind the content so only the image is faded (opacity set in lib/backgrounds.ts). */
+.profile-page.has-background {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.profile-page.has-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--profile-bg) center / cover no-repeat;
+  opacity: var(--profile-bg-opacity, 0.3);
+  pointer-events: none;
+}
+
+/* Let the background show faintly through the section cards too. */
+.profile-page.has-background .profile-section {
+  background: rgb(255 255 255 / 0.82);
+}
+
+.background-picker {
+  position: relative;
+  align-self: flex-start;
+  margin-left: auto;
+}
+
+.background-options {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(5, 92px);
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.background-options .error {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.background-option {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink);
+  text-align: center;
+}
+
+.background-option:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+
+.background-option.selected {
+  border-color: var(--primary);
+}
+
+.background-thumb {
+  height: 56px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface) center / cover no-repeat;
+}
+
+@media (max-width: 640px) {
+  .background-options {
+    grid-template-columns: repeat(3, 84px);
+  }
+}
+
+/* Only the avatar sets the editor's height (Remove photo / errors hang below it),
+   so the name beside it lines up with the picture's center. */
+.avatar-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-editor > .avatar-remove,
+.avatar-editor > .avatar-error {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* "Remove photo" only shows while hovering the picture (or tabbing to it). It starts right at
+   the avatar's edge, with the 6px gap as padding, so the pointer can reach it without losing hover. */
+.avatar-editor > .avatar-remove {
+  top: 100%;
+  padding-top: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0s linear 0.15s;
+}
+
+.avatar-editor:hover > .avatar-remove,
+.avatar-editor:focus-within > .avatar-remove {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (hover: none) {
+  /* No hover on touch screens, so keep it visible there. */
+  .avatar-editor > .avatar-remove {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.avatar-editor > .avatar-error {
+  white-space: normal;
+  width: 220px;
+}
+
+.avatar-drop {
+  position: relative;
+  padding: 0;
+  border-radius: 50%;
+  background: none;
+  transition: transform 0.15s;
+}
+
+.avatar-drop:disabled {
+  opacity: 1; /* keep the picture visible while uploading */
+  cursor: progress;
+}
+
+/* Pen (or spinner) over a darkened avatar, on hover, keyboard focus, drag-over and while uploading. */
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(24 27 59 / 0.55);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.avatar-drop:hover .avatar-overlay,
+.avatar-drop:focus-visible .avatar-overlay,
+.avatar-drop.dragging .avatar-overlay,
+.avatar-drop:disabled .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-drop.dragging {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 10px var(--primary-border); /* just outside the avatar's accent ring */
+}
+
+.avatar-spinner {
+  width: 28%;
+  height: 28%;
+  border: 3px solid rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: avatar-spin 0.8s linear infinite;
+}
+
+@keyframes avatar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.avatar-remove {
+  font-size: 12px;
+}
+
+.avatar-error {
+  max-width: 220px;
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ---------- Profile sections ---------- */
+.profile-sections {
+  display: grid;
+  gap: 20px;
+}
+
+.profile-sections > .error:empty {
+  display: none;
+}
+
+.profile-section {
+  padding: 26px 28px;
+}
+
+.profile-section h2 {
+  margin: 0 0 16px;
+}
+
+/* Search Profiles page */
+.profile-search {
+  max-width: 520px;
+  margin-bottom: 16px;
+}
+
+.profile-search .input {
+  width: 100%;
+}
+
+/* "How are awards calculated?" sits at the bottom left of My Awards. */
+.rules-link {
+  display: block;
+  margin-top: 10px;
+  text-align: left;
+}
+
+/* My Rating */
+.rating-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+.rating-overall {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.rating-overall strong {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1;
+}
+
+.rating-categories {
+  display: grid;
+  gap: 14px;
+}
+
+.rating-category {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.profile-bar {
+  width: 100%;
+  height: 8px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.profile-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+/* Comments + awards */
+.comment-list,
+.award-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comment-list + .expand-toggle,
+.pinned-list + .award-list {
+  margin-top: 10px;
+}
+
+.comment,
+.award-item {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.comment-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.comment-head > span:first-child {
+  flex: 1;
+}
+
+.comment-head .stars {
+  font-size: 14px;
+}
+
+.comment p {
+  margin: 8px 0 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.expand-toggle {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.expand-toggle[aria-expanded='true'] {
+  margin-bottom: 10px;
+}
+
+.show-more {
+  margin-top: 10px;
+}
+
+.award-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.award-item .seal {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+}
+
+.award-item > div {
+  flex: 1;
+}
+
+.award-item p {
+  margin: 2px 0;
+}
+
+.pin-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: none;
+  color: var(--subtle);
+  transition: background 0.15s, color 0.15s;
+}
+
+.pin-button:hover:not(:disabled) {
+  background: var(--surface-muted);
+  color: var(--primary);
+}
+
+.pin-button.pinned {
+  color: var(--primary);
+}
+
+@media (max-width: 640px) {
+  .rating-summary {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .profile-section {
+    padding: 20px 18px;
+  }
+}
+
+/* The name button is inline, so the email needs its own line to stay underneath it. */
+.profile-email {
+  display: block;
+}
+
+/* ---------- Name editor ---------- */
+/* Looks like a plain heading; hover (or keyboard focus) shows the pen. */
+/* Block (not inline) so no line box adds space around it; the edit box below takes the exact same room. */
+.name-edit {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+.name-edit h1 {
+  margin: 2px 0;
+}
+
+/* Roughly cap height, resting on the baseline, so it lines up with the letters. */
+.name-pen {
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.25em;
+  vertical-align: baseline;
+  color: var(--primary);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.name-edit:hover .name-pen,
+.name-edit:focus-visible .name-pen {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .name-pen {
+    opacity: 0.6;
+  }
+}
+
+/*
+ * Inline edit boxes (name and bio): exactly the size of the text they replace, so nothing on the
+ * page moves. The gray box is a box-shadow (which takes no space), not padding or a border;
+ * the counter and errors float over the layout instead of pushing it down.
+ */
+.inline-edit {
+  position: relative;
+  width: min(100%, 520px);
+}
+
+.inline-edit input {
+  display: block;
+  box-sizing: content-box;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  box-shadow: 0 0 0 6px var(--surface-muted);
+  color: var(--ink);
+  outline: none;
+}
+
+.inline-edit input:focus-visible {
+  box-shadow: 0 0 0 6px var(--surface-muted), 0 0 0 8px var(--primary-border);
+}
+
+.inline-edit .error {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Name: same margin, font and line height as the heading. */
+.name-form {
+  margin: 2px 0;
+}
+
+.name-input {
+  height: 1.08em;
+  font: 700 44px/1.08 var(--font-display);
+  letter-spacing: -1.7px;
+}
+
+@media (max-width: 760px) {
+  .name-input {
+    font-size: 34px;
+    letter-spacing: -1px;
+  }
+}
+
+/* Someone else's profile */
+.back-to-search {
+  align-self: flex-start;
+  margin-left: auto;
+}
+
+/* Search results: the "View profile" button sits at the end of each row. */
+.search-results .member-row .btn {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+/* Ring around the profile picture (yours and others'), so it stands out from the background:
+   a thin white gap, then the site's accent color. */
+.profile-heading .avatar {
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--primary);
+}
+
+/* ---------- Profile card (picture, name, email, bio) ---------- */
+.profile-heading.profile-section {
+  margin: 0 0 20px;
+  padding-bottom: 34px; /* room for "Remove photo", which hangs below the avatar */
+}
+
+.profile-heading > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-bio {
+  display: block;
+  margin: 16px 0 0; /* space from the email; matches .bio-edit and .bio-form */
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.profile-bio.empty {
+  color: var(--subtle);
+  font-style: italic;
+}
+
+/* Like the name: looks like plain text, the pen shows on hover or keyboard focus.
+   Block with a fixed font/line height so the edit box below can take exactly the same room. */
+.bio-edit {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 16px;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: 15px/1.5 var(--font-body);
+  text-align: left;
+}
+
+.bio-edit .profile-bio {
+  display: inline;
+  margin: 0;
+}
+
+.bio-edit .name-pen {
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 0.4em;
+  vertical-align: -0.1em;
+}
+
+.bio-edit:hover .name-pen,
+.bio-edit:focus-visible .name-pen {
+  opacity: 1;
+}
+
+/* Bio edit box: same margin, font and line height as the bio text (see .inline-edit). */
+.bio-form {
+  margin-top: 16px;
+}
+
+.bio-input {
+  height: 1.5em;
+  font: 15px/1.5 var(--font-body);
+}
+
+/* Character count floats just below the box's right edge. */
+.bio-count {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  font-size: 11px;
+}

@@ -29,7 +29,7 @@ async function startedGroup() {
   const group = await createGroup(kent, 'Group 16', [omar, qitai]);
   await joinGroup(omar, group);
   await joinGroup(qitai, group);
-  await expect(qitai.page.getByRole('link', { name: '01 · Rate teammates' })).toBeVisible();
+  await expect(qitai.page.getByRole('button', { name: '5 out of 5 stars' })).toBeVisible();
   return { kent, omar, qitai, group };
 }
 
@@ -68,7 +68,6 @@ describe('reviews stay locked until everyone accepts', () => {
     await joinGroup(qitai, group);
 
     for (const user of [qitai, omar, kent]) {
-      await expect(user.page.getByRole('link', { name: '01 · Rate teammates' })).toBeVisible();
       await expect(user.page.getByRole('button', { name: '5 out of 5 stars' })).toBeVisible();
     }
   });
@@ -81,8 +80,8 @@ describe('reviews stay locked until everyone accepts', () => {
     await joinGroup(omar, group);
 
     await kent.page.getByRole('button', { name: `Cancel ${qitai.email}’s invite` }).click();
-    await expect(kent.page.getByRole('link', { name: '01 · Rate teammates' })).toBeVisible();
-    await expect(omar.page.getByRole('link', { name: '01 · Rate teammates' })).toBeVisible();
+    await expect(kent.page.getByRole('button', { name: '5 out of 5 stars' })).toBeVisible();
+    await expect(omar.page.getByRole('button', { name: '5 out of 5 stars' })).toBeVisible();
   });
 });
 
@@ -134,6 +133,10 @@ describe('rating and awards', () => {
 
     await qitai.page.goto(appUrl());
     await expect(qitai.page.locator('.group-card', { hasText: 'Group 16' })).toContainText('Done ✓');
+
+    // A finished group's card opens straight to its awards.
+    await qitai.page.locator('.group-card', { hasText: 'Group 16' }).click();
+    await expect(qitai.page).toHaveURL(/\/awards$/);
   });
 
   test('once reviews start, the group is locked: no new invites, leaving or deleting', async () => {

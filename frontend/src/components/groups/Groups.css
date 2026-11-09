@@ -12,6 +12,16 @@
   margin: 6px 0 0;
 }
 
+/* Profile: avatar sits beside the name instead of at the far end. */
+/* Picture, name, email and bio sit in their own white card (spacing in Profile.css). */
+.profile-heading {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.profile-heading h1 {
+  margin: 2px 0;
+}
 .section-title {
   margin: 34px 0 14px;
   font-size: 20px;
@@ -235,6 +245,23 @@
 
 .member-row:last-child {
   border-bottom: 0;
+}
+
+/* Red × that cancels a pending invite (creator only). */
+.cancel-invite {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: none;
+  color: var(--danger);
+  transition: background 0.15s;
+}
+
+.cancel-invite:hover:not(:disabled) {
+  background: #fdecea;
 }
 
 .member-row-text {

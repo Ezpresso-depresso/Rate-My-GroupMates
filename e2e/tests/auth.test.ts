@@ -17,6 +17,7 @@ import {
   signIn,
   signUp,
   uniqueEmail,
+  useAccountMenu,
 } from '../setup/helpers';
 
 let browser: Browser;
@@ -108,7 +109,7 @@ describe('creating an account', () => {
 describe('signing in', () => {
   test('you can sign back in with your email and password', async () => {
     const kent = await newUser(browser, 'Kent');
-    await kent.page.getByRole('button', { name: 'Sign out' }).click();
+    await useAccountMenu(kent.page, 'Sign out');
 
     await signIn(kent);
     await expect(kent.page.getByRole('heading', { name: 'Your groups' })).toBeVisible();
@@ -116,7 +117,7 @@ describe('signing in', () => {
 
   test('a wrong password and an unknown email get the same message', async () => {
     const kent = await newUser(browser, 'Kent');
-    await kent.page.getByRole('button', { name: 'Sign out' }).click();
+    await useAccountMenu(kent.page, 'Sign out');
 
     await signIn(kent, 'wrong-password');
     await expect(kent.page.getByText('Wrong email or password')).toBeVisible();
@@ -142,7 +143,7 @@ describe('signing in', () => {
 
   test('signing out returns to the login page and forgets the session', async () => {
     const omar = await newUser(browser, 'Omar');
-    await omar.page.getByRole('button', { name: 'Sign out' }).click();
+    await useAccountMenu(omar.page, 'Sign out');
 
     await expect(omar.page.getByRole('tab', { name: 'Sign in' })).toBeVisible();
     await omar.page.reload();
@@ -185,7 +186,7 @@ describe('your account', () => {
   test('you can change your password; the old one stops working', async () => {
     const kent = await newUser(browser, 'Kent');
     const { page } = kent;
-    await page.getByRole('link', { name: 'Account' }).click();
+    await useAccountMenu(page, 'Settings');
 
     await page.getByLabel('Current password').fill('not-my-password');
     await page.getByLabel('New password', { exact: true }).fill('brand-new-password');
@@ -211,7 +212,7 @@ describe('your account', () => {
     const otherDevice = await login(kent.email, kent.password);
     expect((await api(otherDevice.body.token, 'GET', '/auth/me')).status).toBe(200);
 
-    await kent.page.getByRole('link', { name: 'Account' }).click();
+    await useAccountMenu(kent.page, 'Settings');
     await kent.page.getByLabel('Current password').fill(kent.password);
     await kent.page.getByLabel('New password', { exact: true }).fill('brand-new-password');
     await kent.page.getByLabel('Confirm new password').fill('brand-new-password');

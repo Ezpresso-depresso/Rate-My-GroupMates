@@ -1,3 +1,4 @@
+import { API_URL } from '../../config';
 import { initials } from '../../lib/ratingCore';
 import type { Member } from '../../types';
 import './Common.css';
@@ -8,6 +9,10 @@ interface AvatarProps {
   className?: string;
 }
 
+/** Group members' pictures come as API paths; your own comes as a data URL. */
+const avatarSrc = (avatar: string) => (avatar.startsWith('/') ? `${API_URL}${avatar}` : avatar);
+
+/** Profile picture when there is one, otherwise initials on the member's color. */
 export function Avatar({ member, size = 34, className = '' }: AvatarProps) {
   return (
     <span
@@ -15,7 +20,7 @@ export function Avatar({ member, size = 34, className = '' }: AvatarProps) {
       style={{ background: member.color, width: size, height: size, fontSize: size * 0.36 }}
       aria-hidden="true"
     >
-      {initials(member.name)}
+      {member.avatar ? <img className="avatar-img" src={avatarSrc(member.avatar)} alt="" /> : initials(member.name)}
     </span>
   );
 }
