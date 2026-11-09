@@ -110,11 +110,8 @@ export function GroupsPage() {
           <p className="muted">
             Start one and invite your teammates, or ask whoever’s in charge to invite <strong>{user.email}</strong>.
             <br />
-            (Yes, that email. Not your other one.)
+            
           </p>
-          <Link className="btn" to="/groups/new">
-            Create a group
-          </Link>
         </div>
       ) : (
         <ul className="group-grid">

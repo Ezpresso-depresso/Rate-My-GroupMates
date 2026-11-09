@@ -75,6 +75,10 @@
   justify-content: center;
 }
 
+.login-forgot {
+  text-align: center;
+}
+
 .login-card .legal-links {
   margin-bottom: 0;
 }

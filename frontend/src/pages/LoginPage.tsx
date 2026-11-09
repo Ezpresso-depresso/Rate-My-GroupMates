@@ -172,7 +172,7 @@ export function LoginPage() {
           <button className="btn login-submit" disabled={busy}>
             {busy ? (signingUp ? 'Creating account…' : 'Signing in…') : signingUp ? 'Create account' : 'Sign in'}
           </button>
-          {!signingUp && <p className="muted small">Forgot your password? Ask the project team to reset it.</p>}
+          {!signingUp && <p className="muted small login-forgot">Forgot your password? Ask the project team to reset it.</p>}
         </form>
 
         <LegalLinks />
