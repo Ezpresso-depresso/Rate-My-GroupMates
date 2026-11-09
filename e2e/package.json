@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "mongodb": "^7.8.0",
     "mongodb-memory-server-core": "^11.3.0",
     "playwright": "1.63.0",
     "vitest": "^3.2.7"

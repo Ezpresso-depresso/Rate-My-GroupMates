@@ -1,13 +1,15 @@
 import type { Request, Response } from 'express';
 import { OAuth2Client, type TokenPayload } from 'google-auth-library';
-import { GOOGLE_CLIENT_ID, LOCKOUT_ATTEMPTS, LOCKOUT_MINUTES, MAX_NAME_LENGTH } from '../config/constants';
+import { GOOGLE_CERTS_URL, GOOGLE_CLIENT_ID, LOCKOUT_ATTEMPTS, LOCKOUT_MINUTES, MAX_NAME_LENGTH } from '../config/constants';
 import { checkPassword, hashPassword, passwordProblem } from '../lib/password';
 import { colorFor, emailName, firstName, isEmail, normalizeEmail } from '../lib/util';
 import { authedUser, signSession } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
 import { User, type UserDoc } from '../models/User';
 
-const google = new OAuth2Client();
+const google = new OAuth2Client(
+  GOOGLE_CERTS_URL ? { endpoints: { oauth2FederatedSignonPemCertsUrl: GOOGLE_CERTS_URL } } : undefined,
+);
 const LOCKOUT_MS = LOCKOUT_MINUTES * 60_000;
 const WRONG_LOGIN = 'Wrong email or password';
 

@@ -24,8 +24,15 @@ production MongoDB Atlas database, and makes sure it behaves correctly for both 
   Mongoose builds declared indexes automatically on first connection (autoIndex is on by default and not
   overridden in this codebase).
 - Public privacy and terms pages exist for Google's consent screen to link to.
-- No code change is assumed in this slice. The work is configuration in Google Cloud, Vercel and MongoDB Atlas,
+- No change to the sign-in behavior is needed. The work is configuration in Google Cloud, Vercel and MongoDB Atlas,
   plus verification.
+
+**Built for this slice:**
+- `npm run check:prod` in `backend/` checks the production settings, Atlas connection and `users` indexes
+  (creates missing ones with `--fix`) and, with `--api <url>`, the live backend. This covers the
+  "Production database readiness" criteria.
+- `e2e/tests/google.test.ts` proves the acceptance criteria against the real backend and a real database,
+  using test-signed Google tokens. Everything is covered except the live consent screen and the database-unavailable case.
 
 ## Mini-requirements
 
