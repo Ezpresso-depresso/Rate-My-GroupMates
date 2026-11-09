@@ -10,6 +10,10 @@ const userSchema = new Schema(
     color: { type: String, default: '#5762c6' },
     /** Profile picture as a data URL (image/jpeg|png|webp, ≤ MAX_AVATAR_CHARS); '' = show initials. */
     avatar: { type: String, default: '' },
+    /** Short profile bio (≤ MAX_BIO_LENGTH characters); '' for none. */
+    bio: { type: String, default: '', trim: true },
+    /** One of PROFILE_BACKGROUNDS, or '' for none. Just a name: the images ship with the frontend. */
+    profileBackground: { type: String, default: '' },
     /** Profile pins (≤ MAX_PINS each): Review ids, and award keys like "<teamId>:funny:carry". */
     pinnedComments: { type: [String], default: [] },
     pinnedAwards: { type: [String], default: [] },

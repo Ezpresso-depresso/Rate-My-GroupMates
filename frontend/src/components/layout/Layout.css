@@ -55,23 +55,35 @@
   letter-spacing: 0.5px;
 }
 
-.nav {
+/* Right side of the navbar: "My Groups | Search Profiles | My Profile", then the account pill. */
+.header-right {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 22px;
+  margin-left: auto;
 }
 
-.nav a {
-  padding: 11px 14px;
-  border-radius: var(--radius-sm);
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.main-nav a {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14.3px;
+  font-weight: 600;
   text-decoration: none;
+  transition: color 0.15s;
 }
 
-.nav a.active {
-  background: var(--primary-soft);
+.main-nav a:hover,
+.main-nav a.active {
   color: var(--primary);
-  font-weight: 700;
+}
+
+.main-nav-divider {
+  color: var(--line-strong);
 }
 
 /* Signed-in user: a rounded pill (name + email, then avatar) linking to the profile; hover shows the menu. */
@@ -198,13 +210,6 @@
 
 .site-footer .textbtn {
   font-size: 11px;
-}
-
-@media (max-width: 560px) {
-  .nav a {
-    padding: 9px 10px;
-    font-size: 12px;
-  }
 }
 
 .current-member .header-email {

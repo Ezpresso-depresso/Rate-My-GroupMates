@@ -13,12 +13,12 @@
 import type { Request, Response } from 'express';
 import { isValidObjectId, Types } from 'mongoose';
 import { MAX_NAME_LENGTH, MIN_GROUP_SIZE } from '../config/constants';
-import { colorFor, emailName, isEmail, newInviteCode, normalizeCode, normalizeEmail } from '../lib/util';
+import { avatarPath, colorFor, emailName, isEmail, newInviteCode, normalizeCode, normalizeEmail } from '../lib/util';
 import { authedUser } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
 import { Review } from '../models/Review';
 import { Team, type MemberDoc, type TeamDoc } from '../models/Team';
-import type { UserDoc } from '../models/User';
+import { User, type UserDoc } from '../models/User';
 
 type TeamParams = { teamId: string };
 type MemberParams = TeamParams & { memberId: string };
@@ -33,9 +33,45 @@ export function findViewer(team: TeamDoc, user: UserDoc): MemberDoc | undefined 
   );
 }
 
+/** What a member's account adds to the group view: a picture link, and (for invitees) their username. */
+type AccountInfo = { avatar: string; accountName?: string };
+type AccountInfoMap = Map<string, AccountInfo>;
+
+/**
+ * memberId → account info. Joined members use their account; invited ones are matched by email,
+ * so someone who already signed up shows their picture and username from the moment they're
+ * invited. Pictures are links (not the images), which keeps group responses small; the `?v=`
+ * changes whenever the account does, so browsers can cache the image forever.
+ */
+async function accountInfo(teams: TeamDoc[]): Promise<AccountInfoMap> {
+  const members = teams.flatMap((t) => t.members);
+  const userIds = members.flatMap((m) => (m.user ? [m.user] : []));
+  const emails = members.flatMap((m) => (m.user ? [] : [m.email]));
+  // Project a hasAvatar flag instead of loading the (large) image data itself.
+  const users = await User.aggregate<{ _id: Types.ObjectId; email: string; name: string; updatedAt?: Date; hasAvatar: boolean }>([
+    { $match: { $or: [{ _id: { $in: userIds } }, { email: { $in: emails } }] } },
+    { $project: { email: 1, name: 1, updatedAt: 1, hasAvatar: { $gt: [{ $strLenCP: { $ifNull: ['$avatar', ''] } }, 0] } } },
+  ]);
+  const byId = new Map(users.map((u) => [String(u._id), u]));
+  const byEmail = new Map(users.map((u) => [u.email, u]));
+
+  const info: AccountInfoMap = new Map();
+  for (const m of members) {
+    const u = m.user ? byId.get(String(m.user)) : byEmail.get(m.email);
+    if (!u) continue;
+    info.set(String(m._id), {
+      avatar: u.hasAvatar ? avatarPath(u._id, u.updatedAt) : '',
+      ...(!m.user && { accountName: u.name }),
+    });
+  }
+  return info;
+}
+
 /** Team JSON for this viewer; the invite code is only shown to members who have accepted. */
-function toPublic(team: TeamDoc, user: UserDoc) {
-  const json = team.toJSON() as Record<string, unknown>;
+async function toPublic(team: TeamDoc, user: UserDoc, accounts?: AccountInfoMap) {
+  const info = accounts ?? (await accountInfo([team]));
+  const json = team.toJSON() as unknown as Record<string, unknown> & { members: { id: string }[] };
+  json.members = json.members.map((m) => ({ ...m, avatar: '', ...info.get(m.id) }));
   if (findViewer(team, user)?.status === 'accepted') json.inviteCode = team.inviteCode;
   return json;
 }
@@ -90,7 +126,7 @@ async function startIfReady(teamId: Types.ObjectId | string) {
 
 async function respond(res: Response, teamId: Types.ObjectId | string, user: UserDoc, status = 200) {
   const team = await loadTeam(String(teamId));
-  res.status(status).json(toPublic(team, user));
+  res.status(status).json(await toPublic(team, user));
 }
 
 // ---------- handlers ----------
@@ -112,21 +148,24 @@ export async function listTeams(req: Request, res: Response) {
     { $group: { _id: '$team', n: { $sum: 1 } } },
   ]);
   const reviewed = new Map(counts.map((c) => [String(c._id), c.n]));
+  const accounts = await accountInfo(teams); // one lookup for every group
 
   res.json(
-    teams.map((team) => {
-      const viewer = findViewer(team, user)!;
-      const hasSubmitted = (reviewed.get(String(team._id)) ?? 0) >= team.members.length - 1;
-      const todo = viewer.status === 'invited' ? 'accept' : team.reviewsStartedAt && !hasSubmitted ? 'review' : null;
-      return { ...toPublic(team, user), todo };
-    }),
+    await Promise.all(
+      teams.map(async (team) => {
+        const viewer = findViewer(team, user)!;
+        const hasSubmitted = (reviewed.get(String(team._id)) ?? 0) >= team.members.length - 1;
+        const todo = viewer.status === 'invited' ? 'accept' : team.reviewsStartedAt && !hasSubmitted ? 'review' : null;
+        return { ...(await toPublic(team, user, accounts)), todo };
+      }),
+    ),
   );
 }
 
 export async function getTeam(req: Request<TeamParams>, res: Response) {
   const user = authedUser(req);
   const { team } = await loadForViewer(req.params.teamId, user);
-  res.json(toPublic(team, user));
+  res.json(await toPublic(team, user));
 }
 
 /** Body: { name, course, emails: string[] }. The creator joins automatically. */
@@ -152,7 +191,7 @@ export async function createTeam(req: Request, res: Response) {
       ...emails.map(inviteEntry),
     ],
   });
-  res.status(201).json(toPublic(team, user));
+  res.status(201).json(await toPublic(team, user));
 }
 
 /** Body: { code }. Accepts your invitation. Accepting twice is harmless. */
@@ -162,7 +201,7 @@ export async function acceptInvite(req: Request<TeamParams>, res: Response) {
   if (!code) throw new HttpError(400, 'Enter the group’s invite code');
 
   const { team, viewer } = await loadForViewer(req.params.teamId, user);
-  if (viewer.status === 'accepted') return res.json(toPublic(team, user));
+  if (viewer.status === 'accepted') return res.json(await toPublic(team, user));
   requireWaiting(team, 'join');
   if (normalizeCode(team.inviteCode) !== code)
     throw new HttpError(400, 'That code doesn’t match. Check with whoever invited you (codes can be changed)');
@@ -187,7 +226,7 @@ export async function acceptInvite(req: Request<TeamParams>, res: Response) {
   if (updated.matchedCount === 0) {
     // Something changed between loading and updating: re-run the checks for a precise message.
     const fresh = await loadForViewer(req.params.teamId, user);
-    if (fresh.viewer.status === 'accepted') return res.json(toPublic(fresh.team, user));
+    if (fresh.viewer.status === 'accepted') return res.json(await toPublic(fresh.team, user));
     requireWaiting(fresh.team, 'join');
     throw new HttpError(409, 'The invite code was just changed. Ask for the new one');
   }

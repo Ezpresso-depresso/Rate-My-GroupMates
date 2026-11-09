@@ -1,6 +1,6 @@
 /*
- * Written comments you've received. Pinned ones (up to 3) always show; the rest sit in a
- * collapsible list, newest first, revealed 10 at a time.
+ * Written comments you've received: pinned ones (up to 3) first, then newest first. The first
+ * 5 always show; the rest sit behind a dropdown that reveals them 10 at a time.
  */
 import { useState } from 'react';
 import { formatDate, MAX_PINS } from '../../lib/profile';
@@ -9,11 +9,13 @@ import { Stars } from '../common/Stars';
 import { PinButton } from './PinButton';
 import './Profile.css';
 
+const SHOWN_BY_DEFAULT = 5;
 const PAGE = 10;
 
 interface CommentsSectionProps {
   profile: ProfileData;
-  onTogglePin: (id: string) => void;
+  /** Leave out for a read-only view (someone else's profile): no pin buttons. */
+  onTogglePin?: (id: string) => void;
 }
 
 export function CommentsSection({ profile, onTogglePin }: CommentsSectionProps) {
@@ -25,7 +27,9 @@ export function CommentsSection({ profile, onTogglePin }: CommentsSectionProps) 
   const pinnedIds = new Set(profile.pinnedComments);
   // Keep the order you pinned them in.
   const pinned = profile.pinnedComments.flatMap((id) => comments.filter((c) => c.id === id));
-  const rest = comments.filter((c) => !pinnedIds.has(c.id));
+  const ordered = [...pinned, ...comments.filter((c) => !pinnedIds.has(c.id))];
+  const first = ordered.slice(0, SHOWN_BY_DEFAULT);
+  const more = ordered.slice(SHOWN_BY_DEFAULT);
   const full = pinned.length >= MAX_PINS;
 
   const item = (c: ReceivedReview) => (
@@ -39,7 +43,9 @@ export function CommentsSection({ profile, onTogglePin }: CommentsSectionProps) 
           </span>
         </span>
         <Stars value={c.rating} />
-        <PinButton pinned={pinnedIds.has(c.id)} full={full} label="comment" onToggle={() => onTogglePin(c.id)} />
+        {onTogglePin && (
+          <PinButton pinned={pinnedIds.has(c.id)} full={full} label="comment" onToggle={() => onTogglePin(c.id)} />
+        )}
       </div>
       <p>{c.text}</p>
     </li>
@@ -52,26 +58,33 @@ export function CommentsSection({ profile, onTogglePin }: CommentsSectionProps) 
         <p className="muted">No written comments yet.</p>
       ) : (
         <>
-          {pinned.length > 0 && <ul className="comment-list">{pinned.map(item)}</ul>}
+          <ul className="comment-list">{first.map(item)}</ul>
 
-          {rest.length > 0 && (
+          {more.length > 0 && (
             <>
-              <button type="button" className="expand-toggle" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-                {pinned.length > 0 ? 'Other comments' : 'All comments'} ({rest.length}) <span aria-hidden="true">{open ? '▴' : '▾'}</span>
+              <button
+                type="button"
+                className="expand-toggle"
+                aria-expanded={open}
+                onClick={() => {
+                  setOpen((o) => !o);
+                  setShown(PAGE); // reopening starts from the first page again
+                }}
+              >
+                More comments ({more.length}) <span aria-hidden="true">{open ? '▴' : '▾'}</span>
               </button>
               {open && (
                 <>
-                  <ul className="comment-list">{rest.slice(0, shown).map(item)}</ul>
-                  {shown < rest.length && (
+                  <ul className="comment-list">{more.slice(0, shown).map(item)}</ul>
+                  {shown < more.length && (
                     <button type="button" className="textbtn show-more" onClick={() => setShown((n) => n + PAGE)}>
-                      Show {Math.min(PAGE, rest.length - shown)} more
+                      Show {Math.min(PAGE, more.length - shown)} more
                     </button>
                   )}
                 </>
               )}
             </>
           )}
-          <p className="muted small pin-hint">Pin up to {MAX_PINS} comments to keep them at the top.</p>
         </>
       )}
     </section>

@@ -72,7 +72,7 @@ export function RatePage() {
           <h1>
             Leave a rating
             <br />
-            <span>Just know that we're selling this data ASAP</span>
+            <span>we're selling this data ASAP</span>
           </h1>
         </div>
         <p>
@@ -104,10 +104,6 @@ export function RatePage() {
 
           <OverallRating value={draft.rating} onChange={(rating) => change({ rating })} />
 
-          <div className="category-intro">
-            <span className="eyebrow">A closer look</span>
-            <span>1 = human drone · 10 = how much did they pay you</span>
-          </div>
           {categories.map((c) => (
             <ScoreField
               key={c.key}

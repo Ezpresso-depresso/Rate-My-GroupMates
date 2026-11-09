@@ -8,18 +8,18 @@
  */
 import type { Request, Response } from 'express';
 import { isValidObjectId, type Types } from 'mongoose';
-import { MAX_PINS } from '../config/constants';
+import { MAX_BIO_LENGTH, MAX_PINS, PROFILE_BACKGROUNDS } from '../config/constants';
 import { authedUser } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
 import { Review } from '../models/Review';
 import { Team, type TeamDoc } from '../models/Team';
 import { User, type UserDoc } from '../models/User';
 
-/** Groups where you're an accepted member, reviews are open, and you've reviewed everyone. */
-async function countedGroups(user: UserDoc) {
-  const teams = await Team.find({ 'members.user': user._id, reviewsStartedAt: { $ne: null } });
+/** Groups where the user is an accepted member, reviews are open, and they've reviewed everyone. */
+async function countedGroups(userId: Types.ObjectId) {
+  const teams = await Team.find({ 'members.user': userId, reviewsStartedAt: { $ne: null } });
   const mine = teams.flatMap((team) => {
-    const me = team.members.find((m) => m.user && String(m.user) === String(user._id));
+    const me = team.members.find((m) => m.user && String(m.user) === String(userId));
     return me && me.status === 'accepted' ? [{ team, memberId: me._id as Types.ObjectId }] : [];
   });
 
@@ -35,15 +35,15 @@ function memberName(team: TeamDoc, memberId: Types.ObjectId) {
   return team.members.find((m) => String(m._id) === String(memberId))?.name ?? 'A teammate';
 }
 
-export async function getProfile(req: Request, res: Response) {
-  const user = authedUser(req);
-  const groups = await countedGroups(user);
+/** Everything a profile shows, for any user: the same data whether it's yours or someone else's. */
+export async function buildProfile(userId: Types.ObjectId) {
+  const groups = await countedGroups(userId);
   const byMember = new Map(groups.map((g) => [String(g.memberId), g.team]));
 
   const reviews = await Review.find({ targetId: { $in: groups.map((g) => g.memberId) } }).sort({ submittedAt: -1 });
-  const pins = await User.findById(user._id).select('pinnedComments pinnedAwards');
+  const pins = await User.findById(userId).select('pinnedComments pinnedAwards');
 
-  res.json({
+  return {
     groups: groups.map(({ team }) => ({ id: String(team._id), name: team.name, course: team.course })),
     reviews: reviews.map((r) => {
       const team = byMember.get(String(r.targetId))!;
@@ -61,7 +61,11 @@ export async function getProfile(req: Request, res: Response) {
     }),
     pinnedComments: pins?.pinnedComments ?? [],
     pinnedAwards: pins?.pinnedAwards ?? [],
-  });
+  };
+}
+
+export async function getProfile(req: Request, res: Response) {
+  res.json(await buildProfile(authedUser(req)._id));
 }
 
 const AWARD_KEY = /^([0-9a-f]{24}):(funny|medal|badge):([\w-]{1,40})$/i;
@@ -81,7 +85,7 @@ export async function setPins(req: Request, res: Response) {
   const awards = parsePins(req.body?.awards, 'awards');
   if (!comments && !awards) throw new HttpError(400, 'Send comments and/or awards to pin');
 
-  const groups = await countedGroups(user);
+  const groups = await countedGroups(user._id);
   if (comments?.length) {
     if (!comments.every(isValidObjectId)) throw new HttpError(400, 'One of those comments doesn’t exist');
     const yours = await Review.countDocuments({
@@ -104,4 +108,26 @@ export async function setPins(req: Request, res: Response) {
   ).select('pinnedComments pinnedAwards');
   if (!updated) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
   res.json({ pinnedComments: updated.pinnedComments, pinnedAwards: updated.pinnedAwards });
+}
+
+/** Body: { background } — one of PROFILE_BACKGROUNDS, or '' for none. */
+export async function setBackground(req: Request, res: Response) {
+  const background = typeof req.body?.background === 'string' ? req.body.background : null;
+  if (background === null || (background !== '' && !(PROFILE_BACKGROUNDS as readonly string[]).includes(background)))
+    throw new HttpError(400, 'Pick one of the preset backgrounds');
+
+  const user = await User.findByIdAndUpdate(authedUser(req)._id, { $set: { profileBackground: background } }, { new: true });
+  if (!user) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
+  res.json(user);
+}
+
+/** Body: { bio } — up to MAX_BIO_LENGTH characters; '' clears it. Line breaks are flattened to spaces. */
+export async function setBio(req: Request, res: Response) {
+  if (typeof req.body?.bio !== 'string') throw new HttpError(400, 'bio must be text');
+  const bio = req.body.bio.replace(/\s+/g, ' ').trim();
+  if (bio.length > MAX_BIO_LENGTH) throw new HttpError(400, `Keep your bio under ${MAX_BIO_LENGTH} characters`);
+
+  const user = await User.findByIdAndUpdate(authedUser(req)._id, { $set: { bio } }, { new: true });
+  if (!user) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
+  res.json(user);
 }

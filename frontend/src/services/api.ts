@@ -1,6 +1,16 @@
 /* Thin client for the backend REST API. Mirrors backend/src/routes. */
 import { API_URL } from '../config';
-import type { AuthConfig, ProfileData, Review, ReviewDraft, Session, Team, User } from '../types';
+import type {
+  AuthConfig,
+  ProfileData,
+  PublicUser,
+  Review,
+  ReviewDraft,
+  Session,
+  Team,
+  User,
+  UserProfileData,
+} from '../types';
 import { getToken } from './session';
 
 /** `status` is the HTTP status, or 0 when the server couldn't be reached at all. */
@@ -83,6 +93,18 @@ export const api = {
 
   // Profile
   getProfile: () => request<ProfileData>('/profile'),
+  /** A preset id from lib/backgrounds.ts, or '' for none. */
+  setBackground: (background: string) =>
+    request<User>('/profile/background', { method: 'PUT', body: JSON.stringify({ background }) }),
+
+  /** Up to 100 characters; '' clears it. */
+  setBio: (bio: string) => request<User>('/profile/bio', { method: 'PUT', body: JSON.stringify({ bio }) }),
+
+  // Other people
+  /** Best name/email matches first. Pass `signal` to cancel an outdated search. */
+  searchUsers: (q: string, signal?: AbortSignal) =>
+    request<PublicUser[]>(`/users/search?q=${encodeURIComponent(q)}`, { signal }),
+  getUserProfile: (userId: string) => request<UserProfileData>(`/users/${userId}/profile`),
   /** Replaces whichever list is sent (up to 3 each). */
   setPins: (pins: { comments?: string[]; awards?: string[] }) =>
     request<Pick<ProfileData, 'pinnedComments' | 'pinnedAwards'>>('/profile/pins', {

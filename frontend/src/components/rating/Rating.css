@@ -146,19 +146,6 @@
 }
 
 /* ---------- Category scores ---------- */
-.category-intro {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin: 30px 0 -8px;
-}
-
-.category-intro > span:last-child {
-  color: var(--subtle);
-  font-size: 11px;
-}
-
 .score-field {
   margin: 29px 0 33px;
 }

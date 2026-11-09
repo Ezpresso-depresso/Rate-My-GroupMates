@@ -13,13 +13,20 @@ export interface Member {
   id: string;
   name: string;
   color: string;
-  /** Profile picture data URL; initials are shown when empty or missing. */
+  /**
+   * Profile picture: a data URL (your own account) or an API path like "/users/<id>/avatar?v=…"
+   * (group members). Initials are shown when empty or missing.
+   */
   avatar?: string;
 }
 
 export interface User extends Member {
   email: string;
   fullName: string;
+  /** A preset id from lib/backgrounds.ts, or '' for none. */
+  profileBackground?: string;
+  /** Short profile bio (≤ 100 characters), '' for none. */
+  bio?: string;
 }
 
 export interface Session {
@@ -38,6 +45,8 @@ export interface TeamMember extends Member {
   userId: string | null;
   status: 'invited' | 'accepted';
   joinedAt: string | null;
+  /** Invitees who already have an account: that account's username (until then `name` is a placeholder). */
+  accountName?: string;
 }
 
 export interface Team {
@@ -96,6 +105,19 @@ export interface ProfileData {
   reviews: ReceivedReview[];
   pinnedComments: string[];
   pinnedAwards: string[];
+}
+
+/** Someone else's account, as search results and other people's profiles show it. */
+export interface PublicUser extends Member {
+  email: string;
+  fullName: string;
+  profileBackground: string;
+  bio: string;
+}
+
+/** GET /users/:id/profile: who they are, plus the same data as your own profile. */
+export interface UserProfileData extends ProfileData {
+  user: PublicUser;
 }
 
 export interface CategoryScore extends Category {

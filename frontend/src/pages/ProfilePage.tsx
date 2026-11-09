@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AvatarEditor } from '../components/profile/AvatarEditor';
+import { BackgroundPicker } from '../components/profile/BackgroundPicker';
+import { BioEditor } from '../components/profile/BioEditor';
 import { AwardsSection } from '../components/profile/AwardsSection';
 import { CommentsSection } from '../components/profile/CommentsSection';
 import { NameEditor } from '../components/profile/NameEditor';
+import { ProfilePanel } from '../components/profile/ProfilePanel';
 import { RatingSection } from '../components/profile/RatingSection';
 import { useAuth } from '../hooks/useAuth';
 import { MAX_PINS, profileAwards } from '../lib/profile';
@@ -56,14 +59,15 @@ export function ProfilePage() {
   };
 
   return (
-    <div className="profile-page">
-      <div className="page-heading profile-heading">
+    <ProfilePanel backgroundId={user.profileBackground}>
+      <div className="card profile-section page-heading profile-heading">
         <AvatarEditor size={96} />
         <div>
-          <div className="eyebrow">Profile</div>
           <NameEditor />
           <span className="muted profile-email">{user.email}</span>
+          <BioEditor />
         </div>
+        <BackgroundPicker />
       </div>
 
       {state.kind === 'loading' && <p className="muted">Loading your ratings…</p>}
@@ -92,6 +96,6 @@ export function ProfilePage() {
           <AwardsSection awards={awards} pinnedKeys={profile.pinnedAwards} onTogglePin={(key) => togglePin('awards', key)} />
         </div>
       )}
-    </div>
+    </ProfilePanel>
   );
 }

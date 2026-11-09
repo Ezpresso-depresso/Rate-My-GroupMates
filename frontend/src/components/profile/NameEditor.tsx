@@ -62,7 +62,7 @@ export function NameEditor() {
     );
 
   return (
-    <form className="name-form" onSubmit={save}>
+    <form className="name-form inline-edit" onSubmit={save}>
       <input
         ref={input}
         className="name-input"

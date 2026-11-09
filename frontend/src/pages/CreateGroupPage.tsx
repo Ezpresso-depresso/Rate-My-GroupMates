@@ -77,7 +77,7 @@ export function CreateGroupPage() {
             className="input"
             value={emailText}
             onChange={(e) => setEmailText(e.target.value)}
-            placeholder={'kent@uci.edu\nomar@uci.edu, qitai@uci.edu'}
+            placeholder={'tester1@gmail.com\ntester2@gmail.com, tester3@gmail.com'}
             aria-invalid={invalid.length > 0}
             aria-describedby="email-help"
           />

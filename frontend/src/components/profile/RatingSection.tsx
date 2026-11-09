@@ -3,15 +3,24 @@ import type { ReceivedReview } from '../../types';
 import { Stars } from '../common/Stars';
 import './Profile.css';
 
-/** "My Rating": your average stars and category scores across every group that counts. */
-export function RatingSection({ reviews, groupCount }: { reviews: ReceivedReview[]; groupCount: number }) {
+interface RatingSectionProps {
+  reviews: ReceivedReview[];
+  groupCount: number;
+  /** False on someone else's profile: "Rating" instead of "My Rating", no tips addressed to you. */
+  own?: boolean;
+}
+
+/** "My Rating": average stars and category scores across every group that counts. */
+export function RatingSection({ reviews, groupCount, own = true }: RatingSectionProps) {
   const s = summary(reviews);
 
   return (
     <section className="card profile-section" aria-labelledby="my-rating">
-      <h2 id="my-rating">My Rating</h2>
+      <h2 id="my-rating">{own ? 'My Rating' : 'Rating'}</h2>
       {s.average === null ? (
-        <p className="muted">No ratings yet. They’ll show up here once you’ve rated your teammates in a group.</p>
+        <p className="muted">
+          No ratings yet.{own && ' They’ll show up here once you’ve rated your teammates in a group.'}
+        </p>
       ) : (
         <div className="rating-summary">
           <div className="rating-overall">

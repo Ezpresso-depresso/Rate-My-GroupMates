@@ -10,6 +10,8 @@ import { JoinPage } from './pages/JoinPage';
 import { PrivacyPage, TermsPage } from './pages/LegalPages';
 import { ProfilePage } from './pages/ProfilePage';
 import { RatePage } from './pages/RatePage';
+import { SearchProfilesPage } from './pages/SearchProfilesPage';
+import { UserProfilePage } from './pages/UserProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 
 /** One group's rating flow; remounts when the group changes so no state leaks between groups. */
@@ -33,6 +35,8 @@ function SignedInRoutes() {
           <Route path="groups/new" element={<CreateGroupPage />} />
           <Route path="join/:teamId" element={<JoinPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="profiles" element={<SearchProfilesPage />} />
+          <Route path="profiles/:userId" element={<UserProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="account" element={<Navigate to="/settings" replace />} />
         </Route>

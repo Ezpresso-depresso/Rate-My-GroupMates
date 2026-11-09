@@ -1,10 +1,8 @@
-import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { AccountMenu } from './AccountMenu';
 import './Layout.css';
 
-/** `nav` is only passed inside a group whose reviews are open. */
-export function Header({ nav }: { nav?: ReactNode }) {
+export function Header() {
   return (
     <header className="site-header">
       <Link className="brand" to="/">
@@ -12,12 +10,22 @@ export function Header({ nav }: { nav?: ReactNode }) {
         Rate My Groupmates
         <span className="pill">UCI</span>
       </Link>
-      {nav && (
-        <nav className="nav" aria-label="Group navigation">
-          {nav}
+      <div className="header-right">
+        <nav className="main-nav" aria-label="Main navigation">
+          <NavLink to="/" end>
+            My Groups
+          </NavLink>
+          <span className="main-nav-divider" aria-hidden="true">
+            |
+          </span>
+          <NavLink to="/profiles">Search Profiles</NavLink>
+          <span className="main-nav-divider" aria-hidden="true">
+            |
+          </span>
+          <NavLink to="/profile">My Profile</NavLink>
         </nav>
-      )}
-      <AccountMenu />
+        <AccountMenu />
+      </div>
     </header>
   );
 }

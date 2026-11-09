@@ -124,12 +124,20 @@ export function GroupLobby({ team, pollError, onChange, onGone }: GroupLobbyProp
                 action={
                   isOwner && m.status === 'invited' ? (
                     <button
-                      className="btn-danger small"
+                      className="cancel-invite"
                       onClick={() => cancelInvite(m.id, m.email)}
                       disabled={Boolean(busy)}
                       aria-label={`Cancel ${m.email}’s invite`}
+                      title="Cancel invite"
                     >
-                      {busy === `cancel:${m.id}` ? 'Cancelling…' : 'Cancel invite'}
+                      {busy === `cancel:${m.id}` ? (
+                        '…'
+                      ) : (
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                          <path d="M18 6 6 18" />
+                          <path d="m6 6 12 12" />
+                        </svg>
+                      )}
                     </button>
                   ) : undefined
                 }

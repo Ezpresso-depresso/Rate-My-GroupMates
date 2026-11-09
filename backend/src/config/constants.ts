@@ -67,5 +67,9 @@ export const INVITE_CODE_LENGTH = 6;
  * frontend/src/lib/image.ts.
  */
 export const MAX_AVATAR_CHARS = 90_000;
+/** Short profile bio. Keep in sync with frontend/src/components/profile/BioEditor.tsx. */
+export const MAX_BIO_LENGTH = 100;
 /** How many comments / awards someone can pin to the top of their profile. */
 export const MAX_PINS = 3;
+/** Preset profile backgrounds (images live in frontend/public/backgrounds). Keep in sync with frontend/src/lib/backgrounds.ts. */
+export const PROFILE_BACKGROUNDS = ['goku', 'misty-field', 'blossoms', 'blossom-path'] as const;

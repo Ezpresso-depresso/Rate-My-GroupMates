@@ -9,10 +9,12 @@ import './Profile.css';
 interface AwardsSectionProps {
   awards: ProfileAward[];
   pinnedKeys: string[];
-  onTogglePin: (key: string) => void;
+  /** Leave out for a read-only view (someone else's profile): "Awards", no pin buttons or tips. */
+  onTogglePin?: (key: string) => void;
 }
 
 export function AwardsSection({ awards, pinnedKeys, onTogglePin }: AwardsSectionProps) {
+  const own = Boolean(onTogglePin);
   const [showRules, setShowRules] = useState(false);
 
   const pinnedSet = new Set(pinnedKeys);
@@ -33,27 +35,28 @@ export function AwardsSection({ awards, pinnedKeys, onTogglePin }: AwardsSection
           {a.groupName} · {a.course} · {formatDate(a.receivedAt)}
         </span>
       </div>
-      <PinButton pinned={pinnedSet.has(a.key)} full={full} label={a.title} onToggle={() => onTogglePin(a.key)} />
+      {onTogglePin && (
+        <PinButton pinned={pinnedSet.has(a.key)} full={full} label={a.title} onToggle={() => onTogglePin(a.key)} />
+      )}
     </li>
   );
 
   return (
     <section className="card profile-section" aria-labelledby="my-awards">
-      <div className="section-head">
-        <h2 id="my-awards">My Awards</h2>
-        <button type="button" className="textbtn small" onClick={() => setShowRules(true)}>
-          How are awards calculated?
-        </button>
-      </div>
+      <h2 id="my-awards">{own ? 'My Awards' : 'Awards'}</h2>
       {awards.length === 0 ? (
-        <p className="muted">No awards yet. Finish rating your teammates in a group to see what you’ve earned.</p>
+        <p className="muted">
+          No awards yet.{own && ' Finish rating your teammates in a group to see what you’ve earned.'}
+        </p>
       ) : (
         <>
           {pinned.length > 0 && <ul className="award-list pinned-list">{pinned.map(item)}</ul>}
           <ul className="award-list">{rest.map(item)}</ul>
-          <p className="muted small pin-hint">Pin up to {MAX_PINS} awards to keep them at the top.</p>
         </>
       )}
+      <button type="button" className="textbtn small rules-link" onClick={() => setShowRules(true)}>
+        How are awards calculated?
+      </button>
       {showRules && (
         <Modal label="How awards work" onClose={() => setShowRules(false)}>
           <AwardRules />

@@ -29,9 +29,6 @@ export function AwardsPage() {
           <div className="eyebrow">summary page</div>
           <h2>Results post-review</h2>
         </div>
-        <Link className="textbtn" to={groupPath(team.id)}>
-          Edit your ratings ↗
-        </Link>
       </div>
 
       <div className="ceremony-grid">

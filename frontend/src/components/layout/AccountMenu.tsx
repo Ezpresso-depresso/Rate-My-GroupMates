@@ -24,10 +24,8 @@ export function AccountMenu() {
         <Avatar member={user} size={33} />
       </Link>
 
+      {/* "My Profile" lives in the navbar links and on the pill itself, so it isn't repeated here. */}
       <nav className="account-menu" aria-label="Account">
-        <Link to="/profile" onClick={blur}>
-          My Profile
-        </Link>
         <Link to="/settings" onClick={blur}>
           Settings
         </Link>
