@@ -126,6 +126,24 @@
   padding: 28px;
 }
 
+/* Department + course side by side. */
+.course-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.course-picker-error {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+@media (max-width: 560px) {
+  .course-picker {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-card textarea.input {
   min-height: 110px;
   resize: vertical;
@@ -158,6 +176,15 @@
   background: var(--surface-muted);
   color: var(--subtle);
   text-decoration: line-through;
+}
+
+/* An empty error line would add a whole extra row gap above the buttons. */
+.form-card > .error:empty {
+  display: none;
+}
+
+.form-card > .error {
+  margin: 0;
 }
 
 .form-actions {

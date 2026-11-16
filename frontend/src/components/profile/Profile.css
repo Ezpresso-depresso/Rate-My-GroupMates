@@ -216,14 +216,302 @@
   margin: 0 0 16px;
 }
 
-/* Search Profiles page */
+/* Classes */
+.classes-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.class-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.class-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  background: var(--primary-soft);
+}
+
+.class-chip a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.class-chip a:hover strong {
+  color: var(--primary);
+}
+
+.class-chip strong {
+  flex: none;
+  font-size: 14px;
+}
+
+.class-chip .muted {
+  max-width: 220px;
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.class-chip-remove {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 6px;
+  margin-left: -6px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.class-chip-remove:hover:not(:disabled) {
+  background: #fdecea;
+  color: var(--danger);
+}
+
+/* "Are you sure?" popover under a class chip's × (no browser-wide confirm dialog). */
+.class-chip {
+  position: relative;
+}
+
+.class-confirm {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 15;
+  width: max-content;
+  max-width: 280px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  font-size: 14px;
+}
+
+.class-confirm p {
+  margin: 0 0 6px;
+  white-space: normal;
+}
+
+.class-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.class-confirm .btn-danger-small {
+  padding: 7px 14px;
+  background: var(--danger);
+  font-size: 13.5px;
+}
+
+.class-confirm .btn-danger-small:hover {
+  background: #a5352f;
+}
+
+.class-add {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.class-add-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile-section > .error {
+  margin: 12px 0 0;
+}
+
+/* Find Groupmates page */
 .profile-search {
-  max-width: 520px;
+  display: flex;
+  gap: 8px;
   margin-bottom: 16px;
+}
+
+.profile-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-search .input {
   width: 100%;
+  padding-right: 42px;
+}
+
+/* Hide the browser's own clear button so it doesn't collide with the search icon. */
+.profile-search .input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.profile-search-icon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: var(--subtle);
+  pointer-events: none;
+}
+
+/* By class: matching UCI courses drop down under the box as you type. */
+.course-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 340px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+}
+
+.course-suggestions li[role='option'] {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.course-suggestions li[role='option'] strong {
+  flex: none;
+  min-width: 110px;
+}
+
+.course-suggestions li[role='option'] .muted {
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.course-suggestions li.active {
+  background: var(--surface-muted);
+}
+
+.course-suggestions-note {
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Filter button + its dropdown, to the right of the box. */
+.search-filter {
+  position: relative;
+  flex: none;
+}
+
+.search-filter-toggle {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.search-filter-toggle:hover,
+.search-filter-toggle[aria-expanded='true'] {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+/* A filter other than the default (name or email) is on. */
+.search-filter-toggle.active {
+  border-color: var(--primary-border);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.search-filter-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.search-filter-heading {
+  padding: 6px 12px 4px;
+  color: var(--subtle);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.search-filter-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14.3px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.search-filter-menu button:hover {
+  background: var(--surface-muted);
+}
+
+.search-filter-menu button.selected {
+  color: var(--primary);
+  font-weight: 600;
 }
 
 /* "How are awards calculated?" sits at the bottom left of My Awards. */
@@ -512,6 +800,18 @@
   font-size: 14px;
 }
 
+/* Overall stars just before "View profile". */
+.search-rating {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 120px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 /* Ring around the profile picture (yours and others'), so it stands out from the background:
    a thin white gap, then the site's accent color. */
 .profile-heading .avatar {
@@ -524,9 +824,61 @@
   padding-bottom: 34px; /* room for "Remove photo", which hangs below the avatar */
 }
 
+.profile-heading.profile-section {
+  gap: 32px; /* room between the picture and the name / email / bio */
+}
+
 .profile-heading > div:nth-child(2) {
   flex: 1;
   min-width: 0;
+}
+
+/* The bio sits in a light grey box with a small "BIO" label above it. */
+.bio-box {
+  position: relative;
+  max-width: 560px;
+  margin-top: 14px;
+  padding: 10px 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #f3f4f8;
+}
+
+.bio-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--subtle);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Inside the box the bio text, its edit button and its edit form need no extra top margin. */
+.bio-box .profile-bio,
+.bio-box .bio-edit,
+.bio-box .bio-form {
+  margin-top: 0;
+}
+
+/* While editing, the character count sits at the box's top right, level with "BIO". */
+.bio-box .bio-count {
+  top: -22px;
+}
+
+/* While editing, the whole box lights up instead of the input getting its own focus ring. */
+.bio-box:focus-within {
+  border-color: var(--primary-border);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* Inside the box the input is just text: the box itself is the edit field. */
+.bio-box .inline-edit input,
+.bio-box .inline-edit input:focus-visible {
+  background: none;
+  box-shadow: none;
+  outline: none;
 }
 
 .profile-bio {

@@ -136,7 +136,7 @@ p {
 }
 
 /* A page's content on one raised white panel, separated from the background like the navbar.
-   Used by My Groups, the profile pages and Search Profiles. */
+   Used by My Groups, the profile pages and Find Groupmates. */
 .page-panel,
 .profile-page {
   margin-top: 8px;

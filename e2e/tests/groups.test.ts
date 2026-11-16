@@ -1,6 +1,6 @@
 import type { Browser } from 'playwright';
 import { afterAll, beforeAll, describe, test } from 'vitest';
-import { appUrl, createGroup, expect, launchBrowser, newUser, uniqueEmail } from '../setup/helpers';
+import { api, appUrl, createGroup, expect, launchBrowser, newUser, pickCourse, uniqueEmail } from '../setup/helpers';
 
 let browser: Browser;
 beforeAll(async () => {
@@ -53,7 +53,7 @@ describe('creating a group', () => {
     await create.click();
     await expect(page.getByText('Which course is this for?')).toBeVisible();
 
-    await page.getByLabel('Course').fill('INF 151');
+    await pickCourse(page, 'IN4MATX 151');
     await page.getByLabel('Teammates’ emails').fill('omar@uci, qitai@uci.edu');
     await expect(page.locator('.email-chips')).toContainText('omar@uci · not an email');
     await create.click();
@@ -74,7 +74,7 @@ describe('creating a group', () => {
     const { page } = kent;
     await page.goto(`${appUrl()}/groups/new`);
     await page.getByLabel('Group name').fill('Pasted');
-    await page.getByLabel('Course').fill('INF 151');
+    await pickCourse(page, 'IN4MATX 151');
     await page.getByLabel('Teammates’ emails').fill(`Omar Ali <${omar.toUpperCase()}>, "Qitai" <${qitai}>; ${omar}`);
     await page.getByRole('button', { name: 'Create group & invite 2' }).click();
 

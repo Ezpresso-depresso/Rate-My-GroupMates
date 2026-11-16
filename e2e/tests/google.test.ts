@@ -151,7 +151,7 @@ describe('existing email + password accounts', () => {
     const email = uniqueEmail('existing');
     const password = 'my-own-password-1';
     const reg = await api(null, 'POST', '/auth/register', { name: 'Dana Lee', email, password });
-    const group = await api(reg.body.token, 'POST', '/teams', { name: 'Linked group', course: 'INF 151', emails: [uniqueEmail('mate')] });
+    const group = await api(reg.body.token, 'POST', '/teams', { name: 'Linked group', course: 'IN4MATX 151', emails: [uniqueEmail('mate')] });
     expect(group.status).toBe(201);
 
     // Different capitalisation from Google: still the same person.
@@ -171,7 +171,7 @@ describe('invites', () => {
   test('an invite sent to an email shows up when that person first signs in with Google', async () => {
     const owner = await api(null, 'POST', '/auth/register', { name: 'Owner', email: uniqueEmail('owner'), password: 'owner-password-1' });
     const inviteeEmail = uniqueEmail('invitee');
-    const group = await api(owner.body.token, 'POST', '/teams', { name: 'Invite group', course: 'INF 151', emails: [inviteeEmail] });
+    const group = await api(owner.body.token, 'POST', '/teams', { name: 'Invite group', course: 'IN4MATX 151', emails: [inviteeEmail] });
 
     const res = await googleSignIn(googleToken({ email: inviteeEmail }));
     const teams = await api(res.body.token, 'GET', '/teams');

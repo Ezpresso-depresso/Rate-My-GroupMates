@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PASSWORD_MIN, passwordProblem } from '../lib/passwords';
 import { api, type ApiError } from '../services/api';
@@ -70,10 +69,10 @@ export function SettingsPage() {
             autoComplete="new-password"
             aria-describedby="new-password-hint"
           />
+          <small id="new-password-hint" className="muted">
+            At least {PASSWORD_MIN} characters. Changing it signs you out on your other devices.
+          </small>
         </label>
-        <small id="new-password-hint" className="muted">
-          At least {PASSWORD_MIN} characters. Changing it signs you out on your other devices.
-        </small>
         <label className="field">
           <span>Confirm new password</span>
           <input
@@ -97,9 +96,6 @@ export function SettingsPage() {
           <button className="btn" disabled={saving}>
             {saving ? 'Saving…' : 'Change password'}
           </button>
-          <Link className="textbtn" to="/">
-            Back to my groups
-          </Link>
         </div>
       </form>
     </>

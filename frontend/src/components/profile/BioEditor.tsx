@@ -2,7 +2,7 @@
  * Your short bio on the profile page. Works like the name: hover shows a pen, click to edit,
  * Enter (or clicking away) saves, Escape cancels. Saving it empty removes it.
  */
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { api, type ApiError } from '../../services/api';
 import './Profile.css';
@@ -55,40 +55,54 @@ export function BioEditor() {
 
   if (!editing)
     return (
-      <button type="button" className="bio-edit" onClick={start} title="Edit your bio">
-        {current ? <span className="profile-bio">{current}</span> : <span className="profile-bio empty">Add a short bio</span>}
-        <Pen />
-      </button>
+      <BioBox>
+        <button type="button" className="bio-edit" onClick={start} title="Edit your bio">
+          {current ? <span className="profile-bio">{current}</span> : <span className="profile-bio empty">Add a short bio</span>}
+          <Pen />
+        </button>
+      </BioBox>
     );
 
   return (
-    <form className="bio-form inline-edit" onSubmit={save}>
-      <input
-        ref={input}
-        className="bio-input"
-        value={value}
-        maxLength={MAX_BIO_LENGTH}
-        placeholder="A line about you, e.g. “Always on time with the slides”"
-        aria-label="Your bio"
-        aria-describedby="bio-count"
-        disabled={busy}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={() => save()}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            setError('');
-            setEditing(false);
-          }
-        }}
-      />
-      <span id="bio-count" className="muted bio-count">
-        {value.length}/{MAX_BIO_LENGTH}
-      </span>
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-    </form>
+    <BioBox>
+      <form className="bio-form inline-edit" onSubmit={save}>
+        <input
+          ref={input}
+          className="bio-input"
+          value={value}
+          maxLength={MAX_BIO_LENGTH}
+          placeholder="A line about you, e.g. “Always on time with the slides”"
+          aria-label="Your bio"
+          aria-describedby="bio-count"
+          disabled={busy}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={() => save()}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setError('');
+              setEditing(false);
+            }
+          }}
+        />
+        <span id="bio-count" className="muted bio-count">
+          {value.length}/{MAX_BIO_LENGTH}
+        </span>
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+      </form>
+    </BioBox>
+  );
+}
+
+/** The light grey "BIO" box a bio sits in (yours, editable, and other people's). */
+export function BioBox({ children }: { children: ReactNode }) {
+  return (
+    <div className="bio-box">
+      <span className="bio-label">Bio</span>
+      {children}
+    </div>
   );
 }

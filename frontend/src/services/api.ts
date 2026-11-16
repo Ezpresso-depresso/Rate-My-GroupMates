@@ -2,8 +2,12 @@
 import { API_URL } from '../config';
 import type {
   AuthConfig,
+  Course,
+  Department,
+  ProfileClass,
   ProfileData,
-  PublicUser,
+  SearchField,
+  SearchResult,
   Review,
   ReviewDraft,
   Session,
@@ -69,6 +73,7 @@ export interface SubmitReviewsPayload {
 
 export interface NewTeam {
   name: string;
+  /** A course code from the course list, e.g. "COMPSCI 161". */
   course: string;
   emails: string[];
 }
@@ -97,13 +102,24 @@ export const api = {
   setBackground: (background: string) =>
     request<User>('/profile/background', { method: 'PUT', body: JSON.stringify({ background }) }),
 
+  getClasses: () => request<ProfileClass[]>('/profile/classes'),
+  /** Add / drop a class (a course code) on your profile; returns your updated classes. */
+  addClass: (code: string) => post<ProfileClass[]>('/profile/classes', { code }),
+  dropClass: (code: string) => post<ProfileClass[]>('/profile/classes/drop', { code }),
+
   /** Up to 100 characters; '' clears it. */
   setBio: (bio: string) => request<User>('/profile/bio', { method: 'PUT', body: JSON.stringify({ bio }) }),
 
+  // Courses (real UCI courses only; groups must pick one)
+  courseDepartments: () => request<Department[]>('/courses/departments'),
+  coursesIn: (department: string) => request<Course[]>(`/courses?department=${encodeURIComponent(department)}`),
+  /** Typeahead matches for a course code or title. */
+  searchCourses: (q: string, signal?: AbortSignal) => request<Course[]>(`/courses/search?q=${encodeURIComponent(q)}`, { signal }),
+
   // Other people
-  /** Best name/email matches first. Pass `signal` to cancel an outdated search. */
-  searchUsers: (q: string, signal?: AbortSignal) =>
-    request<PublicUser[]>(`/users/search?q=${encodeURIComponent(q)}`, { signal }),
+  /** Best matches first; `by` picks what to match (name or email by default). Pass `signal` to cancel an outdated search. */
+  searchUsers: (q: string, by: SearchField = 'all', signal?: AbortSignal) =>
+    request<SearchResult[]>(`/users/search?q=${encodeURIComponent(q)}&by=${by}`, { signal }),
   getUserProfile: (userId: string) => request<UserProfileData>(`/users/${userId}/profile`),
   /** Replaces whichever list is sent (up to 3 each). */
   setPins: (pins: { comments?: string[]; awards?: string[] }) =>

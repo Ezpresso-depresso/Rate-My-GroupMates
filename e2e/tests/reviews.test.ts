@@ -196,3 +196,32 @@ describe('nobody can read or write someone else’s reviews', () => {
     expect(res.body.message).toBe('You can’t review yourself');
   });
 });
+
+describe('ratings in Find Groupmates', () => {
+  test('search results show each person’s overall stars, by the same rule as their profile', async () => {
+    const { kent, omar, qitai, group } = await startedGroup();
+    await kent.page.goto(group.url);
+    await rateEveryone(kent, 5, 9);
+    await expect(kent.page).toHaveURL(/\/awards$/);
+    await rateEveryone(omar, 4, 8);
+    await expect(omar.page).toHaveURL(/\/awards$/);
+    // Qitai hasn't rated anyone yet, so their own reviews don't count for them yet.
+    const { page } = omar;
+
+    const search = async (who: TestUser) => {
+      await page.goto(`${appUrl()}/profiles`);
+      await page.getByRole('button', { name: /Search filter/ }).click();
+      await page.getByRole('menuitemradio', { name: 'Email', exact: true }).click();
+      await page.getByRole('searchbox', { name: 'Search people by email' }).fill(who.email);
+      return page.locator('.search-results .member-row', { hasText: who.email });
+    };
+
+    // Kent was rated 4 stars by Omar (Qitai hasn't submitted).
+    const kentRow = await search(kent);
+    await expect(kentRow.getByLabel('4.0 out of 5 stars')).toBeVisible();
+    await expect(kentRow).toContainText('4.0 (1 review)');
+
+    const qitaiRow = await search(qitai);
+    await expect(qitaiRow).toContainText('No ratings yet');
+  });
+});
