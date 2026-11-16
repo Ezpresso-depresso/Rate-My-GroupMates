@@ -75,5 +75,7 @@ export const MAX_AVATAR_CHARS = 90_000;
 export const MAX_BIO_LENGTH = 100;
 /** How many comments / awards someone can pin to the top of their profile. */
 export const MAX_PINS = 3;
+/** Classes a user can add to their profile themselves (on top of their groups' classes). */
+export const MAX_ADDED_CLASSES = 40;
 /** Preset profile backgrounds (images live in frontend/public/backgrounds). Keep in sync with frontend/src/lib/backgrounds.ts. */
 export const PROFILE_BACKGROUNDS = ['goku', 'misty-field', 'blossoms', 'blossom-path'] as const;

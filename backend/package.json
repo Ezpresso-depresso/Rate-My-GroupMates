@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "seed": "tsx src/scripts/seed.ts",
     "reset-password": "tsx src/scripts/resetPassword.ts",
-    "check:prod": "tsx src/scripts/checkProduction.ts"
+    "check:prod": "tsx src/scripts/checkProduction.ts",
+    "courses:fetch": "tsx src/scripts/fetchCourses.ts",
+    "courses:migrate": "tsx src/scripts/migrateCourses.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

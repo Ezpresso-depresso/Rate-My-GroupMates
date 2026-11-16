@@ -77,17 +77,32 @@ export interface Group {
 }
 
 /** Creates a group through the UI and returns where it lives and its invite code. */
-export async function createGroup(owner: TestUser, name: string, invitees: TestUser[], course = 'INF 151'): Promise<Group> {
+export async function createGroup(owner: TestUser, name: string, invitees: TestUser[], course = 'IN4MATX 151'): Promise<Group> {
   const { page } = owner;
   await page.goto(`${appUrl()}/groups/new`);
   await page.getByLabel('Group name').fill(name);
-  await page.getByLabel('Course').fill(course);
+  await pickCourse(page, course);
   await page.getByLabel('Teammates’ emails').fill(invitees.map((u) => u.email).join('\n'));
   await page.getByRole('button', { name: /^Create group/ }).click();
   await pwExpect(page.getByText(/Waiting room/i)).toBeVisible();
   const url = page.url();
   const id = url.split('/').pop()!;
   return { id, url, joinUrl: `${appUrl()}/join/${id}`, code: await page.getByLabel('Invite code').inputValue() };
+}
+
+/** Picks a course ("COMPSCI 161") in the create-group form by typing into Department, then Course. */
+export async function pickCourse(page: Page, course: string) {
+  const department = course.slice(0, course.lastIndexOf(' '));
+  const number = course.slice(course.lastIndexOf(' ') + 1);
+  // An option's name is its label then its hint, e.g. "IN4MATX Informatics" or "151 Project Management".
+  const startsWith = (text: string) => new RegExp('^' + text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' ');
+  await page.getByRole('combobox', { name: 'Department' }).fill(department);
+  await page.getByRole('option', { name: startsWith(department) }).first().click();
+  const box = page.getByRole('combobox', { name: 'Course' });
+  await pwExpect(box).toBeEnabled();
+  await box.fill(number);
+  await page.getByRole('option', { name: startsWith(number) }).first().click();
+  await pwExpect(box).toHaveValue(startsWith(`${number} ·`));
 }
 
 /** Opens the invite link and enters the code. */

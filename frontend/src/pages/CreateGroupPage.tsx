@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { CoursePicker } from '../components/groups/CoursePicker';
 import { useAuth } from '../hooks/useAuth';
 import { isEmail, splitEmails } from '../lib/emails';
 import { groupPath } from '../lib/teams';
@@ -25,14 +26,14 @@ export function CreateGroupPage() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return setError('Give your group a name');
-    if (!course.trim()) return setError('Which course is this for?');
+    if (!course) return setError('Which course is this for?');
     if (invalid.length) return setError(`Fix or remove ${invalid.map((x) => `“${x}”`).join(', ')}`);
     if (invites.length === 0) return setError('Invite at least one teammate (not counting yourself)');
 
     setSaving(true);
     setError('');
     try {
-      const team = await api.createTeam({ name: name.trim(), course: course.trim(), emails: invites });
+      const team = await api.createTeam({ name: name.trim(), course, emails: invites });
       navigate(groupPath(team.id), { replace: true });
     } catch (err) {
       setError((err as ApiError).message);
@@ -61,16 +62,7 @@ export function CreateGroupPage() {
             autoFocus
           />
         </label>
-        <label className="field">
-          <span>Course</span>
-          <input
-            className="input"
-            value={course}
-            onChange={(e) => setCourse(e.target.value)}
-            placeholder="INF 151"
-            maxLength={MAX_LENGTH}
-          />
-        </label>
+        <CoursePicker value={course} onChange={setCourse} />
         <label className="field">
           <span>Teammates’ emails</span>
           <textarea

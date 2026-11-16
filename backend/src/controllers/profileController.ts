@@ -7,8 +7,10 @@
  * award rules live in one place.
  */
 import type { Request, Response } from 'express';
-import { isValidObjectId, type Types } from 'mongoose';
-import { MAX_BIO_LENGTH, MAX_PINS, PROFILE_BACKGROUNDS } from '../config/constants';
+import { isValidObjectId, Types } from 'mongoose';
+import { MAX_ADDED_CLASSES, MAX_BIO_LENGTH, MAX_PINS, PROFILE_BACKGROUNDS } from '../config/constants';
+import { findCourse } from '../lib/courses';
+import { inGroupFor, profileClasses } from '../lib/userClasses';
 import { authedUser } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
 import { Review } from '../models/Review';
@@ -31,6 +33,53 @@ async function countedGroups(userId: Types.ObjectId) {
   return mine.filter(({ team }) => (count.get(String(team._id)) ?? 0) >= team.members.length - 1);
 }
 
+export interface OverallRating {
+  /** Average stars, or null with no ratings yet. */
+  average: number | null;
+  count: number;
+}
+
+/**
+ * Overall star rating for many users at once (for search results), by the same rule as the
+ * profile: only groups where reviews are open and the user has reviewed everyone count.
+ */
+export async function overallRatings(userIds: Types.ObjectId[]): Promise<Map<string, OverallRating>> {
+  const result = new Map<string, OverallRating>(userIds.map((id) => [String(id), { average: null, count: 0 }]));
+  if (!userIds.length) return result;
+
+  const wanted = new Set(userIds.map(String));
+  const teams = await Team.find({ 'members.user': { $in: userIds }, reviewsStartedAt: { $ne: null } })
+    .select('members._id members.user members.status')
+    .lean();
+  // memberId -> { userId, how many reviews they must write }
+  const members = new Map<string, { userId: string; needed: number }>();
+  for (const team of teams)
+    for (const m of team.members)
+      if (m.user && m.status === 'accepted' && wanted.has(String(m.user)))
+        members.set(String(m._id), { userId: String(m.user), needed: team.members.length - 1 });
+  if (!members.size) return result;
+  const memberIds = [...members.keys()].map((id) => new Types.ObjectId(id));
+
+  const written = await Review.aggregate<{ _id: Types.ObjectId; n: number }>([
+    { $match: { reviewerId: { $in: memberIds } } },
+    { $group: { _id: '$reviewerId', n: { $sum: 1 } } },
+  ]);
+  const counted = written.filter((w) => w.n >= (members.get(String(w._id))?.needed ?? Infinity)).map((w) => w._id);
+
+  const received = await Review.aggregate<{ _id: Types.ObjectId; sum: number; n: number }>([
+    { $match: { targetId: { $in: counted }, rating: { $gte: 1, $lte: 5 } } },
+    { $group: { _id: '$targetId', sum: { $sum: '$rating' }, n: { $sum: 1 } } },
+  ]);
+  const totals = new Map<string, { sum: number; n: number }>();
+  for (const r of received) {
+    const userId = members.get(String(r._id))!.userId;
+    const t = totals.get(userId) ?? { sum: 0, n: 0 };
+    totals.set(userId, { sum: t.sum + r.sum, n: t.n + r.n });
+  }
+  for (const [userId, t] of totals) result.set(userId, { average: t.sum / t.n, count: t.n });
+  return result;
+}
+
 function memberName(team: TeamDoc, memberId: Types.ObjectId) {
   return team.members.find((m) => String(m._id) === String(memberId))?.name ?? 'A teammate';
 }
@@ -44,6 +93,7 @@ export async function buildProfile(userId: Types.ObjectId) {
   const pins = await User.findById(userId).select('pinnedComments pinnedAwards');
 
   return {
+    classes: await profileClasses(userId),
     groups: groups.map(({ team }) => ({ id: String(team._id), name: team.name, course: team.course })),
     reviews: reviews.map((r) => {
       const team = byMember.get(String(r.targetId))!;
@@ -130,4 +180,42 @@ export async function setBio(req: Request, res: Response) {
   const user = await User.findByIdAndUpdate(authedUser(req)._id, { $set: { bio } }, { new: true });
   if (!user) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
   res.json(user);
+}
+
+/** GET /profile/classes — your classes (the navbar uses this to nudge you to add some). */
+export async function getClasses(req: Request, res: Response) {
+  res.json(await profileClasses(authedUser(req)._id));
+}
+
+async function courseFromBody(req: Request) {
+  const code = typeof req.body?.code === 'string' ? req.body.code : '';
+  const course = code ? await findCourse(code) : undefined;
+  if (!course) throw new HttpError(400, 'Pick a class from the list');
+  return course.code;
+}
+
+/** POST /profile/classes, body { code } — adds a class to your profile. Returns your classes. */
+export async function addClass(req: Request, res: Response) {
+  const user = authedUser(req);
+  const code = await courseFromBody(req);
+  const current = await User.findById(user._id).select('addedCourses');
+  if (!current) throw new HttpError(401, 'Your account no longer exists. Please sign in again');
+  if (!current.addedCourses.includes(code) && current.addedCourses.length >= MAX_ADDED_CLASSES)
+    throw new HttpError(400, `You can add up to ${MAX_ADDED_CLASSES} classes`);
+
+  await User.updateOne({ _id: user._id }, { $addToSet: { addedCourses: code }, $pull: { droppedCourses: code } });
+  res.json(await profileClasses(user._id));
+}
+
+/** POST /profile/classes/drop, body { code } — takes a class off your profile (even one from a group). */
+export async function dropClass(req: Request, res: Response) {
+  const user = authedUser(req);
+  const code = await courseFromBody(req);
+  // A group's class would come straight back, so remember that it was dropped.
+  const fromGroup = await inGroupFor(user._id, code);
+  await User.updateOne(
+    { _id: user._id },
+    { $pull: { addedCourses: code }, ...(fromGroup ? { $addToSet: { droppedCourses: code } } : {}) },
+  );
+  res.json(await profileClasses(user._id));
 }

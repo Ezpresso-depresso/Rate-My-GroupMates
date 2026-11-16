@@ -55,7 +55,7 @@
   letter-spacing: 0.5px;
 }
 
-/* Right side of the navbar: "My Groups | Search Profiles | My Profile", then the account pill. */
+/* Right side of the navbar: "My Groups | Find Groupmates | My Profile", then the account pill. */
 .header-right {
   display: flex;
   align-items: center;
@@ -80,6 +80,71 @@
 .main-nav a:hover,
 .main-nav a.active {
   color: var(--primary);
+}
+
+/* "My Profile" with the "Add classes to profile!" reminder hanging under it. The reminder lines up
+   with the right edge of "My Profile" and extends left, so it stays clear of the account pill. */
+.nav-with-nudge {
+  position: relative;
+  display: inline-flex;
+}
+
+.main-nav a.class-nudge {
+  position: absolute;
+  top: calc(100% + 20px);
+  right: -6px;
+  padding: 6px 14px;
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  /* Same colours as the "UCI" pill next to the logo. */
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px #2d36d526;
+  animation: nudge-bounce 1.4s ease-in-out infinite;
+}
+
+/* A little arrow pointing up at "My Profile" (border colour, then fill on top). */
+.main-nav a.class-nudge::before,
+.main-nav a.class-nudge::after {
+  content: '';
+  position: absolute;
+  right: 34px; /* under the middle of "My Profile" */
+  border: 6px solid transparent;
+}
+
+.main-nav a.class-nudge::before {
+  bottom: 100%;
+  border-bottom-color: var(--primary-border);
+}
+
+.main-nav a.class-nudge::after {
+  bottom: calc(100% - 1.5px);
+  border-bottom-color: var(--primary-soft);
+}
+
+.main-nav a.class-nudge:hover {
+  color: var(--primary);
+  animation-play-state: paused;
+}
+
+@keyframes nudge-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-nav a.class-nudge {
+    animation: none;
+  }
 }
 
 .main-nav-divider {

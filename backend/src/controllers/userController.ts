@@ -1,12 +1,15 @@
 import type { Request, Response } from 'express';
 import { isValidObjectId, Types } from 'mongoose';
+import { findCourse } from '../lib/courses';
+import { userIdsInClass } from '../lib/userClasses';
 import { avatarPath, escapeRegExp } from '../lib/util';
 import { HttpError } from '../middleware/errorHandler';
 import { User } from '../models/User';
-import { buildProfile } from './profileController';
+import { buildProfile, overallRatings } from './profileController';
 
 const DATA_URL = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/;
 const SEARCH_LIMIT = 20;
+const CLASS_LIMIT = 100; // a class list is browsed, not ranked: show more of it
 const MAX_QUERY_LENGTH = 100;
 
 /**
@@ -65,40 +68,63 @@ function toPublicUser(u: PublicUserRow) {
   };
 }
 
-/**
- * How well `q` matches a name or email: whole value > starts with > a word starts with > contains.
- * The best of name, full name and email wins, so "kent" finds Kent and kent.k@uci.edu alike.
- */
-function matchScore(u: PublicUserRow, q: string): number {
-  const score = (value: string) => {
-    const v = value.toLowerCase();
-    if (!v || !v.includes(q)) return 0;
-    if (v === q) return 100;
-    if (v.startsWith(q)) return 80;
-    if (v.split(/[\s@._-]+/).some((word) => word.startsWith(q))) return 60;
-    return 40;
-  };
-  const emailLocal = u.email.split('@')[0];
-  return Math.max(score(u.fullName), score(u.name), score(u.email), score(emailLocal) - 1);
+/** How well `q` matches one value: whole value > starts with > a word starts with > contains. */
+function textScore(value: string, q: string): number {
+  const v = value.toLowerCase();
+  if (!v || !v.includes(q)) return 0;
+  if (v === q) return 100;
+  if (v.startsWith(q)) return 80;
+  if (v.split(/[\s@._-]+/).some((word) => word.startsWith(q))) return 60;
+  return 40;
 }
 
-/** GET /users/search?q= — people by name or email, best matches first (up to 20). */
+const nameScore = (u: PublicUserRow, q: string) => Math.max(textScore(u.fullName, q), textScore(u.name, q));
+const emailScore = (u: PublicUserRow, q: string) => Math.max(textScore(u.email, q), textScore(u.email.split('@')[0], q) - 1);
+
+/** Which part of a person the search looks at. `all` = name or email. */
+const SEARCH_FIELDS = ['all', 'name', 'email', 'class'] as const;
+type SearchField = (typeof SEARCH_FIELDS)[number];
+
+/** Everyone whose profile lists this class (a course code like "COMPSCI 161"). */
+async function searchByClass(q: string) {
+  const course = await findCourse(q);
+  if (!course) return [];
+  const ids = await userIdsInClass(course.code);
+  if (!ids.length) return [];
+  const rows = await User.aggregate<PublicUserRow>([{ $match: { _id: { $in: ids } } }, { $project: PUBLIC_FIELDS }]);
+  return rows.map((u) => ({ u, score: 0 })); // all equally good: sorted by name below
+}
+
+/**
+ * GET /users/search?q=&by= — people (each with their overall star rating) whose name, email (`all`, the default, checks both) or class
+ * matches, best matches first (up to 20). For `class`, `q` is a course code: people whose profile lists it.
+ */
 export async function searchUsers(req: Request, res: Response) {
   const q = (typeof req.query.q === 'string' ? req.query.q : '').trim().toLowerCase().slice(0, MAX_QUERY_LENGTH);
+  const by: SearchField = SEARCH_FIELDS.includes(req.query.by as SearchField) ? (req.query.by as SearchField) : 'all';
   if (!q) return res.json([]);
 
-  const pattern = new RegExp(escapeRegExp(q), 'i');
-  const rows = await User.aggregate<PublicUserRow>([
-    { $match: { $or: [{ name: pattern }, { fullName: pattern }, { email: pattern }] } },
-    { $limit: 200 }, // ranked below; this just bounds the work
-    { $project: PUBLIC_FIELDS },
-  ]);
+  let scored: { u: PublicUserRow; score: number }[];
+  if (by === 'class') {
+    scored = await searchByClass(q);
+  } else {
+    const pattern = new RegExp(escapeRegExp(q), 'i');
+    const fields = { all: ['name', 'fullName', 'email'], name: ['name', 'fullName'], email: ['email'] }[by];
+    const rows = await User.aggregate<PublicUserRow>([
+      { $match: { $or: fields.map((f) => ({ [f]: pattern })) } },
+      { $limit: 200 }, // ranked below; this just bounds the work
+      { $project: PUBLIC_FIELDS },
+    ]);
+    const score = (u: PublicUserRow) =>
+      by === 'name' ? nameScore(u, q) : by === 'email' ? emailScore(u, q) : Math.max(nameScore(u, q), emailScore(u, q));
+    scored = rows.map((u) => ({ u, score: score(u) }));
+  }
 
-  const ranked = rows
-    .map((u) => ({ u, score: matchScore(u, q) }))
+  const ranked = scored
     .sort((a, b) => b.score - a.score || (a.u.fullName || a.u.name).localeCompare(b.u.fullName || b.u.name))
-    .slice(0, SEARCH_LIMIT);
-  res.json(ranked.map(({ u }) => toPublicUser(u)));
+    .slice(0, by === 'class' ? CLASS_LIMIT : SEARCH_LIMIT);
+  const ratings = await overallRatings(ranked.map(({ u }) => u._id));
+  res.json(ranked.map(({ u }) => ({ ...toPublicUser(u), rating: ratings.get(String(u._id)) })));
 }
 
 /** GET /users/:userId/profile — someone's profile (read-only): who they are, plus the same data as GET /profile. */

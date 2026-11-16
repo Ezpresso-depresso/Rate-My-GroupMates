@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
 import { AwardsSection } from '../components/profile/AwardsSection';
+import { BioBox } from '../components/profile/BioEditor';
+import { ClassesSection } from '../components/profile/ClassesSection';
 import { CommentsSection } from '../components/profile/CommentsSection';
 import { ProfilePanel } from '../components/profile/ProfilePanel';
 import { RatingSection } from '../components/profile/RatingSection';
@@ -69,7 +71,11 @@ export function UserProfilePage() {
         <div>
           <h1>{user.fullName || user.name}</h1>
           <span className="muted profile-email">{user.email}</span>
-          {user.bio && <p className="profile-bio">{user.bio}</p>}
+          {user.bio && (
+            <BioBox>
+              <p className="profile-bio">{user.bio}</p>
+            </BioBox>
+          )}
         </div>
         <Link className="textbtn back-to-search" to="/profiles">
           ← Back to search
@@ -77,6 +83,7 @@ export function UserProfilePage() {
       </div>
 
       <div className="profile-sections">
+        <ClassesSection classes={state.data.classes} />
         <RatingSection reviews={state.data.reviews} groupCount={state.data.groups.length} own={false} />
         <CommentsSection profile={state.data} />
         <AwardsSection awards={awards} pinnedKeys={state.data.pinnedAwards} />

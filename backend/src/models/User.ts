@@ -17,6 +17,12 @@ const userSchema = new Schema(
     /** Profile pins (≤ MAX_PINS each): Review ids, and award keys like "<teamId>:funny:carry". */
     pinnedComments: { type: [String], default: [] },
     pinnedAwards: { type: [String], default: [] },
+    /**
+     * Profile classes (course codes like "COMPSCI 161"). A profile lists the courses of the user's
+     * groups plus `addedCourses`, minus `droppedCourses` (see lib/userClasses.ts).
+     */
+    addedCourses: { type: [String], default: [], index: true },
+    droppedCourses: { type: [String], default: [] },
     /** bcrypt hash; never sent to clients. Empty for Google-only accounts. */
     passwordHash: { type: String, select: false },
     /** Bumped on password change; session tokens carry it, so older sessions stop working. */
@@ -34,8 +40,8 @@ userSchema.set('toJSON', {
   transform: (_doc, ret: Record<string, any>) => {
     ret.id = String(ret._id);
     delete ret._id;
-    // Pins only travel with GET /profile.
-    for (const key of ['googleId', 'passwordHash', 'sessionVersion', 'failedLogins', 'failedLoginsSince', 'lockedUntil', 'pinnedComments', 'pinnedAwards'])
+    // Pins and classes only travel with GET /profile.
+    for (const key of ['googleId', 'passwordHash', 'sessionVersion', 'failedLogins', 'failedLoginsSince', 'lockedUntil', 'pinnedComments', 'pinnedAwards', 'addedCourses', 'droppedCourses'])
       delete ret[key];
     return ret;
   },

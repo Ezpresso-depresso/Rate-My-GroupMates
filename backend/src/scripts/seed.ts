@@ -24,7 +24,7 @@ const PEOPLE = [
   { name: 'Qitai', color: '#338d84' },
   { name: 'Zahi', color: '#a95782' },
 ];
-const TEAM = { name: 'Group 16', course: 'INF 151' };
+const TEAM = { name: 'Group 16', course: 'IN4MATX 151' };
 const DEMO_PASSWORD = 'groupmates16';
 
 const args = process.argv.slice(2);

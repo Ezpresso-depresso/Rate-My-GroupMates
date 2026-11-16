@@ -98,7 +98,18 @@ export interface ReceivedReview {
   submittedAt: string;
 }
 
+/** A class on someone's profile: from their groups, added by them, or both. */
+export interface ProfileClass {
+  code: string;
+  title: string;
+  /** Names of their groups for this class (empty if they only added it). */
+  groups: string[];
+  added: boolean;
+}
+
 export interface ProfileData {
+  /** The classes they're in / have taken (see ProfileClass). */
+  classes: ProfileClass[];
   /** Groups that count toward your profile (ones where you've submitted your own reviews). */
   groups: { id: string; name: string; course: string }[];
   /** Newest first. */
@@ -113,6 +124,31 @@ export interface PublicUser extends Member {
   fullName: string;
   profileBackground: string;
   bio: string;
+}
+
+/** A UCI course a group can be for. Groups store its `code`, e.g. "COMPSCI 161". */
+export interface Course {
+  code: string;
+  department: string;
+  departmentName: string;
+  number: string;
+  title: string;
+}
+
+export interface Department {
+  code: string;
+  name: string;
+  courseCount: number;
+  /** ICS departments, listed first. */
+  featured: boolean;
+}
+
+/** What a profile search matches: `all` = name or email. */
+export type SearchField = 'all' | 'name' | 'email' | 'class';
+
+/** A Find Groupmates result: the person plus their overall star rating (same rule as their profile). */
+export interface SearchResult extends PublicUser {
+  rating: { average: number | null; count: number };
 }
 
 /** GET /users/:id/profile: who they are, plus the same data as your own profile. */

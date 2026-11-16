@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AvatarEditor } from '../components/profile/AvatarEditor';
 import { BackgroundPicker } from '../components/profile/BackgroundPicker';
 import { BioEditor } from '../components/profile/BioEditor';
+import { ClassesSection } from '../components/profile/ClassesSection';
 import { AwardsSection } from '../components/profile/AwardsSection';
 import { CommentsSection } from '../components/profile/CommentsSection';
 import { NameEditor } from '../components/profile/NameEditor';
@@ -88,6 +89,10 @@ export function ProfilePage() {
       )}
       {profile && (
         <div className="profile-sections">
+          <ClassesSection
+            classes={profile.classes}
+            onChange={(classes) => setState((s) => (s.kind === 'ready' ? { kind: 'ready', profile: { ...s.profile, classes } } : s))}
+          />
           <p className="error" role="alert">
             {pinError}
           </p>

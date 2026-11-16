@@ -13,6 +13,7 @@
 import type { Request, Response } from 'express';
 import { isValidObjectId, Types } from 'mongoose';
 import { MAX_NAME_LENGTH, MIN_GROUP_SIZE } from '../config/constants';
+import { findCourse } from '../lib/courses';
 import { avatarPath, colorFor, emailName, isEmail, newInviteCode, normalizeCode, normalizeEmail } from '../lib/util';
 import { authedUser } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
@@ -168,15 +169,17 @@ export async function getTeam(req: Request<TeamParams>, res: Response) {
   res.json(await toPublic(team, user));
 }
 
-/** Body: { name, course, emails: string[] }. The creator joins automatically. */
+/** Body: { name, course: a course code like "COMPSCI 161", emails: string[] }. The creator joins automatically. */
 export async function createTeam(req: Request, res: Response) {
   const user = authedUser(req);
   const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-  const course = typeof req.body?.course === 'string' ? req.body.course.trim() : '';
+  const courseText = typeof req.body?.course === 'string' ? req.body.course.trim() : '';
   if (!name) throw new HttpError(400, 'Give your group a name');
-  if (!course) throw new HttpError(400, 'Which course is this for?');
-  if (name.length > MAX_NAME_LENGTH || course.length > MAX_NAME_LENGTH)
-    throw new HttpError(400, `Group name and course must be at most ${MAX_NAME_LENGTH} characters`);
+  if (!courseText) throw new HttpError(400, 'Which course is this for?');
+  if (name.length > MAX_NAME_LENGTH) throw new HttpError(400, `Group name must be at most ${MAX_NAME_LENGTH} characters`);
+  // Only real UCI courses (see lib/courses.ts), stored as their code, e.g. "COMPSCI 161".
+  const course = (await findCourse(courseText))?.code;
+  if (!course) throw new HttpError(400, 'Pick a course from the list');
 
   const emails = parseEmails(req.body?.emails).filter((e) => e !== user.email);
   if (emails.length < MIN_GROUP_SIZE - 1) throw new HttpError(400, 'Invite at least one teammate (not counting yourself)');

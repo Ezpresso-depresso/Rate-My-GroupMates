@@ -18,7 +18,7 @@ describe('accepting an invite', () => {
     await omar.page.reload();
 
     const invite = omar.page.locator('.invite-card', { hasText: 'Group 16' });
-    await expect(invite).toContainText('Kent invited you · INF 151');
+    await expect(invite).toContainText('Kent invited you · IN4MATX 151');
     await expect(invite.getByRole('link', { name: 'Accept →' })).toBeVisible();
   });
 
