@@ -121,6 +121,213 @@ p {
   white-space: nowrap;
 }
 
+/* ---------- Popups ("Add classes to profile!" and the help tour) ---------- */
+/* A bouncing bubble with an arrow, hung off a ".nudge-anchor" (or a navbar tab, Layout.css).
+   Default: below the target, right-aligned, arrow pointing up. */
+.nudge-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.nudge {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: -6px;
+  z-index: 5; /* under the header (10), so the account menu covers it */
+  padding: 6px 14px;
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  /* Same colours as the "UCI" pill next to the logo. */
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px #2d36d526;
+  animation: nudge-bounce 1.4s ease-in-out infinite;
+  --nudge-arrow: 34px; /* from the right edge, under the middle of the target */
+}
+
+.nudge-wide {
+  --nudge-arrow: 54px;
+}
+
+
+/* The arrow: border colour, then fill on top. */
+.nudge::before,
+.nudge::after {
+  content: '';
+  position: absolute;
+  right: var(--nudge-arrow);
+  border: 6px solid transparent;
+}
+
+.nudge::before {
+  bottom: 100%;
+  border-bottom-color: var(--primary-border);
+}
+
+.nudge::after {
+  bottom: calc(100% - 1.5px);
+  border-bottom-color: var(--primary-soft);
+}
+
+a.nudge:hover {
+  color: var(--primary);
+  animation-play-state: paused;
+}
+
+/* Above the target, right-aligned, arrow pointing down. */
+.nudge.nudge-above {
+  top: auto;
+  bottom: calc(100% + 14px);
+}
+
+.nudge-above::before,
+.nudge-above::after {
+  border-bottom-color: transparent;
+}
+
+.nudge-above::before {
+  top: 100%;
+  bottom: auto;
+  border-top-color: var(--primary-border);
+}
+
+.nudge-above::after {
+  top: calc(100% - 1.5px);
+  bottom: auto;
+  border-top-color: var(--primary-soft);
+}
+
+/* Left of the target, arrow pointing right; wraps, with room for a close button. */
+.nudge.nudge-left {
+  top: 14px;
+  right: calc(100% + 20px);
+  width: 230px;
+  padding: 10px 30px 10px 14px;
+  border-radius: 14px;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.nudge-left::before,
+.nudge-left::after {
+  top: 18px;
+  bottom: auto;
+  border-bottom-color: transparent;
+}
+
+.nudge-left::before {
+  right: auto;
+  left: 100%;
+  border-left-color: var(--primary-border);
+}
+
+.nudge-left::after {
+  right: auto;
+  left: calc(100% - 1.5px);
+  border-left-color: var(--primary-soft);
+}
+
+/* A one-line ".nudge-left" (no close button), centred on a button-height target. */
+.nudge.nudge-pill {
+  top: 8px;
+  width: auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.nudge-pill::before,
+.nudge-pill::after {
+  top: 9px;
+}
+
+/* Right of a button-height target, arrow pointing left. Below it on narrower screens (no room). */
+@media (min-width: 1401px) {
+  .nudge.nudge-right {
+    top: 8px;
+    right: auto;
+    left: calc(100% + 20px);
+  }
+
+  .nudge-right::before,
+  .nudge-right::after {
+    top: 9px;
+    bottom: auto;
+    right: auto;
+    border-bottom-color: transparent;
+  }
+
+  .nudge-right::before {
+    left: auto;
+    right: 100%;
+    border-right-color: var(--primary-border);
+  }
+
+  .nudge-right::after {
+    left: auto;
+    right: calc(100% - 1.5px);
+    border-right-color: var(--primary-soft);
+  }
+}
+
+.nudge-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  padding: 2px 6px;
+  background: none;
+  color: var(--primary);
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Not enough room left of the target: hang it underneath instead, arrow pointing up. */
+@media (max-width: 1400px) {
+  .nudge.nudge-left {
+    top: calc(100% + 14px);
+    right: auto;
+    left: -6px;
+  }
+
+  .nudge-left::before,
+  .nudge-left::after {
+    top: auto;
+    left: 40px;
+    border-left-color: transparent;
+  }
+
+  .nudge-left::before {
+    bottom: 100%;
+    border-bottom-color: var(--primary-border);
+  }
+
+  .nudge-left::after {
+    bottom: calc(100% - 1.5px);
+    border-bottom-color: var(--primary-soft);
+  }
+}
+
+@keyframes nudge-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nudge {
+    animation: none;
+  }
+}
+
 /* ---------- Layout primitives ---------- */
 .container {
   max-width: 1180px;

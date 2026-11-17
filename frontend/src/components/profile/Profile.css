@@ -10,14 +10,15 @@
 .profile-page.has-background {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
 }
 
+/* Rounded to match the panel (rather than overflow: hidden, which would clip the help popups). */
 .profile-page.has-background::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
+  border-radius: inherit;
   background: var(--profile-bg) center / cover no-repeat;
   opacity: var(--profile-bg-opacity, 0.3);
   pointer-events: none;

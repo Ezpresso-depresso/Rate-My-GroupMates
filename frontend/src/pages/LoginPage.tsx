@@ -3,6 +3,7 @@ import { GoogleButton } from '../components/auth/GoogleButton';
 import { AuthGateContext } from '../context/authContext';
 import { isEmail, normalizeEmail } from '../lib/emails';
 import { PASSWORD_MIN, passwordProblem } from '../lib/passwords';
+import { startTour } from '../lib/tour';
 import { api, type ApiError } from '../services/api';
 import type { AuthConfig, Session } from '../types';
 import { LegalLinks } from './LegalPages';
@@ -60,7 +61,11 @@ export function LoginPage() {
       if (!isEmail(cleanEmail)) return setError('Enter a valid email address');
       const problem = passwordProblem(password, cleanEmail);
       if (problem) return setError(problem);
-      return finish(() => api.register(name.trim(), cleanEmail, password));
+      return finish(async () => {
+        const session = await api.register(name.trim(), cleanEmail, password);
+        startTour(session.user.id, 0); // a brand-new account gets the help tour
+        return session;
+      });
     }
     if (!cleanEmail || !password) return setError('Enter your email and password');
     finish(() => api.login(cleanEmail, password));

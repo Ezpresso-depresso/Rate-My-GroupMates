@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { setClassCount } from '../../lib/classCount';
+import { useTour } from '../../lib/tour';
 import { api, type ApiError } from '../../services/api';
 import type { ProfileClass } from '../../types';
 import { CoursePicker } from '../groups/CoursePicker';
@@ -32,6 +33,7 @@ export function ClassesSection({ classes, onChange }: Props) {
   const [course, setCourse] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const { step } = useTour();
 
   const save = async (action: () => Promise<ProfileClass[]>) => {
     setBusy(true);
@@ -87,9 +89,12 @@ export function ClassesSection({ classes, onChange }: Props) {
       <div className="classes-head">
         <h2 id="classes">Classes</h2>
         {editable && !adding && (
-          <button type="button" className="textbtn" onClick={() => setAdding(true)}>
-            + Add a class
-          </button>
+          <span className="nudge-anchor">
+            <button type="button" className="textbtn" onClick={() => setAdding(true)}>
+              + Add a class
+            </button>
+            {step === 'classes' && <span className="nudge">Add classes to profile!</span>}
+          </span>
         )}
       </div>
 
@@ -149,9 +154,12 @@ export function ClassesSection({ classes, onChange }: Props) {
         <div className="class-add">
           <CoursePicker value={course} onChange={setCourse} />
           <div className="class-add-actions">
-            <button type="button" className="btn" disabled={busy} onClick={add}>
-              {busy ? 'Saving…' : 'Add class'}
-            </button>
+            <span className="nudge-anchor">
+              <button type="button" className="btn" disabled={busy} onClick={add}>
+                {busy ? 'Saving…' : 'Add class'}
+              </button>
+              {step === 'classes' && <span className="nudge nudge-left nudge-pill">Add classes to profile!</span>}
+            </span>
             <button
               type="button"
               className="textbtn"
