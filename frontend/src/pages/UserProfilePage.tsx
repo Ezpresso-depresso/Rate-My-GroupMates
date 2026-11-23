@@ -40,25 +40,32 @@ export function UserProfilePage() {
 
   if (userId === me.id) return <Navigate to="/profile" replace />;
 
-  if (state.kind === 'loading') return <p className="muted">Loading profile…</p>;
+  if (state.kind === 'loading')
+    return (
+      <div className="page-panel">
+        <p className="muted">Loading profile…</p>
+      </div>
+    );
   if (state.kind === 'error')
     return (
-      <div className="card empty-groups" role="alert">
-        <h2>Couldn’t load this profile</h2>
-        <p className="muted">{state.message}</p>
-        <div className="status-actions">
-          <button
-            className="btn"
-            onClick={() => {
-              setState({ kind: 'loading' });
-              setAttempt((a) => a + 1);
-            }}
-          >
-            Try again
-          </button>
-          <Link className="textbtn" to="/profiles">
-            Back to search
-          </Link>
+      <div className="page-panel">
+        <div className="card empty-groups" role="alert">
+          <h2>Couldn’t load this profile</h2>
+          <p className="muted">{state.message}</p>
+          <div className="status-actions">
+            <button
+              className="btn"
+              onClick={() => {
+                setState({ kind: 'loading' });
+                setAttempt((a) => a + 1);
+              }}
+            >
+              Try again
+            </button>
+            <Link className="textbtn" to="/profiles">
+              Back to search
+            </Link>
+          </div>
         </div>
       </div>
     );

@@ -225,3 +225,35 @@ describe('ratings in Find Groupmates', () => {
     await expect(qitaiRow).toContainText('No ratings yet');
   });
 });
+
+describe('active and past groups', () => {
+  test('a group moves to Past once you’ve rated, and Past can be collapsed (remembered)', async () => {
+    const { kent, group } = await startedGroup();
+    const { page } = kent;
+    const active = page.getByRole('region', { name: /^Active groups/ });
+    const past = page.getByRole('region', { name: /^Past groups/ });
+
+    await page.goto(appUrl());
+    await expect(active.locator('.group-card', { hasText: 'Group 16' })).toContainText('To do: rate your teammates');
+    await expect(past).toHaveCount(0); // no past groups yet
+
+    await page.goto(group.url);
+    await rateEveryone(kent, 4, 8);
+    await expect(page).toHaveURL(/\/awards$/);
+
+    await page.goto(appUrl());
+    await expect(past.locator('.group-card', { hasText: 'Group 16' })).toContainText('Done ✓');
+    await expect(active).toContainText('Nothing in progress');
+
+    const toggle = page.getByRole('button', { name: /^Past groups/ });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.locator('.group-card', { hasText: 'Group 16' })).toHaveCount(0);
+
+    await page.reload();
+    await expect(page.getByRole('button', { name: /^Past groups/ })).toHaveAttribute('aria-expanded', 'false');
+    await page.getByRole('button', { name: /^Past groups/ }).click();
+    await expect(page.locator('.group-card', { hasText: 'Group 16' })).toBeVisible();
+  });
+});

@@ -53,6 +53,8 @@ export interface Team {
   id: string;
   name: string;
   course: string;
+  /** Optional note from the creator for the people they invite ('' if none). */
+  message?: string;
   /** User id of the creator. */
   owner: string;
   /** "pending" until everyone has accepted; then reviews are open and membership is locked. */

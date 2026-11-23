@@ -82,12 +82,20 @@ export async function createGroup(owner: TestUser, name: string, invitees: TestU
   await page.goto(`${appUrl()}/groups/new`);
   await page.getByLabel('Group name').fill(name);
   await pickCourse(page, course);
-  await page.getByLabel('Teammates’ emails').fill(invitees.map((u) => u.email).join('\n'));
+  await fillTeammates(page, invitees.map((u) => u.email));
   await page.getByRole('button', { name: /^Create group/ }).click();
   await pwExpect(page.getByText(/Waiting room/i)).toBeVisible();
   const url = page.url();
   const id = url.split('/').pop()!;
   return { id, url, joinUrl: `${appUrl()}/join/${id}`, code: await page.getByLabel('Invite code').inputValue() };
+}
+
+/** Types each email into its own teammate row, adding rows with "Add another teammate" as needed. */
+export async function fillTeammates(page: Page, emails: string[]) {
+  for (const [i, email] of emails.entries()) {
+    if (i > 0) await page.getByRole('button', { name: 'Add another teammate' }).click();
+    await page.getByRole('combobox', { name: `Teammate ${i + 1} email` }).fill(email);
+  }
 }
 
 /** Picks a course ("COMPSCI 161") in the create-group form by typing into Department, then Course. */
@@ -132,7 +140,7 @@ export async function rateCurrentTeammate(page: Page, stars: number, score: numb
 }
 
 /** Hovers the name/avatar pill in the header to show the account menu, then picks an item. */
-export async function useAccountMenu(page: Page, item: 'Settings' | 'Sign out') {
+export async function useAccountMenu(page: Page, item: 'Settings' | 'About awards' | 'Help' | 'Sign out') {
   await page.getByRole('link', { name: 'Your profile' }).hover();
   if (item === 'Sign out') await page.getByRole('button', { name: 'Sign out' }).click();
   else await page.getByRole('link', { name: item }).click();

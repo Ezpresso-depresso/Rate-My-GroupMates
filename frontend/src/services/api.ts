@@ -76,6 +76,8 @@ export interface NewTeam {
   /** A course code from the course list, e.g. "COMPSCI 161". */
   course: string;
   emails: string[];
+  /** Optional note shown to invitees when they join. */
+  message?: string;
 }
 
 export const api = {

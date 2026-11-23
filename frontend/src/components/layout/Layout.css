@@ -201,10 +201,26 @@
   background: var(--surface-muted);
 }
 
-.account-menu .account-menu-signout {
-  margin-top: 4px;
+/* The same inset divider between items as the Find Groupmates "Sort by" menu. */
+.account-menu > a,
+.account-menu > button {
+  position: relative;
+}
+
+.account-menu > * + *::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: 8px;
+  left: 8px;
   border-top: 1px solid var(--line);
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.account-menu > * + * {
+  margin-top: 1px;
+}
+
+.account-menu .account-menu-signout {
   color: var(--danger);
 }
 

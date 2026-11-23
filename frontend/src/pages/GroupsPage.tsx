@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
 import { useAuth } from '../hooks/useAuth';
 import { acceptedCount, groupPath, joinPath, ownerOf, PENDING_COLOR } from '../lib/teams';
+import { readStorage, writeStorage } from '../lib/storage';
 import { advanceTour, useTour } from '../lib/tour';
 import { api, type ApiError } from '../services/api';
 import type { Team } from '../types';
 import '../components/groups/Groups.css';
+
+/** Whether Past groups is collapsed, remembered in this browser. */
+const PAST_COLLAPSED_KEY = 'rmg-past-groups-collapsed';
 
 type State = { kind: 'loading' } | { kind: 'error'; message: string } | { kind: 'ready'; teams: Team[] };
 
@@ -17,6 +21,14 @@ export function GroupsPage() {
   const [attempt, setAttempt] = useState(0);
   const [declining, setDeclining] = useState('');
   const [error, setError] = useState('');
+  const [pastCollapsed, setPastCollapsed] = useState(() => readStorage(PAST_COLLAPSED_KEY, false));
+
+  const togglePast = () => {
+    setPastCollapsed((collapsed) => {
+      writeStorage(PAST_COLLAPSED_KEY, !collapsed || undefined); // stored only while collapsed
+      return !collapsed;
+    });
+  };
 
   useEffect(() => {
     let ignore = false;
@@ -69,6 +81,9 @@ export function GroupsPage() {
 
   const invites = state.teams.filter((t) => t.todo === 'accept');
   const groups = state.teams.filter((t) => t.todo !== 'accept');
+  // Active: waiting for people to join, or reviews open and you still have to rate. Past: you've rated.
+  const active = groups.filter((t) => !isDone(t));
+  const past = groups.filter(isDone);
 
   return (
     <div className="page-panel">
@@ -100,6 +115,7 @@ export function GroupsPage() {
                   <span className="muted small">
                     {ownerOf(team)?.name ?? 'Someone'} invited you · {team.course}
                   </span>
+                  {team.message && <p className="invite-message">“{team.message}”</p>}
                 </div>
                 <div className="invite-actions">
                   <button className="btn-danger" onClick={() => decline(team)} disabled={declining === team.id}>
@@ -115,38 +131,69 @@ export function GroupsPage() {
         </>
       )}
 
-      {invites.length > 0 && <h2 className="section-title">Groups</h2>}
       {groups.length === 0 ? (
-        <div className="card empty-groups">
-          <h2>No groups yet</h2>
-          <p className="muted">
-            Start one and invite your teammates, or ask whoever’s in charge to invite <strong>{user.email}</strong>.
-            <br />
-            
-          </p>
-        </div>
+        <>
+          {invites.length > 0 && <h2 className="section-title">Groups</h2>}
+          <div className="card empty-groups">
+            <h2>No groups yet</h2>
+            <p className="muted">
+              Start one and invite your teammates, or ask whoever’s in charge to invite <strong>{user.email}</strong>.
+            </p>
+          </div>
+        </>
       ) : (
-        <ul className="group-grid">
-          {groups.map((team) => (
-            <li key={team.id}>
-              {/* Finished groups ("Done ✓ · see awards") open straight to their awards. */}
-              <Link className="card group-card" to={isDone(team) ? `${groupPath(team.id)}/awards` : groupPath(team.id)}>
-                <div>
-                  <h3>{team.name}</h3>
-                  <span className="muted small">{team.course}</span>
-                </div>
-                <div className="avatar-stack" aria-hidden="true">
-                  {team.members.map((m) => (
-                    <Avatar key={m.id} member={m.status === 'accepted' ? m : { ...m, color: PENDING_COLOR }} size={30} />
-                  ))}
-                </div>
-                <GroupStatus team={team} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <>
+          <section aria-labelledby="active-groups">
+            <h2 className="section-title" id="active-groups">
+              Active groups <span className="section-count">{active.length}</span>
+            </h2>
+            {active.length === 0 ? (
+              <p className="muted groups-none">Nothing in progress. Start a new group whenever you’re ready.</p>
+            ) : (
+              <GroupGrid teams={active} />
+            )}
+          </section>
+
+          {past.length > 0 && (
+            <section aria-labelledby="past-groups">
+              <h2 className="section-title" id="past-groups">
+                <button type="button" className="section-toggle" aria-expanded={!pastCollapsed} onClick={togglePast}>
+                  <span className="section-chevron" aria-hidden="true">
+                    ▾
+                  </span>
+                  Past groups <span className="section-count">{past.length}</span>
+                </button>
+              </h2>
+              {!pastCollapsed && <GroupGrid teams={past} />}
+            </section>
+          )}
+        </>
       )}
     </div>
+  );
+}
+
+function GroupGrid({ teams }: { teams: Team[] }) {
+  return (
+    <ul className="group-grid">
+      {teams.map((team) => (
+        <li key={team.id}>
+          {/* Finished groups ("Done ✓ · see awards") open straight to their awards. */}
+          <Link className="card group-card" to={isDone(team) ? `${groupPath(team.id)}/awards` : groupPath(team.id)}>
+            <div>
+              <h3>{team.name}</h3>
+              <span className="muted small">{team.course}</span>
+            </div>
+            <div className="avatar-stack" aria-hidden="true">
+              {team.members.map((m) => (
+                <Avatar key={m.id} member={m.status === 'accepted' ? m : { ...m, color: PENDING_COLOR }} size={30} />
+              ))}
+            </div>
+            <GroupStatus team={team} />
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 

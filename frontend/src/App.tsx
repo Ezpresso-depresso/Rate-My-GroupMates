@@ -3,9 +3,11 @@ import { Layout } from './components/layout/Layout';
 import { Shell } from './components/layout/Shell';
 import { AuthProvider } from './context/AuthProvider';
 import { ReviewProvider } from './context/ReviewProvider';
+import { AboutAwardsPage } from './pages/AboutAwardsPage';
 import { AwardsPage } from './pages/AwardsPage';
 import { CreateGroupPage } from './pages/CreateGroupPage';
 import { GroupsPage } from './pages/GroupsPage';
+import { HelpPage } from './pages/HelpPage';
 import { JoinPage } from './pages/JoinPage';
 import { PrivacyPage, TermsPage } from './pages/LegalPages';
 import { ProfilePage } from './pages/ProfilePage';
@@ -38,6 +40,8 @@ function SignedInRoutes() {
           <Route path="profiles" element={<SearchProfilesPage />} />
           <Route path="profiles/:userId" element={<UserProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="help" element={<HelpPage />} />
+          <Route path="about-awards" element={<AboutAwardsPage />} />
           <Route path="account" element={<Navigate to="/settings" replace />} />
         </Route>
         <Route path="groups/:teamId" element={<GroupRoute />}>

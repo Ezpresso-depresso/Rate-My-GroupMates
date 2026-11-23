@@ -356,6 +356,7 @@
 /* Find Groupmates page */
 .profile-search {
   display: flex;
+  align-items: flex-end; /* the box lines up with the filter button, below its "Sort by" label */
   gap: 8px;
   margin-bottom: 16px;
 }
@@ -437,20 +438,41 @@
 /* Filter button + its dropdown, to the right of the box. */
 .search-filter {
   position: relative;
+  display: flex;
   flex: none;
+  flex-direction: column;
+  gap: 6px;
 }
 
+/* "SORT BY" above the filter button, in the same small caps as page eyebrows. */
+.search-filter-eyebrow {
+  padding-left: 2px;
+  line-height: 1;
+}
+
+/* "Class ⛛": the current filter's name, then the funnel icon. */
 .search-filter-toggle {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 100%;
-  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 47px; /* same height as the search box beside it */
+  padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface);
   color: var(--muted);
+  font: inherit;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.search-filter-current {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.search-filter-toggle svg {
+  flex: none;
 }
 
 .search-filter-toggle:hover,
@@ -459,7 +481,7 @@
   color: var(--ink);
 }
 
-/* A filter other than the default (name or email) is on. */
+/* A filter other than the default (Class) is on. */
 .search-filter-toggle.active {
   border-color: var(--primary-border);
   background: var(--primary-soft);
@@ -481,15 +503,6 @@
   box-shadow: var(--shadow-lg);
 }
 
-.search-filter-heading {
-  padding: 6px 12px 4px;
-  color: var(--subtle);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 .search-filter-menu button {
   display: flex;
   align-items: center;
@@ -504,6 +517,24 @@
   font-size: 14.3px;
   text-align: left;
   cursor: pointer;
+}
+
+/* A thin divider between options (inset, so hovering an option keeps its rounded highlight). */
+.search-filter-menu button {
+  position: relative;
+}
+
+.search-filter-menu button + button::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: 8px;
+  left: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.search-filter-menu button + button {
+  margin-top: 1px;
 }
 
 .search-filter-menu button:hover {

@@ -1,5 +1,5 @@
 import { Schema, model, type HydratedDocument, type InferSchemaType } from 'mongoose';
-import { MIN_GROUP_SIZE } from '../config/constants';
+import { MAX_GROUP_MESSAGE_LENGTH, MIN_GROUP_SIZE } from '../config/constants';
 
 /*
  * A member is an invited email until that person signs in with it, enters the
@@ -22,6 +22,8 @@ const teamSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     course: { type: String, required: true, trim: true },
+    /** Optional note from the creator, shown to people when they're invited and join. */
+    message: { type: String, default: '', trim: true, maxlength: MAX_GROUP_MESSAGE_LENGTH },
     owner: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     inviteCode: { type: String, required: true },
     members: {

@@ -75,7 +75,7 @@ export function GroupLobby({ team, pollError, onChange, onGone }: GroupLobbyProp
   };
 
   return (
-    <div className="lobby">
+    <div className="lobby page-panel">
       <div className="lobby-heading">
         <div className="eyebrow">Waiting room · {team.course}</div>
         <h1>{team.name}</h1>
