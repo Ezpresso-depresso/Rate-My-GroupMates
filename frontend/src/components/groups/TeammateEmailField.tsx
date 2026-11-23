@@ -7,6 +7,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { isEmail, normalizeEmail } from '../../lib/emails';
 import { api } from '../../services/api';
+import { RankTag } from '../common/RankTag';
 import type { SearchResult } from '../../types';
 import { Avatar } from '../common/Avatar';
 import '../common/Common.css';
@@ -125,7 +126,10 @@ export function TeammateEmailField({ index, value, onChange, onRemove, exclude, 
           >
             <Avatar member={card} size={32} />
             <span className="teammate-option-text">
-              <strong>{card.fullName || card.name}</strong>
+              <strong>
+                {card.fullName || card.name}
+                <RankTag average={card.rating.average} />
+              </strong>
               <span className="muted">{card.email}</span>
             </span>
             <span className="teammate-card-change" aria-hidden="true">
@@ -177,7 +181,10 @@ export function TeammateEmailField({ index, value, onChange, onRemove, exclude, 
                 >
                   <Avatar member={u} size={28} />
                   <span className="teammate-option-text">
-                    <strong>{u.fullName || u.name}</strong>
+                    <strong>
+                      {u.fullName || u.name}
+                      <RankTag average={u.rating.average} />
+                    </strong>
                     <span className="muted">{u.email}</span>
                   </span>
                 </div>

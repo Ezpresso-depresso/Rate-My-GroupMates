@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { medal } from '../../lib/ratingCore';
+import { medal, tierFor } from '../../lib/ratingCore';
 import { AwardIcon } from './AwardIcon';
 import type { Member, Summary } from '../../types';
 import { Avatar } from '../common/Avatar';
@@ -15,12 +15,13 @@ interface CeremonyCardProps {
 
 export function CeremonyCard({ member, summary: s, delay, onDetails }: CeremonyCardProps) {
   const award = s.award;
-  const m = medal(s);
+  // Rank is global (every rating across all groups counts), not this group's average.
+  const m = member.rating ? tierFor(member.rating.average) : medal(s);
 
   return (
     <article className="ceremony-card" style={{ '--delay': `${delay}ms` } as CSSProperties}>
       <div className="ceremony-card-top">
-        <Avatar member={member} size={53} />
+        <Avatar member={member} size={53} glow={m.tone === 'pope'} />
         <span className={`tier-pill ${m.tone}`}>
           {m.symbol} {m.name}
         </span>

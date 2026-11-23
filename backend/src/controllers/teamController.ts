@@ -20,6 +20,7 @@ import { HttpError } from '../middleware/errorHandler';
 import { Review } from '../models/Review';
 import { Team, type MemberDoc, type TeamDoc } from '../models/Team';
 import { User, type UserDoc } from '../models/User';
+import { overallRatings, type OverallRating } from './profileController';
 
 type TeamParams = { teamId: string };
 type MemberParams = TeamParams & { memberId: string };
@@ -34,8 +35,8 @@ export function findViewer(team: TeamDoc, user: UserDoc): MemberDoc | undefined 
   );
 }
 
-/** What a member's account adds to the group view: a picture link, and (for invitees) their username. */
-type AccountInfo = { avatar: string; accountName?: string };
+/** What a member's account adds to the group view: a picture link, their overall rating (for the rank tag + glow), and (for invitees) their username. */
+type AccountInfo = { avatar: string; rating: OverallRating; accountName?: string };
 type AccountInfoMap = Map<string, AccountInfo>;
 
 /**
@@ -55,6 +56,7 @@ async function accountInfo(teams: TeamDoc[]): Promise<AccountInfoMap> {
   ]);
   const byId = new Map(users.map((u) => [String(u._id), u]));
   const byEmail = new Map(users.map((u) => [u.email, u]));
+  const ratings = await overallRatings(users.map((u) => u._id));
 
   const info: AccountInfoMap = new Map();
   for (const m of members) {
@@ -62,6 +64,7 @@ async function accountInfo(teams: TeamDoc[]): Promise<AccountInfoMap> {
     if (!u) continue;
     info.set(String(m._id), {
       avatar: u.hasAvatar ? avatarPath(u._id, u.updatedAt) : '',
+      rating: ratings.get(String(u._id)) ?? { average: null, count: 0 },
       ...(!m.user && { accountName: u.name }),
     });
   }

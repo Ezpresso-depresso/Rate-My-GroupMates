@@ -11,7 +11,7 @@ import './Profile.css';
 
 const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer.types).includes('Files');
 
-export function AvatarEditor({ size = 96 }: { size?: number }) {
+export function AvatarEditor({ size = 96, glow }: { size?: number; glow?: boolean }) {
   const { user, updateUser } = useAuth();
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -69,7 +69,7 @@ export function AvatarEditor({ size = 96 }: { size?: number }) {
         aria-label="Change profile picture: click to choose a file, or drop an image here"
         title="Change profile picture"
       >
-        <Avatar member={user} size={size} />
+        <Avatar member={user} size={size} glow={glow} />
         <span className="avatar-overlay" aria-hidden="true">
           {busy ? (
             <span className="avatar-spinner" />

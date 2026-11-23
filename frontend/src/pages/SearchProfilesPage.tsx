@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
+import { RankTag } from '../components/common/RankTag';
 import { Stars } from '../components/common/Stars';
 import { useAuth } from '../hooks/useAuth';
 import { advanceTour, useTour } from '../lib/tour';
@@ -344,6 +345,7 @@ export function SearchProfilesPage() {
                     <strong>
                       {u.fullName || u.name}
                       {u.id === me.id && <span className="tag">you</span>}
+                      <RankTag average={u.rating.average} />
                     </strong>
                     <span className="muted small">{u.email}</span>
                   </div>

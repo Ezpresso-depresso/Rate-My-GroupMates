@@ -1,5 +1,6 @@
 import type { Member } from '../../types';
 import { Avatar } from '../common/Avatar';
+import { RankTag } from '../common/RankTag';
 import './Rating.css';
 
 interface TeammateTabsProps {
@@ -27,6 +28,7 @@ export function TeammateTabs({ teammates, activeId, isReady, onSelect }: Teammat
             <Avatar member={t} />
             <span>
               {t.name}
+              {t.rating && <RankTag average={t.rating.average} />}
               <small>{ready ? 'Review ready' : `Teammate ${i + 1} of ${teammates.length}`}</small>
             </span>
             <span className="tab-check">{ready ? '✓' : ''}</span>

@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
+import { RankTag } from '../components/common/RankTag';
 import { AwardPicker } from '../components/rating/AwardPicker';
 import { CommentSection } from '../components/rating/CommentSection';
-import { LiveResult } from '../components/rating/LiveResult';
 import { OverallRating } from '../components/rating/OverallRating';
 import { ScoreField } from '../components/rating/ScoreField';
 import { TeammateTabs } from '../components/rating/TeammateTabs';
 import { useReviews } from '../hooks/useReviews';
-import { categories, incoming, summary, valid } from '../lib/ratingCore';
+import { categories, valid } from '../lib/ratingCore';
 import { groupPath } from '../lib/teams';
 import type { ReviewDraft } from '../types';
 
 export function RatePage() {
-  const { team, currentUser, teammates, reviews, draftFor, updateDraft, submitAll } = useReviews();
+  const { team, teammates, draftFor, updateDraft, submitAll } = useReviews();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(() => {
     const firstIncomplete = teammates.findIndex((t) => !valid(draftFor(t.id)));
@@ -25,9 +25,6 @@ export function RatePage() {
   const member = teammates[activeIndex];
   const draft = draftFor(member.id);
   const isLast = activeIndex === teammates.length - 1;
-
-  // Peer reviews plus the current draft, so the result reacts as you rate.
-  const preview = summary([...incoming(reviews, member.id).filter((r) => r.reviewerId !== currentUser.id), draft]);
 
   const change = (patch: Partial<ReviewDraft>) => {
     setError('');
@@ -102,7 +99,10 @@ export function RatePage() {
             <Avatar member={member} size={73} />
             <div>
               <div className="eyebrow">Rating your teammate</div>
-              <h2>{member.name}</h2>
+              <h2>
+                {member.name}
+                {member.rating && <RankTag average={member.rating.average} />}
+              </h2>
               <span className="muted small">
                 {team.name} · {team.course}
               </span>
@@ -141,7 +141,6 @@ export function RatePage() {
           </div>
         </section>
 
-        <LiveResult member={member} summary={preview} hasDraft={draft.rating > 0} />
       </div>
     </>
   );

@@ -580,3 +580,10 @@
   -webkit-line-clamp: 2;
   overflow-wrap: anywhere;
 }
+
+/* The rank tag next to a name (search results). */
+.tag.rank-tag {
+  background: var(--surface-muted);
+  color: var(--muted);
+  white-space: nowrap;
+}

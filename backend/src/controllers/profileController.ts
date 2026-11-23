@@ -1,9 +1,9 @@
 /*
  * Your profile: every review you've received, plus what you've pinned.
  *
- * A group only counts once you've submitted your own reviews in it (the same rule the
- * awards page uses), so the profile never shows results early. Ratings and awards are
- * computed in the browser from these reviews (frontend/src/lib/ratingCore.ts), so the
+ * A group counts as soon as its reviews are open: every rating someone receives counts toward
+ * their profile and overall rank right away, whether or not they've submitted their own reviews.
+ * Ratings and awards are computed in the browser from these reviews (frontend/src/lib/ratingCore.ts), so the
  * award rules live in one place.
  */
 import type { Request, Response } from 'express';
@@ -17,20 +17,13 @@ import { Review } from '../models/Review';
 import { Team, type TeamDoc } from '../models/Team';
 import { User, type UserDoc } from '../models/User';
 
-/** Groups where the user is an accepted member, reviews are open, and they've reviewed everyone. */
+/** Groups where the user is an accepted member and reviews are open. */
 async function countedGroups(userId: Types.ObjectId) {
   const teams = await Team.find({ 'members.user': userId, reviewsStartedAt: { $ne: null } });
-  const mine = teams.flatMap((team) => {
+  return teams.flatMap((team) => {
     const me = team.members.find((m) => m.user && String(m.user) === String(userId));
     return me && me.status === 'accepted' ? [{ team, memberId: me._id as Types.ObjectId }] : [];
   });
-
-  const written = await Review.aggregate<{ _id: Types.ObjectId; n: number }>([
-    { $match: { reviewerId: { $in: mine.map((m) => m.memberId) } } },
-    { $group: { _id: '$team', n: { $sum: 1 } } },
-  ]);
-  const count = new Map(written.map((w) => [String(w._id), w.n]));
-  return mine.filter(({ team }) => (count.get(String(team._id)) ?? 0) >= team.members.length - 1);
 }
 
 export interface OverallRating {
@@ -40,8 +33,8 @@ export interface OverallRating {
 }
 
 /**
- * Overall star rating for many users at once (for search results), by the same rule as the
- * profile: only groups where reviews are open and the user has reviewed everyone count.
+ * Overall star rating for many users at once (for search results and rank tags), by the same rule
+ * as the profile: every rating received in a group whose reviews are open counts.
  */
 export async function overallRatings(userIds: Types.ObjectId[]): Promise<Map<string, OverallRating>> {
   const result = new Map<string, OverallRating>(userIds.map((id) => [String(id), { average: null, count: 0 }]));
@@ -51,28 +44,22 @@ export async function overallRatings(userIds: Types.ObjectId[]): Promise<Map<str
   const teams = await Team.find({ 'members.user': { $in: userIds }, reviewsStartedAt: { $ne: null } })
     .select('members._id members.user members.status')
     .lean();
-  // memberId -> { userId, how many reviews they must write }
-  const members = new Map<string, { userId: string; needed: number }>();
+  // memberId -> userId
+  const members = new Map<string, string>();
   for (const team of teams)
     for (const m of team.members)
       if (m.user && m.status === 'accepted' && wanted.has(String(m.user)))
-        members.set(String(m._id), { userId: String(m.user), needed: team.members.length - 1 });
+        members.set(String(m._id), String(m.user));
   if (!members.size) return result;
   const memberIds = [...members.keys()].map((id) => new Types.ObjectId(id));
 
-  const written = await Review.aggregate<{ _id: Types.ObjectId; n: number }>([
-    { $match: { reviewerId: { $in: memberIds } } },
-    { $group: { _id: '$reviewerId', n: { $sum: 1 } } },
-  ]);
-  const counted = written.filter((w) => w.n >= (members.get(String(w._id))?.needed ?? Infinity)).map((w) => w._id);
-
   const received = await Review.aggregate<{ _id: Types.ObjectId; sum: number; n: number }>([
-    { $match: { targetId: { $in: counted }, rating: { $gte: 1, $lte: 5 } } },
+    { $match: { targetId: { $in: memberIds }, rating: { $gte: 1, $lte: 5 } } },
     { $group: { _id: '$targetId', sum: { $sum: '$rating' }, n: { $sum: 1 } } },
   ]);
   const totals = new Map<string, { sum: number; n: number }>();
   for (const r of received) {
-    const userId = members.get(String(r._id))!.userId;
+    const userId = members.get(String(r._id))!;
     const t = totals.get(userId) ?? { sum: 0, n: 0 };
     totals.set(userId, { sum: t.sum + r.sum, n: t.n + r.n });
   }

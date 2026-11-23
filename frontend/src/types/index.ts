@@ -31,6 +31,8 @@ export interface Member {
    * (group members). Initials are shown when empty or missing.
    */
   avatar?: string;
+  /** Overall star rating across all their groups (group members only); drives the rank tag and the Pope glow. */
+  rating?: { average: number | null; count: number };
 }
 
 export interface User extends Member {

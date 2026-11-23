@@ -73,9 +73,9 @@ export function UserProfilePage() {
 
   const { user } = state.data;
   return (
-    <ProfilePanel backgroundId={user.profileBackground} glow={isPope(state.data.reviews)}>
+    <ProfilePanel backgroundId={user.profileBackground}>
       <div className="card profile-section page-heading profile-heading">
-        <Avatar member={user} size={96} />
+        <Avatar member={user} size={96} glow={isPope(state.data.reviews)} />
         <div>
           <h1>{user.fullName || user.name}</h1>
           <span className="muted profile-email">{user.email}</span>

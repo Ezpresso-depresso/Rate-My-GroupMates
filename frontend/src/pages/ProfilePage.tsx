@@ -63,10 +63,10 @@ export function ProfilePage() {
   };
 
   return (
-    <ProfilePanel backgroundId={user.profileBackground} glow={!!profile && isPope(profile.reviews)}>
+    <ProfilePanel backgroundId={user.profileBackground}>
       <div className="card profile-section page-heading profile-heading">
         <div className="nudge-anchor">
-          <AvatarEditor size={96} />
+          <AvatarEditor size={96} glow={!!profile && isPope(profile.reviews)} />
           {tour.step === 'classes' && tour.noteOpen && (
             <div className="nudge nudge-left" role="note">
               Profile picture, nickname, bio, and profile background can also be changed!

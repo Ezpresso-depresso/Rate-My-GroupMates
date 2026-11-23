@@ -1052,10 +1052,19 @@
 }
 
 
-/* The Pope (a perfect 5.0 average): the profile panel glows gold instead of casting a shadow. */
-.profile-page.pope-glow {
+/* The Pope (a perfect 5.0 average): the avatar glows gold. No other rank has a glow; they just get a rank tag. */
+.avatar.avatar-pope {
   box-shadow:
     0 0 0 2px #e9cf7a,
-    0 0 26px 6px rgb(233 200 90 / 0.65),
-    0 0 60px 16px rgb(255 220 120 / 0.35);
+    0 0 14px 3px rgb(233 200 90 / 0.65),
+    0 0 30px 8px rgb(255 220 120 / 0.35);
+}
+
+/* On profile pages the picture already has a ring; keep it and add the glow outside it. */
+.profile-heading .avatar.avatar-pope {
+  box-shadow:
+    0 0 0 3px var(--surface),
+    0 0 0 6px #e9cf7a,
+    0 0 22px 8px rgb(233 200 90 / 0.6),
+    0 0 48px 14px rgb(255 220 120 / 0.3);
 }

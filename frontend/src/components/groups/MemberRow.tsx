@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { PENDING_COLOR } from '../../lib/teams';
 import type { TeamMember } from '../../types';
 import { Avatar } from '../common/Avatar';
+import { RankTag } from '../common/RankTag';
 
 export function MemberRow({ member, tags, action }: { member: TeamMember; tags?: ReactNode; action?: ReactNode }) {
   const joined = member.status === 'accepted';
@@ -14,6 +15,7 @@ export function MemberRow({ member, tags, action }: { member: TeamMember; tags?:
       <div className="member-row-text">
         <strong>
           {name ?? member.email}
+          {member.rating && <RankTag average={member.rating.average} />}
           {tags}
         </strong>
         {name && <span className="muted small">{member.email}</span>}
