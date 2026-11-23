@@ -5,7 +5,7 @@ import { CONTACT_EMAIL } from '../config';
 import '../components/layout/Layout.css';
 import './LegalPages.css';
 
-const UPDATED = 'November 2, 2026';
+const UPDATED = 'November 22, 2026';
 
 function Contact() {
   return CONTACT_EMAIL ? (
@@ -51,15 +51,25 @@ export function PrivacyPage() {
     <LegalLayout title="Privacy policy">
       <p>
         Rate My Groupmates is a student project for INF 151 at UC Irvine. It lets people in a class group rate each other
-        after a project. This page explains what it stores and why.
+        after a project, and helps students find groupmates by class. This page explains what it stores, who can see
+        it, and why.
       </p>
 
       <h2>What we store</h2>
       <ul>
         <li>
-          <strong>From Google sign-in:</strong> your name and email address, and Google’s ID for your account (so you get
-          the same account every time). We don’t get your password and don’t ask for access to Gmail, Drive or anything
-          else.
+          <strong>Your account:</strong> your name and email. If you sign in with Google, also Google’s ID for your
+          account (so you get the same account every time); we don’t get your Google password or access to Gmail, Drive
+          or anything else. If you sign up with a password, we store only a one-way hash of it, never the password
+          itself, plus a count of recent wrong passwords (10 within 15 minutes locks sign-in for 15 minutes).
+        </li>
+        <li>
+          <strong>Your profile:</strong> anything you add: a nickname, profile picture, short bio, preset background,
+          the classes you list, and the comments and awards you pin.
+        </li>
+        <li>
+          <strong>Classes:</strong> your profile lists the course of every group you’ve joined, plus classes you add
+          yourself, minus ones you remove. The course list itself is public UCI catalogue data.
         </li>
         <li>
           <strong>Groups:</strong> group names, courses, and the emails of the people invited to each group.
@@ -69,17 +79,31 @@ export function PrivacyPage() {
           anonymous.
         </li>
         <li>
-          <strong>In your browser:</strong> a sign-in token and any ratings you haven’t submitted yet. Signing out
+          <strong>In your browser only:</strong> your sign-in token, ratings you haven’t submitted yet, your progress
+          in the guided tour, and your last Find Groupmates search (cleared when you close the tab). Signing out
           removes the token.
         </li>
       </ul>
 
       <h2>Who can see it</h2>
       <ul>
-        <li>People in a group see each other’s names and emails, and the emails of people invited to it.</li>
         <li>
-          Group members see the ratings and comments given inside that group. For anonymous reviews, other members
-          don’t see who wrote them (the app still stores it, so you can edit your own).
+          <strong>Anyone signed in to the app</strong> can find you in Find Groupmates by name, email or class, and
+          can see your name, email, profile picture, bio, background, classes and overall star rating. Your profile
+          page also shows them the ratings, comments and awards you’ve received.
+        </li>
+        <li>
+          Ratings only count toward your profile from groups where you’ve submitted your own reviews. Comments show
+          who wrote them unless the reviewer marked them anonymous; for anonymous reviews nobody else sees the
+          author (the app still stores it, so the author can edit their review).
+        </li>
+        <li>
+          <strong>People in a group</strong> also see the emails of everyone invited to it, and the ratings given
+          inside it.
+        </li>
+        <li>
+          <strong>Profile pictures</strong> are served from a public link so they load in the app; anyone with that
+          link can view the image.
         </li>
         <li>
           The project team can access the database to run and fix the app. Nobody else gets your data. We don’t sell
@@ -93,10 +117,12 @@ export function PrivacyPage() {
         The app runs on Vercel and the data is stored in a MongoDB Atlas database. Data is sent over HTTPS.
       </p>
 
-      <h2>Deleting your data</h2>
+      <h2>Changing or deleting your data</h2>
       <p>
-        You can leave or decline a group before reviews start, and a group’s creator can delete it. To have your
-        account, ratings or anything else removed, contact <Contact /> and we’ll delete it.
+        You can change or remove your nickname, picture, bio, background, classes and pins from your profile at any
+        time, and leave or decline a group before reviews start (a group’s creator can delete it). There’s no button
+        to delete your whole account yet: to have your account, ratings or anything else removed, contact{' '}
+        <Contact /> and we’ll delete it.
       </p>
 
       <h2>Changes</h2>

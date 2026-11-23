@@ -1,5 +1,5 @@
-/* Help (from the account menu): start or end the guided tour, or read about awards. */
-import { Link, useNavigate } from 'react-router-dom';
+/* Help (from the account menu): start or end the guided tour, read about awards, find the privacy policy and terms. */
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { currentClassCount } from '../lib/classCount';
 import { endTour, startTour, useTour } from '../lib/tour';
@@ -8,13 +8,10 @@ import './InfoPages.css';
 
 export function HelpPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const running = useTour().step !== null;
 
-  const tour = () => {
-    startTour(user.id, currentClassCount());
-    navigate('/profile'); // the tour's first step lives on the profile
-  };
+  // Starts the tour right here: its first pop-up appears on the navbar's My Profile tab.
+  const tour = () => startTour(user.id, currentClassCount());
 
   return (
     <div className="page-panel info-page">
@@ -27,15 +24,18 @@ export function HelpPage() {
 
       <div className="info-cards">
         <section className="card form-card">
-          <h2>Guided tour</h2>
+          {/* The "in progress" pill sits beside the heading, so it never moves the buttons. */}
+          <div className="tour-head">
+            <h2>Guided tour</h2>
+            {running && (
+              <span className="tour-status" role="status">
+                The guided tour is in progress.
+              </span>
+            )}
+          </div>
           <p className="muted">
             A few quick pop-ups walk you through the basics: adding your classes, finding groupmates, and making a group.
           </p>
-          {running && (
-            <p className="tour-status" role="status">
-              The guided tour is in progress.
-            </p>
-          )}
           <div className="form-actions">
             <button type="button" className="btn" onClick={tour}>
               {running ? 'Restart the guided tour' : 'Start the guided tour'}
@@ -58,6 +58,12 @@ export function HelpPage() {
           </div>
         </section>
       </div>
+
+      <nav className="help-legal" aria-label="Legal">
+        <Link to="/privacy">Privacy policy</Link>
+        <span aria-hidden="true">·</span>
+        <Link to="/terms">Terms of use</Link>
+      </nav>
     </div>
   );
 }

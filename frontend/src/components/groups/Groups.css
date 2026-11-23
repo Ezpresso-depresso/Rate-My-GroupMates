@@ -27,6 +27,63 @@
   font-size: 20px;
 }
 
+/* "Active groups 2" / "Past groups 3": the count in a small grey pill. */
+.section-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  margin-left: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font: 600 12.5px var(--font-body);
+  vertical-align: 3px;
+}
+
+/* Past groups' heading is a button that collapses the list. */
+.section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.section-chevron {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 0.8em;
+  transition: transform 0.15s;
+}
+
+.section-toggle[aria-expanded='false'] .section-chevron {
+  transform: rotate(-90deg);
+}
+
+.section-toggle:hover .section-chevron {
+  color: var(--primary);
+}
+
+.groups-none {
+  margin: 0;
+}
+
+/* My Groups: no empty error row, and the first section heading sits close under the page heading. */
+.page-panel > .error:empty {
+  display: none;
+}
+
+.page-panel > .error:empty + .section-title,
+.page-panel > .error:empty + section > .section-title {
+  margin-top: 4px;
+}
+
 .tag {
   margin-left: 8px;
   padding: 2px 7px;

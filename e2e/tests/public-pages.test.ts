@@ -17,7 +17,8 @@ describe('privacy policy and terms', () => {
     await visitor.page.goto(`${appUrl()}/privacy`);
 
     await expect(visitor.page.getByRole('heading', { name: 'Privacy policy' })).toBeVisible();
-    await expect(visitor.page.getByText('your name and email address')).toBeVisible();
+    await expect(visitor.page.getByRole('heading', { name: 'What we store' })).toBeVisible();
+    await expect(visitor.page.getByText('can find you in Find Groupmates by name, email or class')).toBeVisible();
     await expect(visitor.page.getByRole('button', { name: 'Sign in' })).toHaveCount(0);
   });
 
@@ -38,10 +39,15 @@ describe('privacy policy and terms', () => {
     await expect(visitor.page.getByRole('link', { name: 'Terms' })).toBeVisible();
   });
 
-  test('signed-in people can open them too', async () => {
+  test('signed-in people can open them too, from the bottom of the Help page', async () => {
     const kent = await newUser(browser, 'Kent');
-    await kent.page.goto(`${appUrl()}/privacy`);
-
+    await kent.page.goto(`${appUrl()}/help`);
+    await kent.page.getByRole('navigation', { name: 'Legal' }).getByRole('link', { name: 'Privacy policy' }).click();
+    await expect(kent.page).toHaveURL(/\/privacy$/);
     await expect(kent.page.getByRole('heading', { name: 'Privacy policy' })).toBeVisible();
+
+    await kent.page.goto(`${appUrl()}/help`);
+    await kent.page.getByRole('navigation', { name: 'Legal' }).getByRole('link', { name: 'Terms of use' }).click();
+    await expect(kent.page.getByRole('heading', { name: 'Terms of use' })).toBeVisible();
   });
 });

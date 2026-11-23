@@ -11,7 +11,7 @@ afterAll(async () => {
 });
 
 describe('help and about awards', () => {
-  test('Help in the account menu opens the help page, which restarts the guided tour', async () => {
+  test('Help in the account menu opens the help page, which restarts the guided tour in place', async () => {
     const kent = await newUser(browser, 'Kent');
     const { page } = kent;
     const tourNote = page.getByText('Profile picture, nickname, bio, and profile background can also be changed!');
@@ -25,8 +25,13 @@ describe('help and about awards', () => {
     await expect(page).toHaveURL(/\/help$/);
     await expect(page.getByRole('heading', { name: 'Getting around' })).toBeVisible();
 
+    // Starting it keeps you on the help page; the first pop-up appears on the My Profile tab.
     await page.getByRole('button', { name: 'Start the guided tour' }).click();
-    await expect(page).toHaveURL(/\/profile$/);
+    await expect(page).toHaveURL(/\/help$/);
+    await expect(page.getByRole('status')).toHaveText('The guided tour is in progress.');
+    await expect(page.getByRole('link', { name: 'Add classes to profile!' })).toBeVisible();
+
+    await page.goto(`${appUrl()}/profile`);
     await expect(tourNote).toBeVisible();
   });
 

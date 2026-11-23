@@ -58,13 +58,37 @@
   font-size: 12.5px;
 }
 
-/* "The guided tour is in progress." on the Help page, while it runs. */
-.info-cards .tour-status {
-  justify-self: start;
-  padding: 6px 12px;
+/* Help page: "Guided tour" with "The guided tour is in progress." beside it while it runs. */
+.tour-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.tour-status {
+  padding: 4px 12px;
   border-radius: 999px;
   background: var(--primary-soft);
   color: var(--primary);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
+}
+
+/* Privacy policy and terms links at the bottom of the Help page. */
+.help-legal {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+  color: var(--subtle);
+  font-size: 14px;
+}
+
+.help-legal a {
+  color: var(--muted);
+}
+
+.help-legal a:hover {
+  color: var(--primary);
 }

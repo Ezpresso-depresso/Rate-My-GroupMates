@@ -282,6 +282,9 @@ export function SearchProfilesPage() {
         </div>
 
         <div className="search-filter" ref={menuRef}>
+          <span className="eyebrow search-filter-eyebrow" aria-hidden="true">
+            Sort by
+          </span>
           <button
             type="button"
             className={by === DEFAULT_FILTER ? 'search-filter-toggle' : 'search-filter-toggle active'}
@@ -300,7 +303,6 @@ export function SearchProfilesPage() {
           </button>
           {menuOpen && (
             <div className="search-filter-menu" role="menu" aria-label="Search by">
-              <div className="search-filter-heading">Search by</div>
               {FILTERS.map((f) => (
                 <button
                   key={f.value}
