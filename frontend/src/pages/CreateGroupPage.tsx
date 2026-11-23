@@ -9,6 +9,7 @@ import { api, type ApiError } from '../services/api';
 import '../components/groups/Groups.css';
 
 const MAX_LENGTH = 80;
+const MAX_MESSAGE_LENGTH = 300; // keep in sync with backend/src/config/constants.ts
 
 interface Row {
   id: number;
@@ -27,6 +28,7 @@ export function CreateGroupPage() {
   const emails = rows.map((r) => r.value);
   /** The row to focus after "+ Add another teammate". */
   const [focusRow, setFocusRow] = useState<number | null>(null);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -74,7 +76,7 @@ export function CreateGroupPage() {
     setSaving(true);
     setError('');
     try {
-      const team = await api.createTeam({ name: name.trim(), course, emails: invites });
+      const team = await api.createTeam({ name: name.trim(), course, emails: invites, message: message.trim() });
       navigate(groupPath(team.id), { replace: true });
     } catch (err) {
       setError((err as ApiError).message);
@@ -83,7 +85,7 @@ export function CreateGroupPage() {
   };
 
   return (
-    <>
+    <div className="page-panel">
       <div className="page-heading">
         <div>
           <div className="eyebrow">New group</div>
@@ -128,6 +130,24 @@ export function CreateGroupPage() {
           </button>
         </fieldset>
 
+        <label className="field">
+          <span>
+            Message for your teammates <span className="field-optional">(optional)</span>
+          </span>
+          <textarea
+            className="input group-message-input"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            maxLength={MAX_MESSAGE_LENGTH}
+            rows={3}
+            placeholder="e.g. “join my epic awesome group”"
+            aria-describedby="group-message-count"
+          />
+          <small id="group-message-count" className="muted group-message-count">
+            Shown to everyone you invite when they open the invite. {message.length}/{MAX_MESSAGE_LENGTH}
+          </small>
+        </label>
+
         <p className="error" role="alert">
           {error}
         </p>
@@ -140,6 +160,6 @@ export function CreateGroupPage() {
           </Link>
         </div>
       </form>
-    </>
+    </div>
   );
 }

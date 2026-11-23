@@ -72,7 +72,8 @@ export function PrivacyPage() {
           yourself, minus ones you remove. The course list itself is public UCI catalogue data.
         </li>
         <li>
-          <strong>Groups:</strong> group names, courses, and the emails of the people invited to each group.
+          <strong>Groups:</strong> group names, courses, the optional message the creator writes for invitees, and the
+          emails of the people invited to each group.
         </li>
         <li>
           <strong>Ratings:</strong> the stars, scores and comments you give teammates, and whether you marked a review

@@ -35,31 +35,38 @@ export function JoinPage() {
     };
   }, [teamId, attempt]);
 
-  if (state.kind === 'loading') return <p className="muted">Opening your invite…</p>;
+  if (state.kind === 'loading')
+    return (
+      <div className="page-panel">
+        <p className="muted">Opening your invite…</p>
+      </div>
+    );
   if (state.kind === 'error')
     return (
-      <div className="card form-card join-card" role="alert">
-        <h2>Can’t open this invite</h2>
-        <p className="muted">{state.message}</p>
-        <div className="form-actions">
-          {state.status === 403 ? (
-            <button className="btn" onClick={signOut}>
-              Use a different account
-            </button>
-          ) : state.status === 400 || state.status === 404 ? null : (
-            <button
-              className="btn"
-              onClick={() => {
-                setState({ kind: 'loading' });
-                setAttempt((a) => a + 1);
-              }}
-            >
-              Try again
-            </button>
-          )}
-          <Link className="textbtn" to="/">
-            My groups
-          </Link>
+      <div className="page-panel">
+        <div className="card form-card join-card" role="alert">
+          <h2>Can’t open this invite</h2>
+          <p className="muted">{state.message}</p>
+          <div className="form-actions">
+            {state.status === 403 ? (
+              <button className="btn" onClick={signOut}>
+                Use a different account
+              </button>
+            ) : state.status === 400 || state.status === 404 ? null : (
+              <button
+                className="btn"
+                onClick={() => {
+                  setState({ kind: 'loading' });
+                  setAttempt((a) => a + 1);
+                }}
+              >
+                Try again
+              </button>
+            )}
+            <Link className="textbtn" to="/">
+              My groups
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -96,45 +103,53 @@ export function JoinPage() {
   };
 
   return (
-    <form className="card form-card join-card" onSubmit={accept} noValidate>
-      <div>
-        <div className="eyebrow">You’ve been summoned</div>
-        <h2>
-          {owner?.name ?? 'Someone'} invited you to {team.name}
-        </h2>
-        <p className="muted">
-          {team.course} · {team.members.length} people. Enter the invite code they sent you to join.
+    <div className="page-panel">
+      <form className="card form-card join-card" onSubmit={accept} noValidate>
+        <div>
+          <div className="eyebrow">You’ve been summoned</div>
+          <h2>
+            {owner?.name ?? 'Someone'} invited you to {team.name}
+          </h2>
+          <p className="muted">
+            {team.course} · {team.members.length} people. Enter the invite code they sent you to join.
+          </p>
+        </div>
+        {team.message && (
+          <figure className="group-message">
+            <figcaption>Message from {owner?.name ?? 'the creator'}</figcaption>
+            <blockquote>{team.message}</blockquote>
+          </figure>
+        )}
+        <label className="field">
+          <span>Invite code</span>
+          <input
+            className="input code-input"
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value);
+              setError('');
+            }}
+            placeholder="K7QX2P"
+            maxLength={12}
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            autoFocus
+            aria-invalid={Boolean(error)}
+          />
+        </label>
+        <p className="error" role="alert">
+          {error}
         </p>
-      </div>
-      <label className="field">
-        <span>Invite code</span>
-        <input
-          className="input code-input"
-          value={code}
-          onChange={(e) => {
-            setCode(e.target.value);
-            setError('');
-          }}
-          placeholder="K7QX2P"
-          maxLength={12}
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          autoFocus
-          aria-invalid={Boolean(error)}
-        />
-      </label>
-      <p className="error" role="alert">
-        {error}
-      </p>
-      <div className="form-actions">
-        <button className="btn" disabled={Boolean(busy)}>
-          {busy === 'accept' ? 'Joining…' : 'Join group'}
-        </button>
-        <button type="button" className="btn-danger" onClick={decline} disabled={Boolean(busy)}>
-          {busy === 'decline' ? 'Declining…' : 'Decline'}
-        </button>
-      </div>
-    </form>
+        <div className="form-actions">
+          <button className="btn" disabled={Boolean(busy)}>
+            {busy === 'accept' ? 'Joining…' : 'Join group'}
+          </button>
+          <button type="button" className="btn-danger" onClick={decline} disabled={Boolean(busy)}>
+            {busy === 'decline' ? 'Declining…' : 'Decline'}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

@@ -115,6 +115,7 @@ export function GroupsPage() {
                   <span className="muted small">
                     {ownerOf(team)?.name ?? 'Someone'} invited you · {team.course}
                   </span>
+                  {team.message && <p className="invite-message">“{team.message}”</p>}
                 </div>
                 <div className="invite-actions">
                   <button className="btn-danger" onClick={() => decline(team)} disabled={declining === team.id}>

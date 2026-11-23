@@ -12,7 +12,7 @@
  */
 import type { Request, Response } from 'express';
 import { isValidObjectId, Types } from 'mongoose';
-import { MAX_NAME_LENGTH, MIN_GROUP_SIZE } from '../config/constants';
+import { MAX_GROUP_MESSAGE_LENGTH, MAX_NAME_LENGTH, MIN_GROUP_SIZE } from '../config/constants';
 import { findCourse } from '../lib/courses';
 import { avatarPath, colorFor, emailName, isEmail, newInviteCode, normalizeCode, normalizeEmail } from '../lib/util';
 import { authedUser } from '../middleware/auth';
@@ -169,7 +169,7 @@ export async function getTeam(req: Request<TeamParams>, res: Response) {
   res.json(await toPublic(team, user));
 }
 
-/** Body: { name, course: a course code like "COMPSCI 161", emails: string[] }. The creator joins automatically. */
+/** Body: { name, course: a course code like "COMPSCI 161", emails: string[], message?: a note for invitees }. The creator joins automatically. */
 export async function createTeam(req: Request, res: Response) {
   const user = authedUser(req);
   const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
@@ -177,6 +177,9 @@ export async function createTeam(req: Request, res: Response) {
   if (!name) throw new HttpError(400, 'Give your group a name');
   if (!courseText) throw new HttpError(400, 'Which course is this for?');
   if (name.length > MAX_NAME_LENGTH) throw new HttpError(400, `Group name must be at most ${MAX_NAME_LENGTH} characters`);
+  const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
+  if (message.length > MAX_GROUP_MESSAGE_LENGTH)
+    throw new HttpError(400, `Keep the message under ${MAX_GROUP_MESSAGE_LENGTH} characters`);
   // Only real UCI courses (see lib/courses.ts), stored as their code, e.g. "COMPSCI 161".
   const course = (await findCourse(courseText))?.code;
   if (!course) throw new HttpError(400, 'Pick a course from the list');
@@ -187,6 +190,7 @@ export async function createTeam(req: Request, res: Response) {
   const team = await Team.create({
     name,
     course,
+    message,
     owner: user._id,
     inviteCode: newInviteCode(),
     members: [

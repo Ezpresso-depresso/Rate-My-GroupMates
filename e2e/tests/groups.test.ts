@@ -1,6 +1,6 @@
 import type { Browser, Page } from 'playwright';
 import { afterAll, beforeAll, describe, test } from 'vitest';
-import { appUrl, createGroup, expect, fillTeammates, launchBrowser, newUser, pickCourse, uniqueEmail } from '../setup/helpers';
+import { api, appUrl, createGroup, expect, fillTeammates, launchBrowser, newUser, pickCourse, uniqueEmail } from '../setup/helpers';
 
 let browser: Browser;
 beforeAll(async () => {
@@ -140,5 +140,49 @@ describe('choosing teammates', () => {
     await expect(page.getByRole('button', { name: new RegExp(`^Teammate 1: Omar Testerson`) })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Teammate 2 email' })).toHaveValue(stranger);
     await expect(page.getByText('No account yet. They can join once they sign up with this email.')).toBeVisible();
+  });
+});
+
+describe('a message for the group', () => {
+  test('the creator can add a message that invitees see on their invitation and the join page', async () => {
+    const kent = await newUser(browser, 'Kent');
+    const omar = await newUser(browser, 'Omar');
+    const { page } = kent;
+    const message = 'Meeting Thursdays at 6 in the library. Bring snacks.';
+
+    await page.goto(`${appUrl()}/groups/new`);
+    await page.getByLabel('Group name').fill('With a note');
+    await pickCourse(page, 'IN4MATX 151');
+    await fillTeammates(page, [omar.email]);
+    await page.getByLabel(/Message for your teammates/).fill(message);
+    await expect(page.getByText(`${message.length}/300`)).toBeVisible();
+    await page.getByRole('button', { name: /^Create group/ }).click();
+    await expect(page.getByText(/Waiting room/i)).toBeVisible();
+    const id = page.url().split('/').pop()!;
+
+    // Omar's home page shows it on the invitation…
+    await omar.page.goto(appUrl());
+    await expect(omar.page.locator('.invite-card', { hasText: 'With a note' })).toContainText(message);
+
+    // …and the join page quotes it.
+    await omar.page.goto(`${appUrl()}/join/${id}`);
+    const quote = omar.page.getByRole('figure');
+    await expect(quote).toContainText('Message from Kent');
+    await expect(quote).toContainText(message);
+  });
+
+  test('the message is optional, and too-long messages are refused', async () => {
+    const kent = await newUser(browser, 'Kent');
+    const omar = await newUser(browser, 'Omar');
+    const token = await kent.token();
+    const emails = [omar.email];
+
+    const none = await api(token, 'POST', '/teams', { name: 'No note', course: 'IN4MATX 151', emails });
+    expect(none.status).toBe(201);
+    expect(none.body.message).toBe('');
+
+    const long = await api(token, 'POST', '/teams', { name: 'Long', course: 'IN4MATX 151', emails, message: 'x'.repeat(301) });
+    expect(long.status).toBe(400);
+    expect(long.body.message).toBe('Keep the message under 300 characters');
   });
 });

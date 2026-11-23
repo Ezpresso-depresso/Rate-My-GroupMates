@@ -63,6 +63,8 @@ export const MAX_COMMENT_LENGTH = 700;
 export const MIN_GROUP_SIZE = 2; // creator included; no upper limit
 export const MAX_NAME_LENGTH = 80;
 export const INVITE_CODE_LENGTH = 6;
+/** Optional note from the creator, shown to invitees when they join. */
+export const MAX_GROUP_MESSAGE_LENGTH = 300;
 
 // Profile
 /**
