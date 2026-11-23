@@ -2,21 +2,47 @@
 
 /* ---------- Design tokens ---------- */
 :root {
-  --bg: #f5f5fb;
+  /* Light mode: GitHub Light. Grey page, white boxes, grey navbar.
+     Previous light palettes are kept in the comments below, to revert by pasting their values here.
+     PREVIOUS (Catppuccin Latte): --bg: #dce0e8; --surface: #eff1f5; --surface-muted: #e6e9ef; --ink: #4c4f69;
+       --muted: #5c5f77; --subtle: #7c7f93; --line: #bcc0cc; --line-strong: #9ca0b0; --primary: #1e66f5;
+       --primary-soft: #d9e4fd; --primary-border: #7287fd; --header-bg: #ccd0da; --header-line: #9ca0b0;
+       --danger: #d20f39; --danger-soft: #f7d9df;
+     PREVIOUS (Nord Snow Storm): --bg: #d8dee9; --surface: #eceff4; --surface-muted: #e5e9f0; --ink: #2e3440;
+       --muted: #4c566a; --subtle: #7b88a1; --line: #c2cad9; --line-strong: #9aa7bd; --primary: #5e81ac;
+       --primary-soft: #dbe5f1; --primary-border: #81a1c1; --header-bg: #c8d0de; --header-line: #9aa7bd;
+       --danger: #bf616a; --danger-soft: #f3e1e3;
+     PREVIOUS (Tokyo Night Day): --bg: #d0d5e3; --surface: #e9ecf6; --surface-muted: #dce0ee; --ink: #343b58;
+       --muted: #565a6e; --subtle: #7a809c; --line: #b4bbd4; --line-strong: #9699a3; --primary: #2e7de9;
+       --primary-soft: #d3e2fb; --primary-border: #7aa2f7; --header-bg: #c4c8da; --header-line: #9699a3;
+       (--danger/--danger-soft were #c2413a / #fdecea) */
+  --bg: #f0f3f6;
   --surface: #ffffff;
-  --surface-muted: #ededf7;
-  --ink: #181b3b;
-  --muted: #606987;
-  --subtle: #868da4;
-  --line: #dce0ef;
-  --line-strong: #c7cbe0;
-  --primary: #2d36d5;
-  --primary-soft: #e9ebff;
-  --primary-border: #7f87e7;
+  --surface-muted: #f6f8fa;
+  --ink: #1f2328;
+  --muted: #656d76;
+  --subtle: #8c959f;
+  --line: #d0d7de;
+  --line-strong: #8c959f;
+  --primary: #0969da;
+  --primary-soft: #ddf4ff;
+  --primary-border: #54aeff;
+  --header-bg: #f6f8fa;
+  --header-line: #d0d7de;
+  /* ORIGINAL LIGHT PALETTE:
+     --bg: #f5f5fb; --surface: #ffffff; --surface-muted: #ededf7; --ink: #181b3b; --muted: #606987;
+     --subtle: #868da4; --line: #dce0ef; --line-strong: #c7cbe0; --primary: #2d36d5;
+     --primary-soft: #e9ebff; --primary-border: #7f87e7;  (header used --bg, no border) */
   --accent: #ffda48;
   --night: #191b40;
   --success: #2fa86b;
-  --danger: #c2413a;
+  --danger: #cf222e;
+  --danger-soft: #ffebe9;
+  --on-primary: #ffffff;
+  --notice-bg: #fff6d6;
+  --notice-ink: #7a5b0c;
+  --ok-bg: #e6f2ed;
+  --ok-ink: #2f7a5a;
 
   --font-body: 'Figtree', system-ui, sans-serif;
   --font-display: 'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
@@ -27,6 +53,39 @@
   --radius-lg: 22px;
   --shadow: 0 6px 24px #282a4b0d;
   --shadow-lg: 0 24px 60px #181b3b33;
+}
+
+/* ---------- Dark mode: the Tokyo Night palette. A near-black page, blue boxes on top of it, grey navbar
+   accents. Toggled from the account menu, see lib/theme.ts ---------- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #16161e;
+  --surface: #24283b;
+  --surface-muted: #1f2335;
+  --ink: #c0caf5;
+  --muted: #a9b1d6;
+  --subtle: #787c99;
+  --line: #3b4261;
+  --line-strong: #565f89;
+  --primary: #7aa2f7;
+  --primary-soft: #2f3d6b;
+  --primary-border: #3d59a1;
+  --accent: #e0af68;
+  --night: #101018;
+  --success: #9ece6a;
+  --danger: #f7768e;
+  --danger-soft: #3a2634;
+  --on-primary: #16161e;
+  --notice-bg: #3a3426;
+  --notice-ink: #e0af68;
+  --ok-bg: #263a2f;
+  --ok-ink: #9ece6a;
+  --header-bg: #1f2130;
+  --header-line: #414868;
+  --logo-ink: #16161e;
+  --logo-bg: #7aa2f7; /* the header logo is blue in dark mode (yellow in light) */
+  --shadow: 0 6px 24px #00000059;
+  --shadow-lg: 0 24px 60px #000000a6;
 }
 
 /* ---------- Reset ---------- */
@@ -363,8 +422,8 @@ a.nudge:hover {
 .notice {
   padding: 14px 16px;
   border-radius: var(--radius-md);
-  background: #fff6d6;
-  color: #7a5b0c;
+  background: var(--notice-bg);
+  color: var(--notice-ink);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -377,7 +436,7 @@ a.nudge:hover {
   padding: 14px 22px;
   border-radius: 12px;
   background: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
   font-weight: 700;
   text-decoration: none;
   transition: transform 0.12s, background 0.12s;

@@ -9,7 +9,8 @@
   /* Soft shadow separating the navbar from the page; sits above the content (and keeps the account menu on top). */
   position: relative;
   z-index: 10;
-  background: var(--bg);
+  background: var(--header-bg, var(--bg));
+  border-bottom: 1px solid var(--header-line, transparent);
   box-shadow: 0 2px 12px #282a4b47;
 }
 
@@ -38,8 +39,8 @@
   width: 47px;
   height: 47px;
   border-radius: 14px;
-  background: var(--accent);
-  color: var(--ink);
+  background: var(--logo-bg, var(--accent));
+  color: var(--logo-ink, var(--ink));
   font-family: var(--font-mono);
   font-size: 20px;
   transform: rotate(-7deg);
@@ -220,12 +221,42 @@
   margin-top: 1px;
 }
 
+.account-menu .theme-switch {
+  position: relative;
+  width: 30px;
+  height: 17px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: var(--line-strong);
+  transition: background 0.15s;
+}
+
+.account-menu .theme-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.account-menu [aria-checked='true'] .theme-switch {
+  background: var(--primary);
+}
+
+.account-menu [aria-checked='true'] .theme-switch::after {
+  transform: translateX(13px);
+}
+
 .account-menu .account-menu-signout {
   color: var(--danger);
 }
 
 .account-menu .account-menu-signout:hover {
-  background: #fdecea;
+  background: var(--danger-soft);
 }
 
 .site-footer {

@@ -24,9 +24,27 @@
   pointer-events: none;
 }
 
+/* Dark mode can dim (or boost) the image separately; the inline --profile-bg-opacity is the light value. */
+:root[data-theme='dark'] .profile-page.has-background::before {
+  opacity: var(--profile-bg-dark-opacity, var(--profile-bg-opacity, 0.3));
+}
+
 /* Let the background show faintly through the section cards too. */
 .profile-page.has-background .profile-section {
-  background: rgb(255 255 255 / 0.82);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+
+/* Backgrounds don't re-color the profile (it uses the site colors); in dark mode they're just dimmed
+   or boosted per image. Keep the class names in sync with ids in lib/backgrounds.ts. */
+:root[data-theme='dark'] .profile-page.bg-goku {
+  --profile-bg-dark-opacity: 0.55;
+}
+:root[data-theme='dark'] .profile-page.bg-misty-field {
+  --profile-bg-dark-opacity: 0.18;
+}
+:root[data-theme='dark'] .profile-page.bg-blossoms,
+:root[data-theme='dark'] .profile-page.bg-blossom-path {
+  --profile-bg-dark-opacity: 0.2;
 }
 
 .background-picker {
@@ -288,7 +306,7 @@
 }
 
 .class-chip-remove:hover:not(:disabled) {
-  background: #fdecea;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -873,7 +891,7 @@
   padding: 10px 14px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: #f3f4f8;
+  background: var(--surface-muted);
 }
 
 .bio-label {

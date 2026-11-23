@@ -14,7 +14,7 @@ export function ProfilePanel({ backgroundId, glow, children }: Props) {
   const background = backgroundById(backgroundId);
   return (
     <div
-      className={`profile-page${background ? ' has-background' : ''}${glow ? ' pope-glow' : ''}`}
+      className={`profile-page${background ? ` has-background bg-${background.id}` : ''}${glow ? ' pope-glow' : ''}`}
       style={
         background
           ? ({ '--profile-bg': `url(${background.src})`, '--profile-bg-opacity': background.opacity ?? BACKGROUND_OPACITY } as CSSProperties)

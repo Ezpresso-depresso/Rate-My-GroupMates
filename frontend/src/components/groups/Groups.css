@@ -321,8 +321,8 @@
 }
 
 .teammate-remove:hover {
-  border-color: #f0c4c0;
-  background: #fdecea;
+  border-color: var(--danger);
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -474,7 +474,7 @@
 }
 
 .cancel-invite:hover:not(:disabled) {
-  background: #fdecea;
+  background: var(--danger-soft);
 }
 
 .member-row-text {
@@ -521,8 +521,8 @@
 
 .ok-notice {
   margin: 0;
-  background: #e6f2ed;
-  color: #2f7a5a;
+  background: var(--ok-bg);
+  color: var(--ok-ink);
 }
 
 /* ---------- Group message (optional note from the creator) ---------- */
