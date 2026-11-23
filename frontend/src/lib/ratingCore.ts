@@ -28,6 +28,12 @@ export function emptyDraft(): ReviewDraft {
   return { rating: 0, scores: {}, text: '', anonymous: false };
 }
 
+/** Badges: extra awards stacked on top of the tier, each for clearing its bar. */
+export const BADGES: { name: string; icon: string; reason: string; earned: (average: number | null, reviews: number) => boolean }[] = [
+  { name: 'Top Groupmate', icon: '🏆', reason: 'Average overall rating of 3.5 stars or higher', earned: (average) => average !== null && average >= 3.5 },
+  { name: 'Celebrity', icon: '🌟', reason: 'Received at least 10 reviews', earned: (_, reviews) => reviews >= 10 },
+];
+
 export function summary(reviews: Pick<Review, 'rating' | 'scores'>[]): Summary {
   const rated = reviews.filter((r) => isStar(r.rating));
   const average = rated.length ? rated.reduce((s, r) => s + r.rating, 0) / rated.length : null;
@@ -40,9 +46,7 @@ export function summary(reviews: Pick<Review, 'rating' | 'scores'>[]): Summary {
     };
   });
   const best = scores.filter((c) => c.value !== null).sort((a, b) => b.value! - a.value!)[0];
-  const awards = [];
-  if (average !== null && average >= 3.5) awards.push({ name: 'Top Groupmate', icon: '🏆', reason: 'Average overall rating of 3.5 stars or higher' });
-  if (rated.length >= 10) awards.push({ name: 'Celebrity', icon: '🌟', reason: 'Received at least 10 reviews' });
+  const awards = BADGES.filter((b) => b.earned(average, rated.length)).map(({ name, icon, reason }) => ({ name, icon, reason }));
   return { average, count: rated.length, scores, awards, top: best && best.value! >= 7 ? best : null };
 }
 
@@ -86,12 +90,18 @@ export function funnyAward(s: Summary): FunnyAward {
   return awardById(patterns.find(([, yes]) => yes)?.[0] ?? 'plot');
 }
 
+/** Achievement tiers, best first: you get the first whose minimum your average stars reach. */
+export const TIERS: (Medal & { min: number; meaning: string })[] = [
+  { name: 'Certified Carry', tone: 'gold', symbol: '✦', min: 4.5, meaning: 'Teammates would sign up with you again in a heartbeat.' },
+  { name: 'Group Chat MVP', tone: 'silver', symbol: '✧', min: 3.5, meaning: 'A reliable teammate who pulls their weight and then some.' },
+  { name: 'Looks Good Guys', tone: 'bronze', symbol: '✧', min: 2.5, meaning: 'Got it done, with room to step up.' },
+  { name: 'Present in Spirit', tone: 'mint', symbol: '✳', min: 0, meaning: 'Teammates felt they carried more than their share.' },
+];
+
 export function medal(s: Summary): Medal {
   const a = s.average ?? 0;
-  if (a >= 4.5) return { name: 'Certified Carry', tone: 'gold', symbol: '✦' };
-  if (a >= 3.5) return { name: 'Group Chat MVP', tone: 'silver', symbol: '✧' };
-  if (a >= 2.5) return { name: 'Looks Good Guys', tone: 'bronze', symbol: '✧' };
-  return { name: 'Present in Spirit', tone: 'mint', symbol: '✳' };
+  const { name, tone, symbol } = TIERS.find((t) => a >= t.min) ?? TIERS[TIERS.length - 1];
+  return { name, tone, symbol };
 }
 
 /** Reviews received by `targetId`, excluding self-reviews. */

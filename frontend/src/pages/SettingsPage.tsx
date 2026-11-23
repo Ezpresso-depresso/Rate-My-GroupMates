@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { PASSWORD_MIN, passwordProblem } from '../lib/passwords';
 import { api, type ApiError } from '../services/api';
+import './InfoPages.css';
 import '../components/groups/Groups.css';
 
 export function SettingsPage() {
@@ -38,7 +39,7 @@ export function SettingsPage() {
   };
 
   return (
-    <>
+    <div className="page-panel info-page">
       <div className="page-heading">
         <div>
           <div className="eyebrow">Settings</div>
@@ -100,6 +101,6 @@ export function SettingsPage() {
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 }

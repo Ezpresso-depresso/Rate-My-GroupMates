@@ -1,0 +1,70 @@
+/* Settings, Help and About awards: on the same full-width page panel as My Groups, Find Groupmates
+   and the profile, with their cards filling it. */
+.info-page .form-card {
+  max-width: none;
+}
+
+.info-cards {
+  display: grid;
+  gap: 20px;
+}
+
+.info-cards p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.info-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+/* One award per row: tone-coloured icon, then name, meaning and how it's earned. */
+.award-guide {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.award-guide li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.award-guide-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 20px;
+}
+
+.award-guide p {
+  margin: 2px 0;
+  font-size: 14.5px;
+}
+
+.award-guide small {
+  display: block;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* "The guided tour is in progress." on the Help page, while it runs. */
+.info-cards .tour-status {
+  justify-self: start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 600;
+}

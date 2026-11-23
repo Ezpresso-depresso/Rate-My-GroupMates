@@ -49,6 +49,11 @@ export function advanceTour(from: TourStep, to: TourStep | null) {
   if (tour.step === from) set(to ? { ...tour, step: to } : OFF);
 }
 
+/** Ends the tour now (from the Help page): every tour pop-up closes. */
+export function endTour() {
+  set(OFF);
+}
+
 export function closeTourNote() {
   set({ ...tour, noteOpen: false });
 }
