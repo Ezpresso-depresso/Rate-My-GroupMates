@@ -7,6 +7,7 @@ import { AwardsSection } from '../components/profile/AwardsSection';
 import { CommentsSection } from '../components/profile/CommentsSection';
 import { NameEditor } from '../components/profile/NameEditor';
 import { ProfilePanel } from '../components/profile/ProfilePanel';
+import { isPope, RankBadge } from '../components/profile/RankBadge';
 import { RatingSection } from '../components/profile/RatingSection';
 import { useAuth } from '../hooks/useAuth';
 import { MAX_PINS, profileAwards } from '../lib/profile';
@@ -62,7 +63,7 @@ export function ProfilePage() {
   };
 
   return (
-    <ProfilePanel backgroundId={user.profileBackground}>
+    <ProfilePanel backgroundId={user.profileBackground} glow={!!profile && isPope(profile.reviews)}>
       <div className="card profile-section page-heading profile-heading">
         <div className="nudge-anchor">
           <AvatarEditor size={96} />
@@ -78,7 +79,11 @@ export function ProfilePage() {
         <div>
           <NameEditor />
           <span className="muted profile-email">{user.email}</span>
-          <BioEditor />
+          {/* The bio and the rank badge share a row, so the badge lines up with the bio box. */}
+          <div className="bio-row">
+            <BioEditor />
+            {profile && <RankBadge reviews={profile.reviews} />}
+          </div>
         </div>
         <BackgroundPicker />
       </div>

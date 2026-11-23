@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { CATEGORY_KEYS } from '../config/constants';
+import { AWARD_IDS, CATEGORY_KEYS, type AwardId } from '../config/constants';
 import { authedUser } from '../middleware/auth';
 import { HttpError } from '../middleware/errorHandler';
 import { Review } from '../models/Review';
@@ -14,6 +14,8 @@ interface ReviewInput {
   scores: Record<string, number>;
   text?: string;
   anonymous?: boolean;
+  /** One of AWARD_IDS: the signature award picked for this teammate. */
+  award?: string | null;
 }
 
 /** Strips what other teammates shouldn't see: anonymous reviewer ids (except on the viewer's own reviews). */
@@ -59,6 +61,8 @@ export async function submitReviews(req: Request<TeamParams>, res: Response) {
   if (stranger) throw new HttpError(400, 'One of those people isn’t in this group. Refresh and try again');
   if (new Set(reviews.map((r) => r.targetId)).size !== reviews.length)
     throw new HttpError(400, 'Each teammate can only be reviewed once per submission');
+  if (reviews.some((r) => r.award != null && !AWARD_IDS.includes(r.award as AwardId)))
+    throw new HttpError(400, 'Pick one of the awards for each teammate');
 
   const submittedAt = new Date();
   await Review.bulkWrite(
@@ -71,6 +75,7 @@ export async function submitReviews(req: Request<TeamParams>, res: Response) {
             scores: Object.fromEntries(CATEGORY_KEYS.map((k) => [k, r.scores[k]])),
             text: (r.text ?? '').trim(),
             anonymous: r.anonymous === true,
+            award: r.award ?? null,
             submittedAt,
           },
         },

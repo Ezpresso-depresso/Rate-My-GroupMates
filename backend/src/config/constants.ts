@@ -55,6 +55,9 @@ export const CATEGORY_KEYS = ['participation', 'communication', 'quality'] as co
 export type CategoryKey = (typeof CATEGORY_KEYS)[number];
 export const STAR_MIN = 1;
 export const STAR_MAX = 5;
+/** Signature awards a reviewer picks for each teammate (ids; titles/icons live in frontend lib/ratingCore.ts). */
+export const AWARD_IDS = ['avatar', 'cyo', 'houdini', 'picasso', 'gta6', 'thirdwheel', 'carry', 'leader', 'aimerchant'] as const;
+export type AwardId = (typeof AWARD_IDS)[number];
 export const SCORE_MIN = 1;
 export const SCORE_MAX = 10;
 export const MAX_COMMENT_LENGTH = 700;

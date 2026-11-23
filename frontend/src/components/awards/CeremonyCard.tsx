@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
-import { funnyAward, medal } from '../../lib/ratingCore';
+import { medal } from '../../lib/ratingCore';
+import { AwardIcon } from './AwardIcon';
 import type { Member, Summary } from '../../types';
 import { Avatar } from '../common/Avatar';
 import { Stars } from '../common/Stars';
@@ -13,7 +14,7 @@ interface CeremonyCardProps {
 }
 
 export function CeremonyCard({ member, summary: s, delay, onDetails }: CeremonyCardProps) {
-  const award = funnyAward(s);
+  const award = s.award;
   const m = medal(s);
 
   return (
@@ -35,20 +36,18 @@ export function CeremonyCard({ member, summary: s, delay, onDetails }: CeremonyC
 
       <div className="divider" />
       <div className="eyebrow">Earned award</div>
-      <div className="ceremony-award">
-        <span className={`seal ${award.tone}`}>{award.icon}</span>
-        <h3>{award.title}</h3>
-      </div>
-      <p>{award.desc}</p>
-      <span className="lore-trait">{award.trait}</span>
-      {s.awards.length > 0 && (
-        <div className="earned-badges">
-          {s.awards.map((b) => (
-            <span key={b.name} title={b.reason}>
-              {b.icon} {b.name}
+      {award ? (
+        <>
+          <div className="ceremony-award">
+            <span className={`seal ${award.tone}`}>
+              <AwardIcon id={award.id} symbol={award.icon} />
             </span>
-          ))}
-        </div>
+            <h3>{award.title}</h3>
+          </div>
+          <p>{award.desc}</p>
+        </>
+      ) : (
+        <p className="muted">No award picked yet.</p>
       )}
 
       <div className="divider" />

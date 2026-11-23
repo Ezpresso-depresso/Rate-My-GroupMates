@@ -1,7 +1,6 @@
 /* Pure rating rules shared by the UI. No React, no storage. */
 import type {
   Category,
-  CategoryKey,
   FunnyAward,
   Medal,
   Review,
@@ -20,21 +19,16 @@ export const categories: Category[] = [
 const isStar = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 5;
 const isScore = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 10;
 
+/** Complete: a star rating, every category score, and an award picked. */
 export function valid(r?: Partial<ReviewDraft>): boolean {
-  return isStar(r?.rating) && categories.every((c) => isScore(r?.scores?.[c.key]));
+  return isStar(r?.rating) && categories.every((c) => isScore(r?.scores?.[c.key])) && isAwardId(r?.award);
 }
 
 export function emptyDraft(): ReviewDraft {
-  return { rating: 0, scores: {}, text: '', anonymous: false };
+  return { rating: 0, scores: {}, text: '', anonymous: false, award: null };
 }
 
-/** Badges: extra awards stacked on top of the tier, each for clearing its bar. */
-export const BADGES: { name: string; icon: string; reason: string; earned: (average: number | null, reviews: number) => boolean }[] = [
-  { name: 'Top Groupmate', icon: '🏆', reason: 'Average overall rating of 3.5 stars or higher', earned: (average) => average !== null && average >= 3.5 },
-  { name: 'Celebrity', icon: '🌟', reason: 'Received at least 10 reviews', earned: (_, reviews) => reviews >= 10 },
-];
-
-export function summary(reviews: Pick<Review, 'rating' | 'scores'>[]): Summary {
+export function summary(reviews: (Pick<Review, 'rating' | 'scores'> & { award?: string | null })[]): Summary {
   const rated = reviews.filter((r) => isStar(r.rating));
   const average = rated.length ? rated.reduce((s, r) => s + r.rating, 0) / rated.length : null;
   const scores = categories.map((c) => {
@@ -46,61 +40,70 @@ export function summary(reviews: Pick<Review, 'rating' | 'scores'>[]): Summary {
     };
   });
   const best = scores.filter((c) => c.value !== null).sort((a, b) => b.value! - a.value!)[0];
-  const awards = BADGES.filter((b) => b.earned(average, rated.length)).map(({ name, icon, reason }) => ({ name, icon, reason }));
-  return { average, count: rated.length, scores, awards, top: best && best.value! >= 7 ? best : null };
+  return { average, count: rated.length, scores, award: signatureAward(reviews), top: best && best.value! >= 7 ? best : null };
 }
 
-// Ordered, deterministic score patterns; the first matching joke wins.
+/*
+ * Signature awards. Each reviewer picks one for every teammate they rate; a teammate's award is
+ * the one picked for them most often (ties go to the one earlier in this list). Shown as a 3×3
+ * grid on the rating page, in this order. Keep ids in sync with AWARD_IDS in the backend.
+ * Icons are plain characters (U+FE0E asks for the text version, never an emoji). The Third Wheel,
+ * Hard Carry and Group Leader are drawn instead (components/awards/AwardIcon.tsx); their `icon`
+ * is a stand-in where only text fits.
+ */
 export const funnyAwards: FunnyAward[] = [
-  { id: 'phantom', title: 'The Phantom', trait: 'Ghost Protocol', icon: '👻', tone: 'lilac', desc: 'Assigned a task. Entered witness protection.', rule: 'Participation and communication both average 5.5/10 or lower.' },
-  { id: 'yapper', title: 'Chief Yapping Officer', trait: 'All Talk, No Task', icon: '🎙️', tone: 'peach', desc: 'A TED Talk in every meeting. Zero slides in the deck.', rule: 'Communication ≥7; quality ≤6.75, at least 1.25 below communication.' },
-  { id: 'deadline', title: 'The Deadline Houdini', trait: 'Last-Minute Legend', icon: '⏰', tone: 'peach', desc: 'Submitted at 11:59. Somehow it was incredible.', rule: 'Participation ≤6.5 and quality ≥8.' },
-  { id: 'fonts', title: 'Director of Font Operations', trait: 'Only Changed the Fonts', icon: '🎨', tone: 'pink', desc: 'Changed Arial to Calibri. Called it a contribution.', rule: 'Quality ≥6.5 and participation ≤6.5.' },
-  { id: 'loading', title: 'VP of Coming Soon', trait: 'Human Loading Screen', icon: '⏳', tone: 'peach', desc: '“Working on it” since the first meeting.', rule: 'Participation averages 6.5/10 or lower.' },
-  { id: 'watcher', title: 'The Watcher', trait: 'Seen, Never Replied', icon: '👀', tone: 'lilac', desc: 'Read receipts: 100%. Response rate: a side quest.', rule: 'Communication averages 6.5/10 or lower.' },
-  { id: 'carry', title: 'The Backpack', trait: 'Carried the Team', icon: '💪', tone: 'gold', desc: 'A group project with a single-player campaign.', rule: 'Average category score ≥8.5 and overall stars ≥4.' },
-  { id: 'rubric', title: 'The Rubric Whisperer', trait: 'Actually Read the Rubric', icon: '📋', tone: 'mint', desc: 'The only person who knew what we were supposed to be doing.', rule: 'Quality ≥8.5 and communication ≥8.' },
-  { id: 'bug', title: 'The Bug Exorcist', trait: 'Bug Hunter', icon: '🐛', tone: 'mint', desc: 'Fixed in five minutes what broke us for five hours.', rule: 'Quality averages at least 8.5/10.' },
-  { id: 'hype', title: 'Minister of Morale', trait: 'Group Chat Hype', icon: '📣', tone: 'pink', desc: 'Kept spirits alive when the Google Doc was dead.', rule: 'Communication averages at least 8.5/10.' },
-  { id: 'planner', title: 'The Human Calendar', trait: 'Actually Read the Rubric', icon: '🗓️', tone: 'lilac', desc: 'Sent three reminders. Still had to send a fourth.', rule: 'Participation averages at least 8/10.' },
-  { id: 'plot', title: 'The Plot Twist', trait: 'Unpredictable Project Energy', icon: '🎬', tone: 'lilac', desc: 'Nobody knew what to expect. Including the rubric.', rule: 'Mixed scores that do not match an earlier pattern.' },
-  { id: 'mystery', title: 'Mystery Member', trait: 'The Lore Is Loading', icon: '❓', tone: 'lilac', desc: 'The group chat awaits their origin story.', rule: 'No category ratings yet.' },
+  { id: 'avatar', title: 'The Avatar', icon: '↓', tone: 'silver', desc: 'Vanished when the world needed them most.' },
+  { id: 'cyo', title: 'CYO', icon: '❝', tone: 'peach', desc: 'Chief Yapping Officer.' },
+  { id: 'houdini', title: 'Houdini', icon: '♠︎', tone: 'lilac', desc: 'Made miracles happen.' },
+  { id: 'picasso', title: 'Picasso', icon: '✎', tone: 'pink', desc: 'Excellent at non-technical changes.' },
+  { id: 'gta6', title: 'GTA 6', icon: '⧖', tone: 'bronze', desc: '13 years for an update.' },
+  { id: 'thirdwheel', title: 'The Third Wheel', icon: '⊙', tone: 'platinum', desc: 'Saw everything but did nothing.' },
+  { id: 'carry', title: 'Hard Carry', icon: '▲', tone: 'gold', desc: 'That guy.' },
+  { id: 'leader', title: 'Group Leader', icon: '⚑︎', tone: 'grandmaster', desc: 'The alpha.' },
+  { id: 'aimerchant', title: 'AI Merchant', icon: '⌘', tone: 'mint', desc: 'Make no mistakes.' },
 ];
 
-const awardById = (id: string) => funnyAwards.find((a) => a.id === id)!;
+const isAwardId = (v: unknown): v is string => typeof v === 'string' && funnyAwards.some((a) => a.id === v);
+export const awardById = (id: string | null | undefined) => funnyAwards.find((a) => a.id === id);
 
-export function funnyAward(s: Summary): FunnyAward {
-  const v = Object.fromEntries(s.scores.map((c) => [c.key, c.value])) as Record<CategoryKey, number | null>;
-  if (categories.some((c) => v[c.key] === null)) return awardById('mystery');
-  const { participation: p, communication: c, quality: q } = v as Record<CategoryKey, number>;
-  const overall = (p + c + q) / 3;
-  const patterns: [string, boolean][] = [
-    ['phantom', p <= 5.5 && c <= 5.5],
-    ['yapper', c >= 7 && q <= 6.75 && c - q >= 1.25],
-    ['deadline', p <= 6.5 && q >= 8],
-    ['fonts', q >= 6.5 && p <= 6.5],
-    ['loading', p <= 6.5],
-    ['watcher', c <= 6.5],
-    ['carry', overall >= 8.5 && (s.average ?? 0) >= 4],
-    ['rubric', q >= 8.5 && c >= 8],
-    ['bug', q >= 8.5],
-    ['hype', c >= 8.5],
-    ['planner', p >= 8],
-  ];
-  return awardById(patterns.find(([, yes]) => yes)?.[0] ?? 'plot');
+/** The award picked most often across these reviews (ties: earlier in funnyAwards); null if none picked. */
+export function signatureAward(reviews: { award?: string | null }[]): FunnyAward | null {
+  const votes = new Map<string, number>();
+  for (const r of reviews) if (isAwardId(r.award)) votes.set(r.award, (votes.get(r.award) ?? 0) + 1);
+  let best: FunnyAward | null = null;
+  for (const a of funnyAwards) if ((votes.get(a.id) ?? 0) > (best ? votes.get(best.id)! : 0)) best = a;
+  return best;
 }
 
-/** Achievement tiers, best first: you get the first whose minimum your average stars reach. */
-export const TIERS: (Medal & { min: number; meaning: string })[] = [
-  { name: 'Certified Carry', tone: 'gold', symbol: '✦', min: 4.5, meaning: 'Teammates would sign up with you again in a heartbeat.' },
-  { name: 'Group Chat MVP', tone: 'silver', symbol: '✧', min: 3.5, meaning: 'A reliable teammate who pulls their weight and then some.' },
-  { name: 'Looks Good Guys', tone: 'bronze', symbol: '✧', min: 2.5, meaning: 'Got it done, with room to step up.' },
-  { name: 'Present in Spirit', tone: 'mint', symbol: '✳', min: 0, meaning: 'Teammates felt they carried more than their share.' },
+export interface Tier extends Medal {
+  /** Lowest average stars for this tier; null = no ratings yet. */
+  min: number | null;
+  /** How it's earned, in words ("3.5+ stars on average"). */
+  requirement: string;
+  /** What it says about you. */
+  meaning: string;
+}
+
+/** Achievement tiers, lowest to highest: you get the highest whose minimum your average stars reach. */
+export const TIERS: Tier[] = [
+  { name: 'Schrödinger’s Teammate', tone: 'unranked', symbol: '○', min: null, requirement: 'No ratings yet', meaning: 'Both a carry and a ghost until someone rates them.' },
+  { name: 'Burger Teammate', tone: 'burger', symbol: '≡', min: 0, requirement: 'Below 1.5 stars on average', meaning: 'Everyone starts somewhere. Even on the grill.' },
+  { name: 'Silver Teammate', tone: 'silver', symbol: '✧', min: 1.5, requirement: '1.5+ stars on average', meaning: 'Got it done, with room to step up.' },
+  { name: 'Gold Teammate', tone: 'gold', symbol: '✦', min: 2.5, requirement: '2.5+ stars on average', meaning: 'A solid teammate who pulls their weight.' },
+  { name: 'Platinum Teammate', tone: 'platinum', symbol: '◆', min: 3.5, requirement: '3.5+ stars on average', meaning: 'A reliable teammate who goes above and beyond.' },
+  { name: 'Grandmaster Arbiter of Teamwork Teammate', tone: 'grandmaster', symbol: '♛', min: 4.5, requirement: '4.5+ stars on average', meaning: 'Teammates would sign up with you again in a heartbeat.' },
+  { name: 'The Pope', tone: 'pope', symbol: '✝', min: 5, requirement: 'A perfect 5.0 average', meaning: 'Every single rating, five stars. Infallible.' },
 ];
+
+/** Your tier from your average stars (null = no ratings yet = Unranked). */
+export function tierFor(average: number | null): Tier {
+  if (average === null) return TIERS[0];
+  // Tiny tolerance so an average like 3.4999999999 (floating point) still counts as 3.5.
+  return [...TIERS].reverse().find((t) => t.min !== null && average >= t.min - 1e-9) ?? TIERS[1];
+}
 
 export function medal(s: Summary): Medal {
-  const a = s.average ?? 0;
-  const { name, tone, symbol } = TIERS.find((t) => a >= t.min) ?? TIERS[TIERS.length - 1];
+  const { name, tone, symbol } = tierFor(s.average);
   return { name, tone, symbol };
 }
 

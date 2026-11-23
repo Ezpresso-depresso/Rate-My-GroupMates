@@ -107,10 +107,17 @@ export function ReviewProvider({ teamId, children }: { teamId: string; children:
   const draftFor = useCallback(
     (targetId: string): ReviewDraft => {
       const draft = drafts[targetId];
-      if (draft) return draft;
+      // Drafts saved before awards were picked have no `award`: treat as not picked yet.
+      if (draft) return { ...draft, award: draft.award ?? null };
       const submitted = reviews.find((r) => r.reviewerId === memberId && r.targetId === targetId);
       return submitted
-        ? { rating: submitted.rating, scores: { ...submitted.scores }, text: submitted.text, anonymous: submitted.anonymous }
+        ? {
+            rating: submitted.rating,
+            scores: { ...submitted.scores },
+            text: submitted.text,
+            anonymous: submitted.anonymous,
+            award: submitted.award ?? null,
+          }
         : emptyDraft();
     },
     [drafts, reviews, memberId],
@@ -135,6 +142,7 @@ export function ReviewProvider({ teamId, children }: { teamId: string; children:
           scores: Object.fromEntries(categories.map((c) => [c.key, d.scores[c.key]])),
           text: d.text.trim().slice(0, MAX_COMMENT_LENGTH),
           anonymous: d.anonymous,
+          award: d.award,
         };
       }),
     });

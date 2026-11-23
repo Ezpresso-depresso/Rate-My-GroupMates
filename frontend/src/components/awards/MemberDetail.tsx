@@ -1,5 +1,5 @@
-import { funnyAward } from '../../lib/ratingCore';
 import type { Member, Review, Summary } from '../../types';
+import { AwardIcon } from './AwardIcon';
 import './Awards.css';
 
 interface MemberDetailProps {
@@ -10,19 +10,21 @@ interface MemberDetailProps {
 }
 
 export function MemberDetail({ member, summary: s, myReview }: MemberDetailProps) {
-  const award = funnyAward(s);
+  const award = s.award;
 
   return (
     <>
       <div className="eyebrow">The full picture</div>
       <h2>{member.name}’s project receipts</h2>
-      <div className="award-explainer">
-        <b>
-          {award.icon} {award.title}
-        </b>
-        <p>{award.desc}</p>
-        <small>Why this award: {award.rule}</small>
-      </div>
+      {award && (
+        <div className="award-explainer">
+          <b>
+            <AwardIcon id={award.id} symbol={award.icon} /> {award.title}
+          </b>
+          <p>{award.desc}</p>
+          <small>The award their teammates picked for them most often.</small>
+        </div>
+      )}
       <p className="muted">
         {s.count} received ratings · {s.average?.toFixed(1) ?? '—'} / 5 stars
       </p>

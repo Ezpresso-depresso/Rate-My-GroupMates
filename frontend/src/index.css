@@ -478,6 +478,12 @@ a.nudge:hover {
 .lilac { background: #eeeafd; color: #6a58c2; }
 .peach { background: #fdeee4; color: #b86a3c; }
 .pink { background: #fbe7f2; color: #b04f86; }
+/* Achievement tiers (lib/ratingCore.ts TIERS) */
+.unranked { background: #f0f1f5; color: #8a90a6; }
+.burger { background: #f8e6d0; color: #9a5b23; }
+.platinum { background: #e0f2f3; color: #2f8089; }
+.grandmaster { background: #ece4fb; color: #6a3dbf; }
+.pope { background: #fffaf0; color: #a8841a; box-shadow: inset 0 0 0 1.5px #e9cf7a; }
 
 .seal {
   display: grid;

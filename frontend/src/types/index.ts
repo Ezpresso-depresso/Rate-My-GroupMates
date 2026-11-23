@@ -1,6 +1,19 @@
 export type CategoryKey = 'participation' | 'communication' | 'quality';
 
-export type Tone = 'gold' | 'silver' | 'bronze' | 'mint' | 'lilac' | 'peach' | 'pink';
+export type Tone =
+  | 'gold'
+  | 'silver'
+  | 'bronze'
+  | 'mint'
+  | 'lilac'
+  | 'peach'
+  | 'pink'
+  // Achievement tiers only (see TIERS in lib/ratingCore.ts)
+  | 'unranked'
+  | 'burger'
+  | 'platinum'
+  | 'grandmaster'
+  | 'pope';
 
 export interface Category {
   key: CategoryKey;
@@ -75,6 +88,8 @@ export interface ReviewDraft {
   scores: Scores;
   text: string;
   anonymous: boolean;
+  /** Id of the signature award picked for this teammate (see funnyAwards); null until picked. */
+  award: string | null;
 }
 
 /** A submitted review, shaped like the backend `Review` document. */
@@ -95,6 +110,8 @@ export interface ReceivedReview {
   scores: Scores;
   text: string;
   anonymous: boolean;
+  /** The signature award the reviewer picked (null on older reviews). */
+  award: string | null;
   /** null when the review is anonymous. */
   reviewerName: string | null;
   submittedAt: string;
@@ -163,28 +180,23 @@ export interface CategoryScore extends Category {
   count: number;
 }
 
-export interface Badge {
-  name: string;
-  icon: string;
-  reason: string;
-}
-
 export interface Summary {
   average: number | null;
   count: number;
   scores: CategoryScore[];
-  awards: Badge[];
   top: CategoryScore | null;
+  /** The signature award picked most often by teammates (null until anyone picks one). */
+  award: FunnyAward | null;
 }
 
+/** A signature award: picked for each teammate by the people reviewing them. */
 export interface FunnyAward {
   id: string;
   title: string;
-  trait: string;
+  /** A single plain character, coloured by `tone` (like the rank symbols). */
   icon: string;
   tone: Tone;
   desc: string;
-  rule: string;
 }
 
 export interface Medal {

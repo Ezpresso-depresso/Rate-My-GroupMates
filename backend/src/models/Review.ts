@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType } from 'mongoose';
-import { CATEGORY_KEYS, MAX_COMMENT_LENGTH, SCORE_MAX, SCORE_MIN, STAR_MAX, STAR_MIN } from '../config/constants';
+import { AWARD_IDS, CATEGORY_KEYS, MAX_COMMENT_LENGTH, SCORE_MAX, SCORE_MIN, STAR_MAX, STAR_MIN } from '../config/constants';
 
 const scoreField = { type: Number, required: true, min: SCORE_MIN, max: SCORE_MAX };
 
@@ -17,6 +17,8 @@ const reviewSchema = new Schema(
     scores: { type: scoresSchema, required: true },
     text: { type: String, default: '', trim: true, maxlength: MAX_COMMENT_LENGTH },
     anonymous: { type: Boolean, default: false },
+    /** The signature award the reviewer picked for this teammate (null on reviews from before awards were picked). */
+    award: { type: String, enum: AWARD_IDS, default: null },
     submittedAt: { type: Date, default: Date.now },
   },
   { timestamps: true },

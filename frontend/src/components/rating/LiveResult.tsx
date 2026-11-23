@@ -1,4 +1,5 @@
-import { funnyAward, medal } from '../../lib/ratingCore';
+import { medal } from '../../lib/ratingCore';
+import { AwardIcon } from '../awards/AwardIcon';
 import type { Member, Summary } from '../../types';
 import { Stars } from '../common/Stars';
 import './Rating.css';
@@ -10,7 +11,7 @@ interface LiveResultProps {
 }
 
 export function LiveResult({ member, summary: s, hasDraft }: LiveResultProps) {
-  const award = funnyAward(s);
+  const award = s.award;
   const m = medal(s);
 
   return (
@@ -36,18 +37,23 @@ export function LiveResult({ member, summary: s, hasDraft }: LiveResultProps) {
 
       <div className="result-section">
         <div className="eyebrow">Award</div>
-        <div className="recognition-row">
-          <div className={`seal ${award.tone}`}>{award.icon}</div>
-          <div>
-            <span className="award-trait">{award.trait}</span>
-            <h3>{award.title}</h3>
-            <p>{award.desc}</p>
+        {award ? (
+          <div className="recognition-row">
+            <div className={`seal ${award.tone}`}>
+              <AwardIcon id={award.id} symbol={award.icon} />
+            </div>
+            <div>
+              <h3>{award.title}</h3>
+              <p>{award.desc}</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <p className="muted small">No award picked yet. Pick one below the scores.</p>
+        )}
       </div>
 
       <div className="result-section">
-        <div className="eyebrow">Achievement</div>
+        <div className="eyebrow">Rank</div>
         <div className="recognition-row">
           <div className={`seal ${m.tone}`}>{m.symbol}</div>
           <div>

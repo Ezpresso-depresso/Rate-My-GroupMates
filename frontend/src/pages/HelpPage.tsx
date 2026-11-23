@@ -50,7 +50,7 @@ export function HelpPage() {
 
         <section className="card form-card">
           <h2>Awards</h2>
-          <p className="muted">What each award, tier and badge means, and how they’re worked out from your ratings.</p>
+          <p className="muted">What each award and rank means, and how they’re worked out from your ratings.</p>
           <div className="form-actions">
             <Link className="btn btn-quiet" to="/about-awards">
               About awards →

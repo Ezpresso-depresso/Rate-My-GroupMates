@@ -100,7 +100,7 @@ describe('rating and awards', () => {
     await expect(kent.page.getByText('Results post-review')).toBeVisible();
   });
 
-  test('you can’t move on without a star rating and every score', async () => {
+  test('you can’t move on without a star rating, every score and an award', async () => {
     const { kent } = await startedGroup();
 
     await kent.page.getByRole('button', { name: 'Next teammate →' }).click();
@@ -109,6 +109,11 @@ describe('rating and awards', () => {
     await kent.page.getByRole('button', { name: '4 out of 5 stars' }).click();
     await kent.page.getByRole('button', { name: 'Next teammate →' }).click();
     await expect(kent.page.getByText('Choose a score in every category to continue.')).toBeVisible();
+
+    for (const category of ['Participation', 'Communication', 'Quality'])
+      await kent.page.getByRole('button', { name: new RegExp(`^${category}.*: 7 out of 10$`) }).click();
+    await kent.page.getByRole('button', { name: 'Next teammate →' }).click();
+    await expect(kent.page.getByText(/^Pick an award for .+ to continue\.$/)).toBeVisible();
   });
 
   test('your submitted ratings are saved and come back when you edit them', async () => {
@@ -255,5 +260,79 @@ describe('active and past groups', () => {
     await expect(page.getByRole('button', { name: /^Past groups/ })).toHaveAttribute('aria-expanded', 'false');
     await page.getByRole('button', { name: /^Past groups/ }).click();
     await expect(page.locator('.group-card', { hasText: 'Group 16' })).toBeVisible();
+  });
+});
+
+describe('ranks', () => {
+  test('a profile shows its rank badge: Unranked until rated, then from the average stars', async () => {
+    const { kent, omar, qitai, group } = await startedGroup();
+    const rank = (page: typeof kent.page) => page.getByRole('img', { name: /^Rank: / });
+
+    await kent.page.goto(`${appUrl()}/profile`);
+    await expect(rank(kent.page)).toHaveAccessibleName('Rank: Schrödinger’s Teammate');
+
+    // Everyone rates everyone (Kent must rate for his own results to count): Kent gives 5s, Omar 4s, Qitai 5s.
+    for (const [user, stars] of [[kent, 5], [omar, 4], [qitai, 5]] as const) {
+      await user.page.goto(group.url);
+      await rateEveryone(user, stars, 8);
+      await expect(user.page).toHaveURL(/\/awards$/);
+    }
+
+    await kent.page.goto(`${appUrl()}/profile`);
+    // Kent got 4 (Omar) + 5 (Qitai) = 4.5 exactly: the bottom of Grandmaster.
+    await expect(rank(kent.page)).toHaveAccessibleName('Rank: Grandmaster Arbiter of Teamwork Teammate');
+
+    // Omar got 5 stars from both Kent and Qitai: a perfect 5.0 is The Pope (seen on his profile by Kent too).
+    const omarId = (await api(await omar.token(), 'GET', '/auth/me')).body.id;
+    await kent.page.goto(`${appUrl()}/profiles/${omarId}`);
+    await expect(rank(kent.page)).toHaveAccessibleName('Rank: The Pope');
+    // The Pope's profile panel glows instead of casting a shadow; other ranks don't.
+    await expect(kent.page.locator('.profile-page')).toHaveClass(/pope-glow/);
+    await kent.page.goto(`${appUrl()}/profile`);
+    await expect(rank(kent.page)).toHaveAccessibleName(/^Rank: Grandmaster/);
+    await expect(kent.page.locator('.profile-page')).not.toHaveClass(/pope-glow/);
+  });
+});
+
+describe('signature awards', () => {
+  test('the award grid is 3×3 and keyboard-friendly, and your pick comes back when you edit', async () => {
+    const { omar, group } = await startedGroup();
+    const { page } = omar;
+    const awards = page.getByRole('radiogroup', { name: /award$/ });
+    await expect(awards.getByRole('radio')).toHaveCount(9);
+
+    await awards.getByRole('radio', { name: /^Picasso / }).click();
+    await expect(awards.getByRole('radio', { name: /^Picasso / })).toHaveAttribute('aria-checked', 'true');
+    await page.keyboard.press('ArrowDown'); // Picasso is row 2, col 1 → row 3, col 1
+    await expect(awards.getByRole('radio', { name: /^Hard Carry / })).toHaveAttribute('aria-checked', 'true');
+
+    await rateEveryone(omar, 4, 8); // the helper re-picks Hard Carry for each teammate
+    await expect(page).toHaveURL(/\/awards$/);
+    await page.goto(group.url);
+    await expect(page.getByRole('radio', { name: /^Hard Carry / })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('each person gets the award their teammates picked most', async () => {
+    const { kent, omar, qitai, group } = await startedGroup();
+    // Rate Kent and Qitai with the given awards; the tabs go in member order without the rater.
+    const rate = async (user: TestUser, awards: [string, string]) => {
+      await user.page.goto(group.url);
+      await rateCurrentTeammate(user.page, 4, 8, awards[0]);
+      await user.page.getByRole('button', { name: 'Next teammate →' }).click();
+      await rateCurrentTeammate(user.page, 4, 8, awards[1]);
+      await user.page.getByRole('button', { name: 'Submit Ratings' }).click();
+      await expect(user.page).toHaveURL(/\/awards$/);
+    };
+    await rate(kent, ['GTA 6', 'Picasso']); // Omar, Qitai
+    await rate(omar, ['CYO', 'Picasso']); // Kent, Qitai
+    await rate(qitai, ['CYO', 'GTA 6']); // Kent, Omar
+
+    // Omar was picked GTA 6 twice; Kent CYO twice; Qitai Picasso twice.
+    const card = (name: string) => kent.page.locator('.ceremony-card', { hasText: name });
+    await expect(card('Omar')).toContainText('GTA 6');
+    await expect(card('Qitai')).toContainText('Picasso');
+
+    await kent.page.goto(`${appUrl()}/profile`);
+    await expect(kent.page.getByRole('region', { name: /Awards/ }).first()).toContainText('CYO');
   });
 });
