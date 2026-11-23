@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
 import { useAuth } from '../hooks/useAuth';
 import { acceptedCount, groupPath, joinPath, ownerOf, PENDING_COLOR } from '../lib/teams';
+import { advanceTour, useTour } from '../lib/tour';
 import { api, type ApiError } from '../services/api';
 import type { Team } from '../types';
 import '../components/groups/Groups.css';
@@ -11,6 +12,7 @@ type State = { kind: 'loading' } | { kind: 'error'; message: string } | { kind: 
 
 export function GroupsPage() {
   const { user } = useAuth();
+  const { step } = useTour();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const [declining, setDeclining] = useState('');
@@ -75,9 +77,12 @@ export function GroupsPage() {
           <div className="eyebrow">Hi {user.name}</div>
           <h1>Your groups</h1>
         </div>
-        <Link className="btn" to="/groups/new">
-          + New group
-        </Link>
+        <span className="nudge-anchor">
+          <Link className="btn" to="/groups/new" onClick={() => advanceTour('group', null)}>
+            + New group
+          </Link>
+          {step === 'group' && <span className="nudge nudge-wide nudge-right">Make a group!</span>}
+        </span>
       </div>
 
       <p className="error" role="alert">

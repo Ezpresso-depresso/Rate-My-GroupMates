@@ -6,12 +6,14 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
+import { classCountChanged } from './tour';
 
 /** null until the first check comes back. */
 let count: number | null = null;
 const listeners = new Set<() => void>();
 
 export function setClassCount(next: number) {
+  classCountChanged(next);
   if (next === count) return;
   count = next;
   listeners.forEach((l) => l());
@@ -21,6 +23,9 @@ function subscribe(listener: () => void) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
+
+/** The last known class count (0 if not known yet). */
+export const currentClassCount = () => count ?? 0;
 
 /** Your class count, kept fresh. `userId` resets it when a different account signs in. */
 export function useClassCount(userId: string): number | null {

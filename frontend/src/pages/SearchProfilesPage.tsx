@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
 import { Stars } from '../components/common/Stars';
 import { useAuth } from '../hooks/useAuth';
+import { advanceTour, useTour } from '../lib/tour';
 import { api, type ApiError } from '../services/api';
 import type { Course, SearchField, SearchResult } from '../types';
 import '../components/groups/Groups.css';
@@ -88,6 +89,12 @@ export function SearchProfilesPage() {
   const [results, setResults] = useState<Results>(() => (searchFor ? { kind: 'loading' } : { kind: 'idle' }));
   const filter = FILTERS.find((f) => f.value === by) ?? FILTERS[0];
   const showSuggestions = isClass && suggestOpen && !!q && !course;
+  const { step } = useTour();
+
+  // Help tour: any finished search (a picked class, or name/email results) completes this step.
+  useEffect(() => {
+    if (results.kind === 'ready') advanceTour('search', 'group');
+  }, [results.kind]);
 
   // People matching the search.
   useEffect(() => {
@@ -238,6 +245,7 @@ export function SearchProfilesPage() {
             })}
             autoFocus
           />
+          {step === 'search' && <span className="nudge nudge-above">Find groupmates in your class!</span>}
           <svg className="profile-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />

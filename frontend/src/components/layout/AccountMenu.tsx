@@ -3,8 +3,10 @@
  * hovering it (or tabbing into it) shows a small menu. Shown/hidden purely in CSS (Layout.css).
  */
 import type { MouseEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { currentClassCount } from '../../lib/classCount';
+import { startTour } from '../../lib/tour';
 import { Avatar } from '../common/Avatar';
 import './Layout.css';
 
@@ -13,6 +15,7 @@ const blur = (e: MouseEvent<HTMLElement>) => e.currentTarget.blur();
 
 export function AccountMenu() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="current-member">
@@ -33,6 +36,21 @@ export function AccountMenu() {
           </svg>
           Settings
         </Link>
+        <button
+          type="button"
+          onClick={(e) => {
+            blur(e);
+            startTour(user.id, currentClassCount());
+            navigate('/profile');
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <path d="M12 17h.01" />
+          </svg>
+          Help
+        </button>
         <button type="button" className="account-menu-signout" onClick={() => signOut()}>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

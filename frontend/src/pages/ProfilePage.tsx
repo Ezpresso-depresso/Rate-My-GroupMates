@@ -10,6 +10,7 @@ import { ProfilePanel } from '../components/profile/ProfilePanel';
 import { RatingSection } from '../components/profile/RatingSection';
 import { useAuth } from '../hooks/useAuth';
 import { MAX_PINS, profileAwards } from '../lib/profile';
+import { closeTourNote, useTour } from '../lib/tour';
 import { api, type ApiError } from '../services/api';
 import type { ProfileData } from '../types';
 import '../components/groups/Groups.css';
@@ -22,6 +23,7 @@ export function ProfilePage() {
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const [pinError, setPinError] = useState('');
+  const tour = useTour();
 
   useEffect(() => {
     let ignore = false;
@@ -62,7 +64,17 @@ export function ProfilePage() {
   return (
     <ProfilePanel backgroundId={user.profileBackground}>
       <div className="card profile-section page-heading profile-heading">
-        <AvatarEditor size={96} />
+        <div className="nudge-anchor">
+          <AvatarEditor size={96} />
+          {tour.step === 'classes' && tour.noteOpen && (
+            <div className="nudge nudge-left" role="note">
+              Profile picture, nickname, bio, and profile background can also be changed!
+              <button type="button" className="nudge-close" aria-label="Close" onClick={closeTourNote}>
+                ×
+              </button>
+            </div>
+          )}
+        </div>
         <div>
           <NameEditor />
           <span className="muted profile-email">{user.email}</span>
