@@ -104,6 +104,7 @@ export async function buildProfile(userId: Types.ObjectId) {
         scores: r.scores,
         text: r.text,
         anonymous: r.anonymous,
+        award: r.award ?? null,
         // Anonymous reviews never say who wrote them.
         reviewerName: r.anonymous ? null : memberName(team, r.reviewerId),
         submittedAt: r.submittedAt,
@@ -118,7 +119,7 @@ export async function getProfile(req: Request, res: Response) {
   res.json(await buildProfile(authedUser(req)._id));
 }
 
-const AWARD_KEY = /^([0-9a-f]{24}):(funny|medal|badge):([\w-]{1,40})$/i;
+const AWARD_KEY = /^([0-9a-f]{24}):funny:([\w-]{1,40})$/i;
 
 function parsePins(raw: unknown, label: string): string[] | undefined {
   if (raw === undefined) return undefined;

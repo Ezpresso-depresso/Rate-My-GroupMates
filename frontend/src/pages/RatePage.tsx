@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/common/Avatar';
+import { AwardPicker } from '../components/rating/AwardPicker';
 import { CommentSection } from '../components/rating/CommentSection';
 import { LiveResult } from '../components/rating/LiveResult';
 import { OverallRating } from '../components/rating/OverallRating';
@@ -41,7 +42,13 @@ export function RatePage() {
 
   const next = async () => {
     if (!valid(draft)) {
-      setError(!draft.rating ? 'Choose an overall star rating to continue.' : 'Choose a score in every category to continue.');
+      setError(
+        !draft.rating
+          ? 'Choose an overall star rating to continue.'
+          : categories.some((c) => !draft.scores[c.key])
+            ? 'Choose a score in every category to continue.'
+            : `Pick an award for ${member.name} to continue.`,
+      );
       return;
     }
     if (!isLast) return goTo(activeIndex + 1);
@@ -58,7 +65,7 @@ export function RatePage() {
     }
     if (incompleteId) {
       setActiveIndex(teammates.findIndex((t) => t.id === incompleteId));
-      setError('Finish this teammate’s star rating and category scores first.');
+      setError('Finish this teammate’s star rating, category scores and award first.');
       return;
     }
     navigate(`${groupPath(team.id)}/awards`, { state: { celebrate: true } });
@@ -76,7 +83,7 @@ export function RatePage() {
           </h1>
         </div>
         <p>
-          Awards calculated algorithmically based on ratings
+          Awards picked by your teammates
           <br />
           This database is not secure
         </p>
@@ -112,6 +119,8 @@ export function RatePage() {
               onChange={(v) => change({ scores: { ...draft.scores, [c.key]: v } })}
             />
           ))}
+
+          <AwardPicker name={member.name} value={draft.award} onChange={(award) => change({ award })} />
 
           <CommentSection name={member.name} draft={draft} onChange={change} />
 

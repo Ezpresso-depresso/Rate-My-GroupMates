@@ -405,3 +405,91 @@
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
+
+/* ---------- Award picker: the nine signature awards in a 3×3 grid ---------- */
+.award-picker {
+  margin: 29px 0 33px;
+}
+
+.award-picker-head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 13px;
+}
+
+.award-picker-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.award-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.award-option {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  padding: 14px 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.award-option:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-muted);
+}
+
+.award-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.award-option-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.award-option-text {
+  display: grid;
+  gap: 2px;
+}
+
+.award-option-text strong {
+  font-size: 14.5px;
+}
+
+.award-option-text span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+@media (max-width: 480px) {
+  .award-grid {
+    gap: 6px;
+  }
+
+  .award-option {
+    padding: 10px 6px;
+  }
+
+  .award-option-text span {
+    display: none; /* titles only on small phones; the grid stays 3×3 */
+  }
+}

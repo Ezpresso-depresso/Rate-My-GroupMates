@@ -137,7 +137,8 @@
 .tier-pill {
   padding: 6px 10px;
   border-radius: 20px;
-  font: 500 10px var(--font-mono);
+  font: 500 10px/1.35 var(--font-mono);
+  text-align: right; /* long rank names ("Grandmaster Arbiter of…") wrap neatly */
 }
 
 .ceremony-rating {
@@ -188,20 +189,6 @@
   color: var(--muted);
   font: 500 10px var(--font-mono);
   text-transform: uppercase;
-}
-
-.earned-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.earned-badges span {
-  padding: 5px 10px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  font-size: 12px;
 }
 
 .achievement-line {
@@ -288,37 +275,6 @@
 }
 
 /* ---------- Modal contents ---------- */
-.award-cabinet {
-  margin: 18px 0;
-}
-
-.award-cabinet summary {
-  color: var(--primary);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.award-cabinet article {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.award-cabinet article > span {
-  font-size: 22px;
-}
-
-.award-cabinet p {
-  margin: 2px 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.award-cabinet small {
-  color: var(--subtle);
-}
-
 .award-explainer {
   padding: 16px;
   border-radius: var(--radius-md);

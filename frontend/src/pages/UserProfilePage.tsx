@@ -7,6 +7,7 @@ import { BioBox } from '../components/profile/BioEditor';
 import { ClassesSection } from '../components/profile/ClassesSection';
 import { CommentsSection } from '../components/profile/CommentsSection';
 import { ProfilePanel } from '../components/profile/ProfilePanel';
+import { isPope, RankBadge } from '../components/profile/RankBadge';
 import { RatingSection } from '../components/profile/RatingSection';
 import { useAuth } from '../hooks/useAuth';
 import { profileAwards } from '../lib/profile';
@@ -72,17 +73,20 @@ export function UserProfilePage() {
 
   const { user } = state.data;
   return (
-    <ProfilePanel backgroundId={user.profileBackground}>
+    <ProfilePanel backgroundId={user.profileBackground} glow={isPope(state.data.reviews)}>
       <div className="card profile-section page-heading profile-heading">
         <Avatar member={user} size={96} />
         <div>
           <h1>{user.fullName || user.name}</h1>
           <span className="muted profile-email">{user.email}</span>
-          {user.bio && (
-            <BioBox>
-              <p className="profile-bio">{user.bio}</p>
-            </BioBox>
-          )}
+          <div className="bio-row">
+            {user.bio && (
+              <BioBox>
+                <p className="profile-bio">{user.bio}</p>
+              </BioBox>
+            )}
+            <RankBadge reviews={state.data.reviews} />
+          </div>
         </div>
         <Link className="textbtn back-to-search" to="/profiles">
           ← Back to search

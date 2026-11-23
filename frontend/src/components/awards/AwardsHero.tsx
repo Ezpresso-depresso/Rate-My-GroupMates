@@ -12,7 +12,7 @@ export function AwardsHero({ teamName, count }: { teamName: string; count: numbe
         <span>knowing that you ruined someone's profile</span>
       </h1>
       <p>You will answer to god for your reviews one day</p>
-      <span className="ceremony-pill">✦ All {count} reviews submitted · Awards calculated automatically</span>
+      <span className="ceremony-pill">✦ All {count} reviews submitted · Awards picked by your teammates</span>
       <span className="hero-spark spark-one">✧</span>
       <span className="hero-spark spark-two">✦</span>
     </section>

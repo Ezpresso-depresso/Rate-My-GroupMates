@@ -92,3 +92,8 @@
 .help-legal a:hover {
   color: var(--primary);
 }
+
+.info-cards .info-subhead {
+  margin: 4px 0 -6px;
+  font-size: 15px;
+}

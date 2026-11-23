@@ -51,17 +51,21 @@ describe('help and about awards', () => {
     await expect(tourNote).toHaveCount(0);
   });
 
-  test('About awards in the account menu explains tiers, badges and signature awards', async () => {
+  test('About awards in the account menu explains ranks and signature awards', async () => {
     const kent = await newUser(browser, 'Kent');
     const { page } = kent;
     await useAccountMenu(page, 'About awards');
     await expect(page).toHaveURL(/\/about-awards$/);
     await expect(page.getByRole('heading', { name: 'About awards', level: 1 })).toBeVisible();
 
-    await expect(page.getByRole('region', { name: 'Achievement tiers' })).toContainText('Certified Carry');
-    await expect(page.getByRole('region', { name: 'Achievement tiers' })).toContainText('4.5+ stars on average');
-    await expect(page.getByRole('region', { name: 'Badges' })).toContainText('Top Groupmate');
-    await expect(page.getByRole('region', { name: 'Signature awards' })).toContainText('Assigned a task. Entered witness protection.');
+    const ranks = page.getByRole('region', { name: 'Ranks' });
+    await expect(ranks).toContainText('Schrödinger’s Teammate');
+    await expect(ranks).toContainText('Burger Teammate');
+    await expect(ranks).toContainText('Grandmaster Arbiter of Teamwork Teammate');
+    await expect(ranks).toContainText('4.5+ stars on average');
+    await expect(ranks).toContainText('The Pope');
+    await expect(page.getByRole('region', { name: 'Badges' })).toHaveCount(0); // badges were removed
+    await expect(page.getByRole('region', { name: 'Signature awards' })).toContainText('Vanished when the world needed them most.');
 
     // The help page links here too.
     await page.goto(`${appUrl()}/help`);

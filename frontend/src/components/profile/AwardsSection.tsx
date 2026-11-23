@@ -1,8 +1,7 @@
 /* "My Awards": everything you've earned, newest first, with up to 3 pinned at the top. */
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { formatDate, MAX_PINS, type ProfileAward } from '../../lib/profile';
-import { AwardRules } from '../awards/AwardRules';
-import { Modal } from '../common/Modal';
+import { AwardIcon } from '../awards/AwardIcon';
 import { PinButton } from './PinButton';
 import './Profile.css';
 
@@ -15,7 +14,6 @@ interface AwardsSectionProps {
 
 export function AwardsSection({ awards, pinnedKeys, onTogglePin }: AwardsSectionProps) {
   const own = Boolean(onTogglePin);
-  const [showRules, setShowRules] = useState(false);
 
   const pinnedSet = new Set(pinnedKeys);
   // Pins whose award changed or disappeared (e.g. new reviews came in) just drop out.
@@ -26,7 +24,7 @@ export function AwardsSection({ awards, pinnedKeys, onTogglePin }: AwardsSection
   const item = (a: ProfileAward) => (
     <li key={a.key} className={`award-item ${pinnedSet.has(a.key) ? 'pinned' : ''}`}>
       <span className={`seal ${a.tone}`} aria-hidden="true">
-        {a.icon}
+        <AwardIcon id={a.awardId} symbol={a.icon} />
       </span>
       <div>
         <b>{a.title}</b>
@@ -54,14 +52,9 @@ export function AwardsSection({ awards, pinnedKeys, onTogglePin }: AwardsSection
           <ul className="award-list">{rest.map(item)}</ul>
         </>
       )}
-      <button type="button" className="textbtn small rules-link" onClick={() => setShowRules(true)}>
-        How are awards calculated?
-      </button>
-      {showRules && (
-        <Modal label="How awards work" onClose={() => setShowRules(false)}>
-          <AwardRules />
-        </Modal>
-      )}
+      <Link className="textbtn small rules-link" to="/about-awards">
+        About awards
+      </Link>
     </section>
   );
 }

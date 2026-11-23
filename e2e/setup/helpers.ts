@@ -132,11 +132,12 @@ export async function api(token: string | null, method: string, path: string, bo
 }
 
 /** Fills in a complete review for whichever teammate is on screen. */
-export async function rateCurrentTeammate(page: Page, stars: number, score: number) {
+export async function rateCurrentTeammate(page: Page, stars: number, score: number, award = 'Hard Carry') {
   await page.getByRole('button', { name: `${stars} out of 5 stars` }).click();
   for (const category of ['Participation', 'Communication', 'Quality']) {
     await page.getByRole('button', { name: new RegExp(`^${category}.*: ${score} out of 10$`) }).click();
   }
+  await page.getByRole('radio', { name: new RegExp(`^${award} `) }).click();
 }
 
 /** Hovers the name/avatar pill in the header to show the account menu, then picks an item. */
