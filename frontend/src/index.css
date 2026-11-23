@@ -218,7 +218,8 @@ p {
   gap: 6px;
 }
 
-.field > span {
+.field > span,
+.field > label {
   font-size: 13px;
   font-weight: 600;
 }

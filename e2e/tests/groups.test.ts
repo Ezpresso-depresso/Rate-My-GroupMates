@@ -1,6 +1,6 @@
-import type { Browser } from 'playwright';
+import type { Browser, Page } from 'playwright';
 import { afterAll, beforeAll, describe, test } from 'vitest';
-import { api, appUrl, createGroup, expect, launchBrowser, newUser, pickCourse, uniqueEmail } from '../setup/helpers';
+import { appUrl, createGroup, expect, fillTeammates, launchBrowser, newUser, pickCourse, uniqueEmail } from '../setup/helpers';
 
 let browser: Browser;
 beforeAll(async () => {
@@ -54,13 +54,14 @@ describe('creating a group', () => {
     await expect(page.getByText('Which course is this for?')).toBeVisible();
 
     await pickCourse(page, 'IN4MATX 151');
-    await page.getByLabel('Teammates’ emails').fill('omar@uci, qitai@uci.edu');
-    await expect(page.locator('.email-chips')).toContainText('omar@uci · not an email');
+    await fillTeammates(page, ['omar@uci', 'qitai@uci.edu']);
+    await expect(page.getByText('Not an email')).toBeVisible();
     await create.click();
     await expect(page.getByText('Fix or remove “omar@uci”')).toBeVisible();
 
-    await page.getByLabel('Teammates’ emails').fill(kent.email);
-    await expect(page.locator('.email-chips')).toContainText('that’s you');
+    await page.getByRole('button', { name: 'Remove teammate 2' }).click();
+    await page.getByRole('combobox', { name: 'Teammate 1 email' }).fill(kent.email);
+    await expect(page.getByText('That’s you: you’re added automatically')).toBeVisible();
     await create.click();
     await expect(page.getByText('Invite at least one teammate (not counting yourself)')).toBeVisible();
 
@@ -75,12 +76,69 @@ describe('creating a group', () => {
     await page.goto(`${appUrl()}/groups/new`);
     await page.getByLabel('Group name').fill('Pasted');
     await pickCourse(page, 'IN4MATX 151');
-    await page.getByLabel('Teammates’ emails').fill(`Omar Ali <${omar.toUpperCase()}>, "Qitai" <${qitai}>; ${omar}`);
+    // Pasting a list into one box splits it into a box per email (duplicates dropped).
+    await page.getByRole('combobox', { name: 'Teammate 1 email' }).fill(`Omar Ali <${omar.toUpperCase()}>, "Qitai" <${qitai}>; ${omar}`);
+    await expect(page.getByRole('combobox', { name: 'Teammate 2 email' })).toHaveValue(qitai);
     await page.getByRole('button', { name: 'Create group & invite 2' }).click();
 
     await expect(page.getByText(/Waiting room/i)).toBeVisible();
     await expect(page.locator('.member-row')).toHaveCount(3);
     await expect(page.locator('.member-row', { hasText: omar })).toBeVisible();
     await expect(page.locator('.member-row', { hasText: qitai })).toBeVisible();
+  });
+});
+
+describe('choosing teammates', () => {
+  const teammateBoxes = (page: Page) => page.getByRole('combobox', { name: /^Teammate \d+ email$/ });
+
+  test('the form starts with one teammate box; + adds more and × removes them', async () => {
+    const kent = await newUser(browser, 'Kent');
+    const { page } = kent;
+    await page.goto(`${appUrl()}/groups/new`);
+
+    await expect(teammateBoxes(page)).toHaveCount(1);
+    await expect(page.getByRole('button', { name: /^Remove teammate/ })).toHaveCount(0); // the only box can't be removed
+    await page.getByRole('button', { name: 'Add another teammate' }).click();
+    await expect(page.getByRole('combobox', { name: 'Teammate 2 email' })).toBeFocused();
+    await page.getByRole('button', { name: 'Remove teammate 2' }).click();
+    await expect(teammateBoxes(page)).toHaveCount(1);
+  });
+
+  test('typing suggests people with matching emails; picking one fills it in', async () => {
+    const kent = await newUser(browser, 'Kent');
+    const omar = await newUser(browser, 'Omar');
+    const { page } = kent;
+    await page.goto(`${appUrl()}/groups/new`);
+
+    const box = page.getByRole('combobox', { name: 'Teammate 1 email' });
+    await box.fill(omar.email.split('@')[0]);
+    const option = page.getByRole('option').filter({ hasText: omar.email });
+    await expect(option).toBeVisible();
+    await option.click();
+    await expect(page.getByRole('listbox')).toHaveCount(0);
+
+    // The picked teammate shows as a card with their picture, name and email.
+    const card = page.getByRole('button', { name: `Teammate 1: Omar Testerson, ${omar.email}. Click to change` });
+    await expect(card).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create group & invite 1' })).toBeVisible();
+
+    // Clicking it brings back the email box to change it.
+    await card.click();
+    await expect(box).toBeFocused();
+    await expect(box).toHaveValue(omar.email);
+  });
+
+  test('a typed email with an account becomes a card; one without says they can join later', async () => {
+    const kent = await newUser(browser, 'Kent');
+    const omar = await newUser(browser, 'Omar');
+    const stranger = uniqueEmail('stranger');
+    const { page } = kent;
+    await page.goto(`${appUrl()}/groups/new`);
+
+    await fillTeammates(page, [omar.email, stranger]);
+    await page.getByLabel('Group name').click(); // leave the last box
+    await expect(page.getByRole('button', { name: new RegExp(`^Teammate 1: Omar Testerson`) })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Teammate 2 email' })).toHaveValue(stranger);
+    await expect(page.getByText('No account yet. They can join once they sign up with this email.')).toBeVisible();
   });
 });

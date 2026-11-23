@@ -149,33 +149,155 @@
   resize: vertical;
 }
 
-.email-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+/* Teammates: one email box per person, each suggesting matching accounts as you type. */
+.teammates {
+  min-width: 0;
   margin: 0;
   padding: 0;
-  list-style: none;
+  border: 0;
+  gap: 10px;
 }
 
-.email-chips li {
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: var(--primary-soft);
-  color: var(--primary);
-  font-size: 12px;
+.teammates legend {
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.email-chips li.bad {
-  background: #fbe4e2;
+.teammate-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.teammate-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.teammate-option {
+  align-items: center;
+}
+
+.teammate-option-text {
+  display: grid;
+  min-width: 0;
+}
+
+.teammate-option-text strong,
+.teammate-option-text .muted {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A teammate with an account, shown like a search result; click to change the email. */
+.teammate-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.teammate-card .teammate-option-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.teammate-card .muted {
+  font-size: 13px;
+}
+
+.teammate-card-change {
+  flex: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.teammate-card:hover .teammate-card-change,
+.teammate-card:focus-visible .teammate-card-change {
+  opacity: 1;
+}
+
+.teammate-note {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.teammate-problem {
+  display: block;
+  margin-top: 5px;
+  color: var(--danger);
+  font-size: 12.5px;
+}
+
+.teammate-remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.teammate-remove:hover {
+  border-color: #f0c4c0;
+  background: #fdecea;
   color: var(--danger);
 }
 
-.email-chips li.skip {
-  background: var(--surface-muted);
-  color: var(--subtle);
-  text-decoration: line-through;
+.teammate-add {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  padding: 4px 2px;
+  border: none;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.teammate-add-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1.5px dashed var(--primary-border);
+  border-radius: 50%;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.teammate-add:hover .teammate-add-icon {
+  border-style: solid;
+  background: var(--primary-soft);
 }
 
 /* An empty error line would add a whole extra row gap above the buttons. */

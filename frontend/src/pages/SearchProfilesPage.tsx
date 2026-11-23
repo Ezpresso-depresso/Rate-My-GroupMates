@@ -283,6 +283,9 @@ export function SearchProfilesPage() {
             title={`Searching by ${filter.label.toLowerCase()}`}
             onClick={() => setMenuOpen((open) => !open)}
           >
+            <span className="search-filter-current" aria-hidden="true">
+              {filter.label}
+            </span>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 5h18l-7 8.5V19l-4 2v-7.5z" />
             </svg>

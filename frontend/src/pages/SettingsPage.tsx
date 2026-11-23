@@ -59,9 +59,11 @@ export function SettingsPage() {
             autoComplete="current-password"
           />
         </label>
-        <label className="field">
-          <span>New password</span>
+        {/* A div, not a <label>, so the hint stays out of the field's name (it's the description). */}
+        <div className="field">
+          <label htmlFor="new-password">New password</label>
           <input
+            id="new-password"
             className="input"
             type="password"
             value={next}
@@ -72,7 +74,7 @@ export function SettingsPage() {
           <small id="new-password-hint" className="muted">
             At least {PASSWORD_MIN} characters. Changing it signs you out on your other devices.
           </small>
-        </label>
+        </div>
         <label className="field">
           <span>Confirm new password</span>
           <input

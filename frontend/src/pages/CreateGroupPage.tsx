@@ -1,27 +1,68 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CoursePicker } from '../components/groups/CoursePicker';
+import { TeammateEmailField } from '../components/groups/TeammateEmailField';
 import { useAuth } from '../hooks/useAuth';
-import { isEmail, splitEmails } from '../lib/emails';
+import { isEmail, normalizeEmail, splitEmails } from '../lib/emails';
 import { groupPath } from '../lib/teams';
 import { api, type ApiError } from '../services/api';
 import '../components/groups/Groups.css';
 
 const MAX_LENGTH = 80;
 
+interface Row {
+  id: number;
+  value: string;
+}
+let nextRowId = 0;
+const newRow = (value = ''): Row => ({ id: nextRowId++, value });
+
 export function CreateGroupPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [course, setCourse] = useState('');
-  const [emailText, setEmailText] = useState('');
+  /** One entry per teammate row (ids keep rows apart when one is removed); starts with one empty row. */
+  const [rows, setRows] = useState<Row[]>(() => [newRow()]);
+  const emails = rows.map((r) => r.value);
+  /** The row to focus after "+ Add another teammate". */
+  const [focusRow, setFocusRow] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const parsed = splitEmails(emailText);
-  const invalid = parsed.filter((e) => !isEmail(e));
-  const invites = parsed.filter((e) => isEmail(e) && e !== user.email);
-  const includesSelf = parsed.includes(user.email);
+  const me = normalizeEmail(user.email);
+  const entered = emails.map(normalizeEmail);
+  const invalid = entered.filter((e) => e && !isEmail(e));
+  const invites = [...new Set(entered.filter((e) => isEmail(e) && e !== me))];
+
+  /** What's wrong with one row, shown under it (blank rows are fine: they're skipped). */
+  const problem = (i: number) => {
+    const e = entered[i];
+    if (!e) return undefined;
+    if (!isEmail(e)) return 'Not an email';
+    if (e === me) return 'That’s you: you’re added automatically';
+    if (entered.indexOf(e) < i) return 'Already added above';
+    return undefined;
+  };
+
+  const setRow = (i: number, value: string) => {
+    // A pasted list ("a@x.com, b@y.com" or Gmail's "Name <a@x.com>; …") becomes one row per email.
+    if (/[,;\n]/.test(value) || /<[^>]+>/.test(value)) {
+      const list = splitEmails(value);
+      if (list.length) {
+        setRows((rs) => [...rs.slice(0, i), ...list.map(newRow), ...rs.slice(i + 1)]);
+        return;
+      }
+    }
+    setRows((rs) => rs.map((r, j) => (j === i ? { ...r, value } : r)));
+  };
+
+  const addRow = () => {
+    setFocusRow(rows.length);
+    setRows((rs) => [...rs, newRow()]);
+  };
+
+  const removeRow = (i: number) => setRows((rs) => rs.filter((_, j) => j !== i));
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -63,33 +104,29 @@ export function CreateGroupPage() {
           />
         </label>
         <CoursePicker value={course} onChange={setCourse} />
-        <label className="field">
-          <span>Teammates’ emails</span>
-          <textarea
-            className="input"
-            value={emailText}
-            onChange={(e) => setEmailText(e.target.value)}
-            placeholder={'tester1@gmail.com\ntester2@gmail.com, tester3@gmail.com'}
-            aria-invalid={invalid.length > 0}
-            aria-describedby="email-help"
-          />
-          <small id="email-help" className="muted">
-            One per line or separated by commas. Use the email each person signs up with. You’re added
-            automatically.
-          </small>
-        </label>
-
-        {parsed.length > 0 && (
-          <ul className="email-chips" aria-label="Emails to invite">
-            {parsed.map((e) => (
-              <li key={e} className={!isEmail(e) ? 'bad' : e === user.email ? 'skip' : undefined}>
-                {e}
-                {!isEmail(e) && ' · not an email'}
-                {e === user.email && ' · that’s you'}
-              </li>
-            ))}
-          </ul>
-        )}
+        <fieldset className="field teammates">
+          <legend>Teammates</legend>
+          {rows.map((row, i) => (
+            <TeammateEmailField
+              key={row.id}
+              index={i}
+              value={row.value}
+              onChange={(v) => setRow(i, v)}
+              onRemove={emails.length > 1 ? () => removeRow(i) : undefined}
+              exclude={[user.email, ...emails.filter((_, j) => j !== i)]}
+              problem={problem(i)}
+              autoFocus={focusRow === i}
+            />
+          ))}
+          {/* preventDefault on mousedown: the box being typed in keeps focus until the click lands, so a
+              message appearing under it (on blur) can't shift this button out from under the pointer. */}
+          <button type="button" className="teammate-add" onMouseDown={(e) => e.preventDefault()} onClick={addRow}>
+            <span className="teammate-add-icon" aria-hidden="true">
+              +
+            </span>
+            Add another teammate
+          </button>
+        </fieldset>
 
         <p className="error" role="alert">
           {error}
@@ -101,7 +138,6 @@ export function CreateGroupPage() {
           <Link className="textbtn" to="/">
             Cancel
           </Link>
-          {includesSelf && <span className="muted small">(You’re already in it, no need to invite yourself.)</span>}
         </div>
       </form>
     </>
